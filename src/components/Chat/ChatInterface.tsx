@@ -14,6 +14,7 @@ import {
   Download
 } from 'lucide-react';
 import { deepseekService } from '../../lib/deepseek';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -24,19 +25,25 @@ interface Message {
 }
 
 export default function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Hello! I'm your AI writing assistant. I can help you with paraphrasing, summarizing, translating, grammar checking, creative writing, and much more. How can I assist you today?",
-      role: 'assistant',
-      timestamp: new Date(),
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const { t } = useTranslation();
+
+  // Initialize with welcome message
+  useEffect(() => {
+    setMessages([
+      {
+        id: '1',
+        content: "Hello! I'm your AI writing assistant. I can help you with paraphrasing, summarizing, translating, grammar checking, creative writing, and much more. How can I assist you today?",
+        role: 'assistant',
+        timestamp: new Date(),
+      }
+    ]);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -130,7 +137,7 @@ export default function ChatInterface() {
   const handleCopyMessage = async (content: string, messageId: string) => {
     await navigator.clipboard.writeText(content);
     setCopiedMessageId(messageId);
-    toast.success('Message copied to clipboard!');
+    toast.success(t('messages.success.copied'));
     setTimeout(() => setCopiedMessageId(null), 2000);
   };
 
@@ -163,7 +170,7 @@ export default function ChatInterface() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    toast.success('Chat exported!');
+    toast.success(t('messages.success.exported'));
   };
 
   const formatTime = (date: Date) => {
@@ -183,10 +190,10 @@ export default function ChatInterface() {
         className="text-center mb-6"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-4">
-          AI Chat Assistant
+          {t('chat.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Chat with your AI writing assistant for help with paraphrasing, summarizing, translation, and more
+          {t('chat.subtitle')}
         </p>
       </motion.div>
 
@@ -201,7 +208,7 @@ export default function ChatInterface() {
           <div className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              {messages.length - 1} messages
+              {messages.length - 1} {t('chat.messages')}
             </span>
           </div>
           
@@ -213,7 +220,7 @@ export default function ChatInterface() {
               className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm"
             >
               <Download className="w-4 h-4" />
-              <span>Export</span>
+              <span>{t('chat.exportChat')}</span>
             </motion.button>
             
             <motion.button
@@ -223,7 +230,7 @@ export default function ChatInterface() {
               className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm text-red-600 dark:text-red-400"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Clear</span>
+              <span>{t('chat.clearChat')}</span>
             </motion.button>
           </div>
         </div>
@@ -263,7 +270,7 @@ export default function ChatInterface() {
                         )}
                       </div>
                       <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {message.role === 'user' ? 'You' : 'AI Assistant'}
+                        {message.role === 'user' ? t('chat.you') : t('chat.assistant')}
                       </span>
                       <span className="text-xs text-slate-500 dark:text-slate-400">
                         {formatTime(message.timestamp)}
@@ -319,14 +326,14 @@ export default function ChatInterface() {
                       <Bot className="w-4 h-4 text-white" />
                     </div>
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      AI Assistant
+                      {t('chat.assistant')}
                     </span>
                   </div>
                   <div className="mr-8">
                     <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
                       <div className="flex items-center space-x-2">
                         <Loader2 className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-400" />
-                        <span className="text-slate-600 dark:text-slate-400">AI is typing...</span>
+                        <span className="text-slate-600 dark:text-slate-400">{t('chat.typing')}</span>
                       </div>
                     </div>
                   </div>
@@ -347,7 +354,7 @@ export default function ChatInterface() {
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Type your message here... (Press Enter to send, Shift+Enter for new line)"
+                placeholder={t('chat.placeholder')}
                 className="w-full p-4 glass-input rounded-xl resize-none min-h-[60px] max-h-32"
                 disabled={isTyping}
                 rows={1}
@@ -370,7 +377,7 @@ export default function ChatInterface() {
           </div>
           
           <div className="flex items-center justify-between mt-3 text-sm text-slate-500 dark:text-slate-400">
-            <span>{inputMessage.length} characters</span>
+            <span>{inputMessage.length} {t('common.characters')}</span>
             <span>Press Enter to send, Shift+Enter for new line</span>
           </div>
         </div>

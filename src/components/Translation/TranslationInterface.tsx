@@ -4,6 +4,7 @@ import { ArrowRightLeft, Loader2, Copy, Check, RotateCcw, Languages, Volume2 } f
 import { useAppStore } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
 import { UsageChecker } from '../../lib/usageChecker';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import LanguageSelector from './LanguageSelector';
 import TranslationComparison from './TranslationComparison';
@@ -18,10 +19,11 @@ export default function TranslationInterface() {
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { isProcessing, setProcessing, addToTranslationHistory } = useAppStore();
+  const { t } = useTranslation();
 
   const handleTranslate = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter some text to translate');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function TranslationInterface() {
       
       setResult(response);
       addToTranslationHistory(response);
-      toast.success('Text translated successfully!');
+      toast.success(t('messages.success.translated'));
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -59,7 +61,7 @@ export default function TranslationInterface() {
     if (result?.translatedText) {
       await navigator.clipboard.writeText(result.translatedText);
       setCopied(true);
-      toast.success('Copied to clipboard!');
+      toast.success(t('messages.success.copied'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -92,11 +94,10 @@ export default function TranslationInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 dark:from-blue-400 dark:to-cyan-400 bg-clip-text text-transparent mb-4">
-          AI-Powered Translation
+          {t('translation.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Translate text between languages with high accuracy and natural fluency. 
-          Preserve context, tone, and meaning across linguistic boundaries.
+          {t('translation.subtitle')}
         </p>
       </motion.div>
 
@@ -120,17 +121,17 @@ export default function TranslationInterface() {
           <div className="glass-card p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                Source Text
+                {t('translation.sourceText')}
               </h3>
               <span className="text-sm text-slate-500 dark:text-slate-400">
-                {inputText.length} characters
+                {inputText.length} {t('common.characters')}
               </span>
             </div>
             
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Enter text to translate..."
+              placeholder={t('translation.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
             />
@@ -145,7 +146,7 @@ export default function TranslationInterface() {
                   disabled={isProcessing}
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Reset</span>
+                  <span>{t('common.reset')}</span>
                 </motion.button>
               </div>
 
@@ -159,12 +160,12 @@ export default function TranslationInterface() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Translating...</span>
+                    <span>{t('translation.processing')}</span>
                   </>
                 ) : (
                   <>
                     <Languages className="w-5 h-5" />
-                    <span>Translate</span>
+                    <span>{t('translation.translateButton')}</span>
                   </>
                 )}
               </motion.button>
@@ -182,7 +183,7 @@ export default function TranslationInterface() {
             <div className="glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Translation
+                  {t('translation.translatedText')}
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 rounded-full">
@@ -215,7 +216,7 @@ export default function TranslationInterface() {
               {result.confidence && (
                 <div className="flex items-center space-x-2 mb-4">
                   <span className="text-sm text-slate-600 dark:text-slate-400">
-                    Confidence:
+                    {t('translation.confidence')}
                   </span>
                   <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                     <div 
@@ -232,7 +233,7 @@ export default function TranslationInterface() {
               {result.alternatives && result.alternatives.length > 0 && (
                 <div>
                   <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Alternative Translations:
+                    {t('translation.alternatives')}
                   </h4>
                   <ul className="space-y-1">
                     {result.alternatives.map((alt: string, index: number) => (

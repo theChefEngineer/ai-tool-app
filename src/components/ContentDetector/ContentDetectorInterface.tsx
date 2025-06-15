@@ -21,6 +21,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { deepseekService } from '../../lib/deepseek';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
 interface AIDetectionResult {
@@ -64,15 +65,16 @@ export default function ContentDetectorInterface() {
     preserveMeaning: true,
   });
   const [showSettings, setShowSettings] = useState(false);
+  const { t } = useTranslation();
 
   const handleDetectAI = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter text to analyze');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
     if (inputText.trim().split(' ').length < 50) {
-      toast.error('Please enter at least 50 words for accurate analysis');
+      toast.error(t('messages.error.minimumWordsRequired').replace('{count}', '50'));
       return;
     }
 
@@ -91,7 +93,7 @@ export default function ContentDetectorInterface() {
 
   const handleHumanizeText = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter text to humanize');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
@@ -117,7 +119,7 @@ export default function ContentDetectorInterface() {
     const textToCopy = type === 'original' ? inputText : humanizedResult?.humanizedText || '';
     await navigator.clipboard.writeText(textToCopy);
     setCopied(type);
-    toast.success('Text copied to clipboard!');
+    toast.success(t('messages.success.copied'));
     setTimeout(() => setCopied(null), 2000);
   };
 
@@ -159,7 +161,7 @@ export default function ContentDetectorInterface() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    toast.success('Report downloaded!');
+    toast.success(t('messages.success.exported'));
   };
 
   const getStatusColor = (status: string) => {
@@ -198,11 +200,10 @@ export default function ContentDetectorInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4">
-          AI Content Detector & Humanizer
+          {t('contentDetector.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Powered by DeepSeek R1 - Detect AI-generated content with advanced analysis and transform it into 
-          natural, human-like text while preserving the original meaning and context.
+          {t('contentDetector.subtitle')}
         </p>
       </motion.div>
 
@@ -217,7 +218,7 @@ export default function ContentDetectorInterface() {
           <div className="flex items-center space-x-2">
             <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-              Content Analysis
+              {t('contentDetector.contentAnalysis')}
             </h3>
           </div>
           <motion.button
@@ -241,13 +242,13 @@ export default function ContentDetectorInterface() {
             >
               <div className="flex items-center space-x-2 mb-3">
                 <Sliders className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <h4 className="font-medium text-blue-800 dark:text-blue-200">Humanization Settings</h4>
+                <h4 className="font-medium text-blue-800 dark:text-blue-200">{t('contentDetector.humanizationSettings')}</h4>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
-                    Creativity Level
+                    {t('contentDetector.creativityLevel')}
                   </label>
                   <select
                     value={humanizeSettings.creativityLevel}
@@ -275,7 +276,7 @@ export default function ContentDetectorInterface() {
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
                   <label htmlFor="preserveMeaning" className="text-sm text-blue-700 dark:text-blue-300">
-                    Preserve exact meaning
+                    {t('contentDetector.preserveMeaning')}
                   </label>
                 </div>
               </div>
@@ -286,19 +287,19 @@ export default function ContentDetectorInterface() {
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Paste your text to analyze AI probability and humanize with DeepSeek R1..."
+          placeholder={t('contentDetector.placeholder')}
           className="w-full h-48 p-4 glass-input rounded-xl resize-none mb-4"
           disabled={isDetecting || isHumanizing}
         />
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
-            <span>{inputText.length} characters</span>
-            <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} words</span>
+            <span>{inputText.length} {t('common.characters')}</span>
+            <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} {t('common.words')}</span>
             {inputText.trim().split(' ').filter(word => word.length > 0).length < 50 && (
               <span className="text-orange-600 dark:text-orange-400 flex items-center space-x-1">
                 <AlertCircle className="w-4 h-4" />
-                <span>Minimum 50 words recommended</span>
+                <span>{t('usage.minimumWords')}</span>
               </span>
             )}
           </div>
@@ -312,7 +313,7 @@ export default function ContentDetectorInterface() {
               disabled={isDetecting || isHumanizing}
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Reset</span>
+              <span>{t('common.reset')}</span>
             </motion.button>
 
             <motion.button
@@ -325,7 +326,7 @@ export default function ContentDetectorInterface() {
               {isDetecting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Analyzing...</span>
+                  <span>{t('contentDetector.analyzing')}</span>
                 </>
               ) : (
                 <>
@@ -345,12 +346,12 @@ export default function ContentDetectorInterface() {
               {isHumanizing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Humanizing...</span>
+                  <span>{t('contentDetector.humanizing')}</span>
                 </>
               ) : (
                 <>
                   <Wand2 className="w-5 h-5" />
-                  <span>Humanize with R1</span>
+                  <span>{t('contentDetector.humanizeButton')}</span>
                 </>
               )}
             </motion.button>
@@ -403,7 +404,7 @@ export default function ContentDetectorInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <Wand2 className="w-5 h-5" />
-                  <span>Humanized Version</span>
+                  <span>{t('contentDetector.humanizedVersion')}</span>
                   {humanizedResult && (
                     <span className="text-xs px-2 py-1 bg-white/20 rounded-full">
                       {humanizedResult.humanScore}% Human
@@ -433,7 +434,7 @@ export default function ContentDetectorInterface() {
                 <div className="glass-card p-6 rounded-2xl">
                   <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                      AI Detection Analysis
+                      {t('contentDetector.aiDetectionResults')}
                     </h3>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -487,7 +488,7 @@ export default function ContentDetectorInterface() {
                         </span>
                       </div>
                       <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                        Confidence: {detectionResult.confidence}%
+                        {t('contentDetector.confidence')}: {detectionResult.confidence}%
                       </div>
                     </div>
                   </div>
@@ -647,7 +648,7 @@ export default function ContentDetectorInterface() {
                     {/* Improvements */}
                     <div className="glass-card p-6 rounded-2xl">
                       <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-                        Humanization Improvements Applied
+                        {t('contentDetector.improvements')}
                       </h3>
                       <ul className="space-y-3">
                         {humanizedResult.improvements.map((improvement, index) => (
@@ -671,7 +672,7 @@ export default function ContentDetectorInterface() {
                     {humanizedResult.changes.length > 0 && (
                       <div className="glass-card p-6 rounded-2xl">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-                          Key Changes Made
+                          {t('contentDetector.keyChanges')}
                         </h3>
                         <div className="space-y-4">
                           {humanizedResult.changes.map((change, index) => (
@@ -788,12 +789,12 @@ export default function ContentDetectorInterface() {
                       {isHumanizing ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Humanizing...</span>
+                          <span>{t('contentDetector.humanizing')}</span>
                         </>
                       ) : (
                         <>
                           <Wand2 className="w-5 h-5" />
-                          <span>Humanize with R1</span>
+                          <span>{t('contentDetector.humanizeButton')}</span>
                         </>
                       )}
                     </motion.button>
@@ -826,7 +827,7 @@ export default function ContentDetectorInterface() {
             natural, human-like writing with DeepSeek R1 technology.
           </p>
           <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-            Powered by DeepSeek R1 - Advanced AI Detection & Humanization
+            {t('contentDetector.poweredBy')}
           </div>
         </motion.div>
       )}

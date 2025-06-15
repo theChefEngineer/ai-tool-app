@@ -4,6 +4,7 @@ import { Send, Loader2, Copy, Check, RotateCcw, Wand2 } from 'lucide-react';
 import { useAppStore, type ParaphraseMode } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
 import { UsageChecker } from '../../lib/usageChecker';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import ModeSelector from './ModeSelector';
 import TextComparison from './TextComparison';
@@ -16,10 +17,11 @@ export default function ParaphraseInterface() {
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { currentMode, isProcessing, setProcessing, addToHistory } = useAppStore();
+  const { t } = useTranslation();
 
   const handleParaphrase = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter some text to paraphrase');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
@@ -39,7 +41,7 @@ export default function ParaphraseInterface() {
       
       setResult(response);
       addToHistory(response);
-      toast.success('Text paraphrased successfully!');
+      toast.success(t('messages.success.paraphrased'));
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -51,7 +53,7 @@ export default function ParaphraseInterface() {
     if (result?.paraphrasedText) {
       await navigator.clipboard.writeText(result.paraphrasedText);
       setCopied(true);
-      toast.success('Copied to clipboard!');
+      toast.success(t('messages.success.copied'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -70,11 +72,10 @@ export default function ParaphraseInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent mb-4">
-          AI-Powered Paraphrasing
+          {t('paraphrase.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Transform your text with advanced AI. Choose from multiple writing styles and get instant, 
-          high-quality paraphrasing with detailed improvements.
+          {t('paraphrase.subtitle')}
         </p>
       </motion.div>
 
@@ -92,17 +93,17 @@ export default function ParaphraseInterface() {
           <div className="glass-card p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                Original Text
+                {t('paraphrase.originalText')}
               </h3>
               <span className="text-sm text-slate-500 dark:text-slate-400">
-                {inputText.length} characters
+                {inputText.length} {t('common.characters')}
               </span>
             </div>
             
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Enter your text here to get started with AI-powered paraphrasing..."
+              placeholder={t('paraphrase.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
             />
@@ -117,7 +118,7 @@ export default function ParaphraseInterface() {
                   disabled={isProcessing}
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Reset</span>
+                  <span>{t('common.reset')}</span>
                 </motion.button>
               </div>
 
@@ -131,12 +132,12 @@ export default function ParaphraseInterface() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Processing...</span>
+                    <span>{t('paraphrase.processing')}</span>
                   </>
                 ) : (
                   <>
                     <Wand2 className="w-5 h-5" />
-                    <span>Paraphrase</span>
+                    <span>{t('paraphrase.paraphraseButton')}</span>
                   </>
                 )}
               </motion.button>
@@ -154,13 +155,13 @@ export default function ParaphraseInterface() {
             <div className="glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Paraphrased Text
+                  {t('paraphrase.paraphrasedText')}
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm text-green-700 dark:text-green-300 font-medium">
-                      Score: {result.readabilityScore}/10
+                      {t('paraphrase.readabilityScore')}: {result.readabilityScore}/10
                     </span>
                   </div>
                   <motion.button
@@ -187,7 +188,7 @@ export default function ParaphraseInterface() {
               {result.improvements && result.improvements.length > 0 && (
                 <div>
                   <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Key Improvements:
+                    {t('paraphrase.improvements')}
                   </h4>
                   <ul className="space-y-1">
                     {result.improvements.map((improvement: string, index: number) => (

@@ -2,40 +2,31 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Briefcase, Palette, Scissors, Expand } from 'lucide-react';
 import { useAppStore, type ParaphraseMode } from '../../store/appStore';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const modes = [
   {
     key: 'standard' as ParaphraseMode,
-    label: 'Standard',
-    description: 'Natural rewriting while preserving meaning',
     icon: FileText,
     color: 'from-blue-500 to-cyan-500',
   },
   {
     key: 'formal' as ParaphraseMode,
-    label: 'Formal',
-    description: 'Professional tone for business contexts',
     icon: Briefcase,
     color: 'from-gray-600 to-gray-800',
   },
   {
     key: 'creative' as ParaphraseMode,
-    label: 'Creative',
-    description: 'Engaging language with metaphors',
     icon: Palette,
     color: 'from-purple-500 to-pink-500',
   },
   {
     key: 'shorten' as ParaphraseMode,
-    label: 'Shorten',
-    description: 'Concise version preserving key points',
     icon: Scissors,
     color: 'from-orange-500 to-red-500',
   },
   {
     key: 'expand' as ParaphraseMode,
-    label: 'Expand',
-    description: 'Detailed elaboration with examples',
     icon: Expand,
     color: 'from-green-500 to-teal-500',
   },
@@ -43,6 +34,7 @@ const modes = [
 
 export default function ModeSelector() {
   const { currentMode, setMode } = useAppStore();
+  const { t } = useTranslation();
 
   return (
     <motion.div
@@ -52,7 +44,7 @@ export default function ModeSelector() {
       className="glass-card p-6 rounded-2xl"
     >
       <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-        Choose Writing Style
+        {t('paraphrase.chooseWritingStyle')}
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -76,11 +68,11 @@ export default function ModeSelector() {
             </div>
             
             <h4 className="font-semibold text-slate-800 dark:text-white mb-1">
-              {mode.label}
+              {t(`paraphrase.modes.${mode.key}`)}
             </h4>
             
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              {mode.description}
+              {t(`paraphrase.modeDescriptions.${mode.key}`)}
             </p>
           </motion.button>
         ))}

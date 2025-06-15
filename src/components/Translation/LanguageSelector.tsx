@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRightLeft, Globe } from 'lucide-react';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface LanguageSelectorProps {
   sourceLanguage: string;
@@ -40,6 +41,8 @@ export default function LanguageSelector({
   onTargetChange,
   onSwap,
 }: LanguageSelectorProps) {
+  const { t } = useTranslation();
+
   const getLanguageName = (code: string) => {
     const lang = languages.find(l => l.code === code);
     return lang ? `${lang.flag} ${lang.name}` : code;
@@ -55,7 +58,7 @@ export default function LanguageSelector({
       <div className="flex items-center space-x-2 mb-4">
         <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
         <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-          Language Selection
+          {t('translation.languageSelection')}
         </h3>
       </div>
       
@@ -63,7 +66,7 @@ export default function LanguageSelector({
         {/* Source Language */}
         <div className="flex-1">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-            From
+            {t('translation.from')}
           </label>
           <select
             value={sourceLanguage}
@@ -95,7 +98,7 @@ export default function LanguageSelector({
         {/* Target Language */}
         <div className="flex-1">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-            To
+            {t('translation.to')}
           </label>
           <select
             value={targetLanguage}
@@ -119,7 +122,7 @@ export default function LanguageSelector({
           </span>
           {sourceLanguage === 'auto' && (
             <span className="text-blue-600 dark:text-blue-400 font-medium">
-              Auto-detection enabled
+              {t('translation.autoDetect')} enabled
             </span>
           )}
         </div>

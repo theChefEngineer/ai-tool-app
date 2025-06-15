@@ -17,6 +17,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { deepseekService } from '../../lib/deepseek';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
 interface PlagiarismResult {
@@ -45,15 +46,16 @@ export default function PlagiarismInterface() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter text to analyze');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
     if (inputText.trim().split(' ').length < 100) {
-      toast.error('Please enter at least 100 words for accurate analysis');
+      toast.error(t('messages.error.minimumWordsRequired').replace('{count}', '100'));
       return;
     }
 
@@ -117,7 +119,7 @@ export default function PlagiarismInterface() {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(inputText);
     setCopied(true);
-    toast.success('Text copied to clipboard!');
+    toast.success(t('messages.success.copied'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -152,7 +154,7 @@ export default function PlagiarismInterface() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    toast.success('Report downloaded!');
+    toast.success(t('messages.success.exported'));
   };
 
   const getStatusColor = (status: string) => {
@@ -220,12 +222,12 @@ export default function PlagiarismInterface() {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
-            <span>{inputText.length} characters</span>
-            <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} words</span>
+            <span>{inputText.length} {t('common.characters')}</span>
+            <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} {t('common.words')}</span>
             {inputText.trim().split(' ').filter(word => word.length > 0).length < 100 && (
               <span className="text-orange-600 dark:text-orange-400 flex items-center space-x-1">
                 <AlertTriangle className="w-4 h-4" />
-                <span>Minimum 100 words required</span>
+                <span>{t('usage.recommendedWords')}</span>
               </span>
             )}
           </div>
@@ -239,7 +241,7 @@ export default function PlagiarismInterface() {
               disabled={isAnalyzing}
             >
               <RotateCcw className="w-4 h-4" />
-              <span>Reset</span>
+              <span>{t('common.reset')}</span>
             </motion.button>
 
             <motion.button
@@ -359,7 +361,7 @@ export default function PlagiarismInterface() {
                 <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {result.wordCount}
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Total Words</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400">{t('history.totalWords')}</div>
               </div>
               <div className="text-center p-3 glass-card rounded-xl">
                 <div className="text-2xl font-bold text-green-600 dark:text-green-400">

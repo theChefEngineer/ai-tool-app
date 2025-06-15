@@ -4,6 +4,7 @@ import { Send, Loader2, Copy, Check, RotateCcw, BookOpen, FileText } from 'lucid
 import { useAppStore } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
 import { UsageChecker } from '../../lib/usageChecker';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import SummaryModeSelector from './SummaryModeSelector';
 import SummaryComparison from './SummaryComparison';
@@ -16,10 +17,11 @@ export default function SummaryInterface() {
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { currentSummaryMode, isProcessing, setProcessing, addToSummaryHistory } = useAppStore();
+  const { t } = useTranslation();
 
   const handleSummarize = async () => {
     if (!inputText.trim()) {
-      toast.error('Please enter some text to summarize');
+      toast.error(t('messages.error.validation'));
       return;
     }
 
@@ -39,7 +41,7 @@ export default function SummaryInterface() {
       
       setResult(response);
       addToSummaryHistory(response);
-      toast.success('Text summarized successfully!');
+      toast.success(t('messages.success.summarized'));
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -51,7 +53,7 @@ export default function SummaryInterface() {
     if (result?.summaryText) {
       await navigator.clipboard.writeText(result.summaryText);
       setCopied(true);
-      toast.success('Copied to clipboard!');
+      toast.success(t('messages.success.copied'));
       setTimeout(() => setCopied(false), 2000);
     }
   };
@@ -121,11 +123,10 @@ export default function SummaryInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent mb-4">
-          AI-Powered Summarization
+          {t('summary.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Transform lengthy content into comprehensive summaries that capture all key ideas and maintain 
-          the same level of detail and accuracy as the original text.
+          {t('summary.subtitle')}
         </p>
       </motion.div>
 
@@ -143,17 +144,17 @@ export default function SummaryInterface() {
           <div className="glass-card p-6 rounded-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                Original Text
+                {t('summary.originalText')}
               </h3>
               <span className="text-sm text-slate-500 dark:text-slate-400">
-                {inputText.length} characters
+                {inputText.length} {t('common.characters')}
               </span>
             </div>
             
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder="Enter your lengthy text here to get a comprehensive summary that maintains all key ideas and important details..."
+              placeholder={t('summary.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
             />
@@ -168,7 +169,7 @@ export default function SummaryInterface() {
                   disabled={isProcessing}
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Reset</span>
+                  <span>{t('common.reset')}</span>
                 </motion.button>
               </div>
 
@@ -182,12 +183,12 @@ export default function SummaryInterface() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Summarizing...</span>
+                    <span>{t('summary.processing')}</span>
                   </>
                 ) : (
                   <>
                     <BookOpen className="w-5 h-5" />
-                    <span>Summarize</span>
+                    <span>{t('summary.summarizeButton')}</span>
                   </>
                 )}
               </motion.button>
@@ -205,13 +206,13 @@ export default function SummaryInterface() {
             <div className="glass-card p-6 rounded-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                  Summary
+                  {t('summary.summaryText')}
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                     <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
-                      {result.compressionRatio}% shorter
+                      {result.compressionRatio}% {t('summary.compressionRatio')}
                     </span>
                   </div>
                   <motion.button
@@ -236,7 +237,7 @@ export default function SummaryInterface() {
               {result.keyPoints && result.keyPoints.length > 0 && currentSummaryMode !== 'bullet' && (
                 <div>
                   <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                    Key Points Captured:
+                    {t('summary.keyPoints')}
                   </h4>
                   <ul className="space-y-1">
                     {result.keyPoints.map((point: string, index: number) => (

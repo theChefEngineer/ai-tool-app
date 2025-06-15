@@ -2,40 +2,31 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Zap, Target, BookOpen, List } from 'lucide-react';
 import { useAppStore, type SummaryMode } from '../../store/appStore';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const modes = [
   {
     key: 'comprehensive' as SummaryMode,
-    label: 'Comprehensive',
-    description: 'Detailed summary maintaining all key ideas',
     icon: FileText,
     color: 'from-blue-500 to-cyan-500',
   },
   {
     key: 'executive' as SummaryMode,
-    label: 'Executive',
-    description: 'High-level overview for decision makers',
     icon: Target,
     color: 'from-gray-600 to-gray-800',
   },
   {
     key: 'academic' as SummaryMode,
-    label: 'Academic',
-    description: 'Scholarly summary with technical precision',
     icon: BookOpen,
     color: 'from-purple-500 to-indigo-500',
   },
   {
     key: 'bullet' as SummaryMode,
-    label: 'Bullet Points',
-    description: 'Structured list of main points',
     icon: List,
     color: 'from-orange-500 to-red-500',
   },
   {
     key: 'quick' as SummaryMode,
-    label: 'Quick',
-    description: 'Brief overview of essential information',
     icon: Zap,
     color: 'from-green-500 to-teal-500',
   },
@@ -43,6 +34,7 @@ const modes = [
 
 export default function SummaryModeSelector() {
   const { currentSummaryMode, setSummaryMode } = useAppStore();
+  const { t } = useTranslation();
 
   return (
     <motion.div
@@ -52,7 +44,7 @@ export default function SummaryModeSelector() {
       className="glass-card p-6 rounded-2xl"
     >
       <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-        Choose Summary Style
+        {t('summary.chooseSummaryStyle')}
       </h3>
       
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -76,11 +68,11 @@ export default function SummaryModeSelector() {
             </div>
             
             <h4 className="font-semibold text-slate-800 dark:text-white mb-1">
-              {mode.label}
+              {t(`summary.modes.${mode.key}`)}
             </h4>
             
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              {mode.description}
+              {t(`summary.modeDescriptions.${mode.key}`)}
             </p>
           </motion.button>
         ))}
