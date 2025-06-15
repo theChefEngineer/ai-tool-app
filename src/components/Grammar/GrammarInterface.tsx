@@ -153,7 +153,7 @@ export default function GrammarInterface() {
     const acceptedErrors = errorsToApply || result.errors.filter(error => error.accepted);
     
     if (acceptedErrors.length === 0) {
-      toast.info('No corrections selected to apply');
+      toast('No corrections selected to apply');
       return;
     }
 
