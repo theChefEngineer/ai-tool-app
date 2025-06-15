@@ -2,61 +2,63 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import UsageIndicator from './UsageIndicator';
 
 export default function Sidebar() {
   const { currentView, setCurrentView } = useAppStore();
+  const { t, isRTL } = useTranslation();
 
   const menuItems = [
     { 
       icon: Home, 
-      label: 'Paraphrase', 
+      label: t('nav.paraphrase'), 
       key: 'paraphrase' as const,
       active: currentView === 'paraphrase' 
     },
     { 
       icon: BookOpen, 
-      label: 'Summary', 
+      label: t('nav.summary'), 
       key: 'summary' as const,
       active: currentView === 'summary' 
     },
     { 
       icon: Languages, 
-      label: 'Translation', 
+      label: t('nav.translation'), 
       key: 'translation' as const,
       active: currentView === 'translation' 
     },
     { 
       icon: Shield, 
-      label: 'Plagiarism Checker', 
+      label: t('nav.plagiarism'), 
       key: 'plagiarism' as const,
       active: currentView === 'plagiarism' 
     },
     { 
       icon: Bot, 
-      label: 'AI Content Detector', 
+      label: t('nav.contentDetector'), 
       key: 'content-detector' as const,
       active: currentView === 'content-detector' 
     },
     { 
       icon: MessageCircle, 
-      label: 'AI Chat', 
+      label: t('nav.chat'), 
       key: 'chat' as const,
       active: currentView === 'chat' 
     },
     { 
       icon: History, 
-      label: 'History', 
+      label: t('nav.history'), 
       key: 'history' as const, 
       active: currentView === 'history' 
     },
     { 
       icon: Settings, 
-      label: 'Settings', 
+      label: t('nav.settings'), 
       key: 'settings' as const, 
       active: currentView === 'settings' 
     },
-    { icon: Zap, label: 'Upgrade', key: 'upgrade' as const, active: false, premium: true },
+    { icon: Zap, label: t('nav.upgrade'), key: 'upgrade' as const, active: false, premium: true },
   ];
 
   const getActiveColors = (key: string) => {
@@ -82,9 +84,9 @@ export default function Sidebar() {
 
   return (
     <motion.aside
-      initial={{ x: -300 }}
+      initial={{ x: isRTL ? 300 : -300 }}
       animate={{ x: 0 }}
-      className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto"
+      className={`fixed ${isRTL ? 'right-0' : 'left-0'} top-16 h-[calc(100vh-4rem)] w-64 glass-card border-${isRTL ? 'l' : 'r'} border-white/10 z-40 overflow-y-auto`}
     >
       <div className="p-6">
         {/* Usage Indicator */}
@@ -96,10 +98,10 @@ export default function Sidebar() {
           {menuItems.map((item, index) => (
             <motion.button
               key={item.label}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, x: 4 }}
+              whileHover={{ scale: 1.02, x: isRTL ? -4 : 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
@@ -119,7 +121,7 @@ export default function Sidebar() {
                 item.active
                   ? getActiveColors(item.key)
                   : 'hover:bg-white/5 text-slate-600 dark:text-slate-300'
-              }`}
+              } ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
               <span className="font-medium text-left flex-1">{item.label}</span>

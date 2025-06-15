@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, Chrome, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
 export default function AuthModal() {
@@ -12,6 +13,7 @@ export default function AuthModal() {
   const [loading, setLoading] = useState(false);
   
   const { signIn, signUp, signInWithGoogle } = useAuthStore();
+  const { t, isRTL } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,13 +22,13 @@ export default function AuthModal() {
     try {
       if (isLogin) {
         await signIn(email, password);
-        toast.success('Welcome back!');
+        toast.success(t('auth.welcomeBack'));
       } else {
         await signUp(email, password);
         toast.success('Account created! Check your email to verify.');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Authentication failed');
+      toast.error(error.message || t('messages.error.authentication'));
     } finally {
       setLoading(false);
     }
@@ -45,7 +47,7 @@ export default function AuthModal() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="glass-card max-w-md w-full p-8 rounded-2xl"
+        className={`glass-card max-w-md w-full p-8 rounded-2xl ${isRTL ? 'rtl' : ''}`}
       >
         {/* Header */}
         <div className="text-center mb-8">
@@ -57,12 +59,12 @@ export default function AuthModal() {
             <Sparkles className="w-8 h-8 text-white" />
           </motion.div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? t('auth.welcomeBack') : t('auth.createAccount')}
           </h2>
           <p className="text-slate-600 dark:text-slate-300 mt-2">
             {isLogin 
-              ? 'Sign in to continue your writing journey' 
-              : 'Join ParaText Pro and unlock AI-powered writing'
+              ? t('auth.signInToContinue')
+              : t('auth.joinParaTextPro')
             }
           </p>
         </div>
@@ -72,10 +74,10 @@ export default function AuthModal() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center space-x-3 p-3 glass-button rounded-xl mb-6"
+          className={`w-full flex items-center justify-center space-x-3 p-3 glass-button rounded-xl mb-6 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}
         >
           <Chrome className="w-5 h-5" />
-          <span>Continue with Google</span>
+          <span>{t('auth.continueWithGoogle')}</span>
         </motion.button>
 
         <div className="flex items-center my-6">
@@ -87,31 +89,31 @@ export default function AuthModal() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Mail className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
             <input
               type="email"
-              placeholder="Email address"
+              placeholder={t('auth.email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 glass-input rounded-xl"
+              className={`w-full ${isRTL ? 'pr-12 pl-4' : 'pl-12 pr-4'} py-3 glass-input rounded-xl`}
               required
             />
           </div>
 
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Lock className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
             <input
               type={showPassword ? 'text' : 'password'}
-              placeholder="Password"
+              placeholder={t('auth.password')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-12 pr-12 py-3 glass-input rounded-xl"
+              className={`w-full ${isRTL ? 'pr-12 pl-12' : 'pl-12 pr-12'} py-3 glass-input rounded-xl`}
               required
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+              className={`absolute ${isRTL ? 'left-3' : 'right-3'} top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300`}
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
@@ -124,7 +126,7 @@ export default function AuthModal() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
+            {loading ? t('common.loading') : (isLogin ? t('auth.signIn') : t('auth.createAccount'))}
           </motion.button>
         </form>
 
@@ -135,8 +137,8 @@ export default function AuthModal() {
             className="text-indigo-600 dark:text-indigo-400 hover:underline"
           >
             {isLogin 
-              ? "Don't have an account? Sign up" 
-              : "Already have an account? Sign in"
+              ? t('auth.dontHaveAccount')
+              : t('auth.alreadyHaveAccount')
             }
           </button>
         </div>

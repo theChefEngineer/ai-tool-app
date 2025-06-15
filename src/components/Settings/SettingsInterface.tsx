@@ -27,15 +27,18 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
+import { useTranslation } from '../../hooks/useTranslation';
 import { DatabaseService, type UserProfile } from '../../lib/database';
 import { StripeService, type SubscriptionData } from '../../lib/stripe';
 import { stripeProducts } from '../../stripe-config';
 import SubscriptionManager from '../Subscription/SubscriptionManager';
+import LanguageSelector from './LanguageSelector';
 import toast from 'react-hot-toast';
 
 export default function SettingsInterface() {
   const { user } = useAuthStore();
   const { theme, toggleTheme, clearAllHistory } = useAppStore();
+  const { t, isRTL } = useTranslation();
   
   // Profile state
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -90,7 +93,7 @@ export default function SettingsInterface() {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      toast.error('Failed to load profile');
+      toast.error(t('messages.error.generic'));
     } finally {
       setIsLoadingProfile(false);
     }
@@ -113,17 +116,17 @@ export default function SettingsInterface() {
     const errors: {[key: string]: string} = {};
     
     if (!profileData.firstName.trim()) {
-      errors.firstName = 'First name is required';
+      errors.firstName = t('messages.error.required');
     }
     
     if (!profileData.lastName.trim()) {
-      errors.lastName = 'Last name is required';
+      errors.lastName = t('messages.error.required');
     }
     
     if (!profileData.email.trim()) {
-      errors.email = 'Email is required';
+      errors.email = t('messages.error.required');
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profileData.email)) {
-      errors.email = 'Please enter a valid email address';
+      errors.email = t('messages.error.invalidEmail');
     }
     
     setProfileErrors(errors);
@@ -135,13 +138,13 @@ export default function SettingsInterface() {
     const errors: {[key: string]: string} = {};
     
     if (!passwordData.currentPassword) {
-      errors.currentPassword = 'Current password is required';
+      errors.currentPassword = t('messages.error.required');
     }
     
     if (!passwordData.newPassword) {
-      errors.newPassword = 'New password is required';
+      errors.newPassword = t('messages.error.required');
     } else if (passwordData.newPassword.length < 8) {
-      errors.newPassword = 'Password must be at least 8 characters long';
+      errors.newPassword = t('messages.error.passwordTooShort');
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(passwordData.newPassword)) {
       errors.newPassword = 'Password must contain at least one uppercase letter, one lowercase letter, and one number';
     }
@@ -149,7 +152,7 @@ export default function SettingsInterface() {
     if (!passwordData.confirmPassword) {
       errors.confirmPassword = 'Please confirm your new password';
     } else if (passwordData.newPassword !== passwordData.confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = t('messages.error.passwordsDoNotMatch');
     }
     
     setPasswordErrors(errors);
@@ -170,13 +173,13 @@ export default function SettingsInterface() {
       if (updatedProfile) {
         setUserProfile(updatedProfile);
         setIsEditingProfile(false);
-        toast.success('Profile updated successfully!');
+        toast.success(t('messages.success.profileUpdated'));
       } else {
         throw new Error('Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      toast.error('Failed to update profile. Please try again.');
+      toast.error(t('messages.error.generic'));
     } finally {
       setIsSavingProfile(false);
     }
@@ -208,9 +211,9 @@ export default function SettingsInterface() {
         confirmPassword: '',
       });
       setIsChangingPassword(false);
-      toast.success('Password changed successfully!');
+      toast.success(t('messages.success.passwordChanged'));
     } catch (error) {
-      toast.error('Failed to change password. Please try again.');
+      toast.error(t('messages.error.generic'));
     } finally {
       setIsUpdatingPassword(false);
     }
@@ -247,11 +250,11 @@ export default function SettingsInterface() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        toast.success('Data exported successfully!');
+        toast.success(t('messages.success.exported'));
       }
     } catch (error) {
       console.error('Error exporting data:', error);
-      toast.error('Failed to export data');
+      toast.error(t('messages.error.generic'));
     }
   };
 
@@ -261,12 +264,21 @@ export default function SettingsInterface() {
     if (window.confirm('Are you sure you want to clear all your data? This action cannot be undone.')) {
       try {
         await clearAllHistory();
-        toast.success('All data cleared successfully!');
+        toast.success(t('messages.success.deleted'));
       } catch (error) {
         console.error('Error clearing data:', error);
-        toast.error('Failed to clear data');
+        toast.error(t('messages.error.generic'));
       }
     }
+  };
+
+  const getCurrentPlan = () => {
+    if (!subscription || subscription.subscription_status !== 'active' || !subscription.price_id) {
+      return { name: t('subscription.freePlan'), description: '20 operations per day' };
+    }
+
+    const product = stripeProducts.find(p => p.priceId === subscription.price_id);
+    return product ? { name: product.name, description: product.description } : { name: 'Unknown Plan', description: 'Active subscription' };
   };
 
   const getPasswordStrength = (password: string) => {
@@ -291,28 +303,19 @@ export default function SettingsInterface() {
     }
   };
 
-  const getCurrentPlan = () => {
-    if (!subscription || subscription.subscription_status !== 'active' || !subscription.price_id) {
-      return { name: 'Free Plan', description: '20 operations per day' };
-    }
-
-    const product = stripeProducts.find(p => p.priceId === subscription.price_id);
-    return product ? { name: product.name, description: product.description } : { name: 'Unknown Plan', description: 'Active subscription' };
-  };
-
   if (isLoadingProfile) {
     return (
       <div className="max-w-4xl mx-auto flex items-center justify-center h-64">
         <div className="flex items-center space-x-3">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
-          <span className="text-lg text-slate-600 dark:text-slate-300">Loading profile...</span>
+          <span className="text-lg text-slate-600 dark:text-slate-300">{t('common.loading')}...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className={`max-w-4xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -320,12 +323,15 @@ export default function SettingsInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-600 to-slate-800 dark:from-slate-300 dark:to-slate-100 bg-clip-text text-transparent mb-4">
-          Settings
+          {t('settings.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Manage your account, preferences, and subscription settings
+          {t('settings.subtitle')}
         </p>
       </motion.div>
+
+      {/* Language Selector */}
+      <LanguageSelector />
 
       {/* User Profile Section */}
       <motion.div
@@ -337,7 +343,7 @@ export default function SettingsInterface() {
         <div className="flex items-center space-x-2 mb-6">
           <User className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-            Profile Information
+            {t('settings.profileInformation')}
           </h2>
         </div>
 
@@ -365,7 +371,7 @@ export default function SettingsInterface() {
                 {/* First Name */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    First Name *
+                    {t('settings.firstName')} *
                   </label>
                   <input
                     type="text"
@@ -386,7 +392,7 @@ export default function SettingsInterface() {
                 {/* Last Name */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Last Name *
+                    {t('settings.lastName')} *
                   </label>
                   <input
                     type="text"
@@ -407,7 +413,7 @@ export default function SettingsInterface() {
                 {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Email Address *
+                    {t('settings.emailAddress')} *
                   </label>
                   <input
                     type="email"
@@ -437,12 +443,12 @@ export default function SettingsInterface() {
                     {isSavingProfile ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Saving...</span>
+                        <span>{t('settings.saving')}</span>
                       </>
                     ) : (
                       <>
                         <Save className="w-4 h-4" />
-                        <span>Save Changes</span>
+                        <span>{t('settings.saveChanges')}</span>
                       </>
                     )}
                   </motion.button>
@@ -454,7 +460,7 @@ export default function SettingsInterface() {
                     className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50"
                   >
                     <X className="w-4 h-4" />
-                    <span>Cancel</span>
+                    <span>{t('common.cancel')}</span>
                   </motion.button>
                 </div>
               </div>
@@ -469,8 +475,8 @@ export default function SettingsInterface() {
                     <span>{userProfile?.email || 'No email set'}</span>
                   </div>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    <span>First Name: {userProfile?.first_name || 'Not set'}</span>
-                    <span>Last Name: {userProfile?.last_name || 'Not set'}</span>
+                    <span>{t('settings.firstName')}: {userProfile?.first_name || 'Not set'}</span>
+                    <span>{t('settings.lastName')}: {userProfile?.last_name || 'Not set'}</span>
                   </div>
                 </div>
                 <motion.button
@@ -480,7 +486,7 @@ export default function SettingsInterface() {
                   className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2"
                 >
                   <Edit3 className="w-4 h-4" />
-                  <span>Edit Profile</span>
+                  <span>{t('settings.editProfile')}</span>
                 </motion.button>
               </div>
             )}
@@ -498,7 +504,7 @@ export default function SettingsInterface() {
         <div className="flex items-center space-x-2 mb-6">
           <Crown className="w-6 h-6 text-yellow-500" />
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-            Subscription
+            {t('settings.subscription')}
           </h2>
         </div>
 
@@ -527,7 +533,7 @@ export default function SettingsInterface() {
                 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-600 dark:text-slate-400">Status</span>
+                    <span className="text-slate-600 dark:text-slate-400">{t('common.status')}</span>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${
                         subscription?.subscription_status === 'active' ? 'bg-green-500' : 'bg-yellow-500'
@@ -537,7 +543,7 @@ export default function SettingsInterface() {
                           ? 'text-green-600 dark:text-green-400' 
                           : 'text-yellow-600 dark:text-yellow-400'
                       }`}>
-                        {subscription?.subscription_status === 'active' ? 'Active' : 'Free'}
+                        {subscription?.subscription_status === 'active' ? t('common.active') : t('common.free')}
                       </span>
                     </div>
                   </div>
@@ -549,7 +555,7 @@ export default function SettingsInterface() {
                   )}
                   {subscription?.current_period_end && subscription.subscription_status === 'active' && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-600 dark:text-slate-400">Next Billing</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('subscription.billing.nextBilling')}</span>
                       <span className="text-slate-800 dark:text-white font-medium">
                         {StripeService.formatDate(subscription.current_period_end)}
                       </span>
@@ -572,7 +578,7 @@ export default function SettingsInterface() {
                   className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2"
                 >
                   <Crown className="w-5 h-5" />
-                  <span>Upgrade to Pro</span>
+                  <span>{t('settings.upgradeToPro')}</span>
                 </motion.button>
               )}
             </div>
@@ -586,7 +592,7 @@ export default function SettingsInterface() {
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      Pro Plan
+                      {t('subscription.proPlan')}
                     </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
                       €5.00/month
@@ -597,19 +603,19 @@ export default function SettingsInterface() {
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-center space-x-2">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">Unlimited operations</span>
+                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.unlimitedOperations')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">Priority processing</span>
+                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.priorityProcessing')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">Advanced AI models</span>
+                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.advancedModels')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">Export history</span>
+                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.exportHistory')}</span>
                   </li>
                 </ul>
               </div>
@@ -620,7 +626,7 @@ export default function SettingsInterface() {
                 className="w-full px-6 py-2 glass-button rounded-xl flex items-center justify-center space-x-2"
               >
                 <CreditCard className="w-4 h-4" />
-                <span>Manage Billing</span>
+                <span>{t('settings.manageBilling')}</span>
               </motion.button>
             </div>
           </div>
@@ -637,7 +643,7 @@ export default function SettingsInterface() {
         <div className="flex items-center space-x-2 mb-6">
           <Palette className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-            Appearance
+            {t('settings.appearance')}
           </h2>
         </div>
 
@@ -646,10 +652,10 @@ export default function SettingsInterface() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-1">
-                Theme Preference
+                {t('settings.themePreference')}
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                Choose between light and dark mode
+                {t('settings.chooseTheme')}
               </p>
             </div>
             
@@ -686,7 +692,7 @@ export default function SettingsInterface() {
             }`}>
               <div className="flex items-center space-x-2 mb-3">
                 <Sun className="w-5 h-5 text-orange-500" />
-                <span className="font-medium text-slate-800">Light Mode</span>
+                <span className="font-medium text-slate-800">{t('settings.lightMode')}</span>
               </div>
               <div className="space-y-2">
                 <div className="h-2 bg-slate-200 rounded"></div>
@@ -702,7 +708,7 @@ export default function SettingsInterface() {
             }`}>
               <div className="flex items-center space-x-2 mb-3">
                 <Moon className="w-5 h-5 text-indigo-400" />
-                <span className="font-medium text-white">Dark Mode</span>
+                <span className="font-medium text-white">{t('settings.darkMode')}</span>
               </div>
               <div className="space-y-2">
                 <div className="h-2 bg-slate-600 rounded"></div>
@@ -724,7 +730,7 @@ export default function SettingsInterface() {
         <div className="flex items-center space-x-2 mb-6">
           <SettingsIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-            Additional Settings
+            {t('settings.additionalSettings')}
           </h2>
         </div>
 
@@ -733,7 +739,7 @@ export default function SettingsInterface() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2">
               <Shield className="w-5 h-5" />
-              <span>Privacy & Security</span>
+              <span>{t('settings.privacySecurity')}</span>
             </h3>
             <div className="space-y-3">
               {/* Change Password Button */}
@@ -745,7 +751,7 @@ export default function SettingsInterface() {
               >
                 <div className="flex items-center space-x-2">
                   <Lock className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Change Password</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('settings.changePassword')}</span>
                 </div>
                 <Edit3 className="w-4 h-4 text-slate-500" />
               </motion.button>
@@ -757,10 +763,10 @@ export default function SettingsInterface() {
               >
                 <div className="flex items-center space-x-2">
                   <Shield className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Two-Factor Authentication</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('settings.twoFactorAuth')}</span>
                 </div>
                 <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
-                  Coming Soon
+                  {t('settings.comingSoon')}
                 </span>
               </motion.button>
             </div>
@@ -770,7 +776,7 @@ export default function SettingsInterface() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2">
               <Download className="w-5 h-5" />
-              <span>Data Management</span>
+              <span>{t('settings.dataManagement')}</span>
             </h3>
             <div className="space-y-3">
               <motion.button
@@ -781,7 +787,7 @@ export default function SettingsInterface() {
               >
                 <div className="flex items-center space-x-2">
                   <Download className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Export All Data</span>
+                  <span className="text-slate-700 dark:text-slate-300">{t('settings.exportAllData')}</span>
                 </div>
                 <span className="text-xs text-slate-500">JSON</span>
               </motion.button>
@@ -793,9 +799,9 @@ export default function SettingsInterface() {
               >
                 <div className="flex items-center space-x-2">
                   <Trash2 className="w-4 h-4" />
-                  <span>Clear All Data</span>
+                  <span>{t('settings.clearAllData')}</span>
                 </div>
-                <span className="text-xs">Permanent</span>
+                <span className="text-xs">{t('settings.permanent')}</span>
               </motion.button>
             </div>
           </div>
@@ -832,7 +838,7 @@ export default function SettingsInterface() {
               <div className="flex items-center space-x-2 mb-6">
                 <Lock className="w-6 h-6 text-slate-600 dark:text-slate-300" />
                 <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-                  Change Password
+                  {t('settings.changePassword')}
                 </h2>
               </div>
 
@@ -987,7 +993,7 @@ export default function SettingsInterface() {
                   className="px-6 py-3 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50"
                 >
                   <X className="w-4 h-4" />
-                  <span>Cancel</span>
+                  <span>{t('common.cancel')}</span>
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -1009,7 +1015,7 @@ export default function SettingsInterface() {
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      <span>Change Password</span>
+                      <span>{t('settings.changePassword')}</span>
                     </>
                   )}
                 </motion.button>

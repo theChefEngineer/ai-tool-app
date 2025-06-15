@@ -10,14 +10,35 @@ import PlagiarismInterface from './components/PlagiarismChecker/PlagiarismInterf
 import ContentDetectorInterface from './components/ContentDetector/ContentDetectorInterface';
 import SuccessPage from './components/Success/SuccessPage';
 import { useAppStore } from './store/appStore';
+import { useLanguageStore } from './store/languageStore';
 
 function App() {
   const { theme, currentView } = useAppStore();
+  const { currentLanguage, isRTL } = useLanguageStore();
 
   useEffect(() => {
     // Initialize theme on app load
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, []);
+
+  useEffect(() => {
+    // Apply language and RTL settings
+    document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+    document.documentElement.lang = currentLanguage;
+    
+    if (isRTL) {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
+
+    // Apply language-specific fonts
+    if (currentLanguage === 'ar') {
+      document.documentElement.style.setProperty('--font-family', '"Noto Sans Arabic", "Cairo", "Amiri", system-ui, sans-serif');
+    } else {
+      document.documentElement.style.setProperty('--font-family', '"Inter", system-ui, -apple-system, sans-serif');
+    }
+  }, [currentLanguage, isRTL]);
 
   // Check if we're on the success page
   const urlParams = new URLSearchParams(window.location.search);
@@ -50,9 +71,11 @@ function App() {
   };
 
   return (
-    <Layout>
-      {renderCurrentView()}
-    </Layout>
+    <div className={`app ${isRTL ? 'rtl' : 'ltr'}`}>
+      <Layout>
+        {renderCurrentView()}
+      </Layout>
+    </div>
   );
 }
 
