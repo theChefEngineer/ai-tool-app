@@ -192,17 +192,17 @@ export const en: TranslationKeys = {
   },
 
   transcription: {
-    title: 'Document Transcription',
-    subtitle: 'Upload PDF and document files for AI-powered transcription, then enhance your content with powerful text processing tools.',
-    uploadDocument: 'Upload Document',
+    title: 'AI Document Transcription',
+    subtitle: 'Upload PDF and document files for AI-powered text extraction and transcription, then enhance your content with powerful text processing tools.',
+    uploadDocument: 'Upload Document for AI Transcription',
     dragDropText: 'Drag and drop your file here, or click to browse',
     browseFiles: 'Browse Files',
     supportedFormats: 'Supported formats',
     maxFileSize: 'Max size',
     processing: 'Processing document...',
     transcriptionComplete: 'Document transcribed successfully!',
-    originalTranscription: 'Original Transcription',
-    processedResults: 'Processed Results',
+    originalTranscription: 'AI-Extracted Text Content',
+    processedResults: 'AI Processed Results',
     wordCount: 'words',
     readingTime: 'min read',
     fileName: 'File Name',
@@ -211,7 +211,7 @@ export const en: TranslationKeys = {
       summarize: 'Summarize',
       paraphrase: 'Paraphrase',
       grammar: 'Grammar Check',
-      plagiarism: 'Plagiarism Check',
+      plagiarism: 'AI Detection',
       export: 'Export',
     },
     exportFormats: {
@@ -225,8 +225,8 @@ export const en: TranslationKeys = {
       uploadFailed: 'Failed to upload file. Please try again.',
       processingFailed: 'Failed to process document. Please try again.',
     },
-    emptyState: 'Upload a document to get started with transcription',
-    noResults: 'No processed results yet. Use the tools above to process your transcribed text.',
+    emptyState: 'Upload a document to get started with AI transcription',
+    noResults: 'No AI processing results yet. Use the tools above to enhance your transcribed content.',
   },
 
   chat: {
@@ -365,7 +365,7 @@ export const en: TranslationKeys = {
       languageChanged: 'Language changed successfully!',
       grammarChecked: 'Grammar check completed successfully!',
       correctionsApplied: 'Corrections applied successfully!',
-      transcriptionComplete: 'Document transcribed successfully!',
+      transcriptionComplete: 'Document transcribed successfully with AI!',
     },
   },
 
