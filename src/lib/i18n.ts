@@ -1,3 +1,5 @@
+import type { TranslationKeys } from '../lib/i18n';
+
 export type Language = 'en' | 'ar' | 'fr' | 'es';
 
 export interface TranslationKeys {
@@ -12,6 +14,7 @@ export interface TranslationKeys {
     history: string;
     settings: string;
     upgrade: string;
+    grammar: string;
   };
   
   // Common
@@ -173,6 +176,31 @@ export interface TranslationKeys {
     emptyState: string;
   };
 
+  // Grammar
+  grammar: {
+    title: string;
+    subtitle: string;
+    originalText: string;
+    correctedText: string;
+    checkGrammarButton: string;
+    processing: string;
+    placeholder: string;
+    emptyState: string;
+    corrections: string;
+    suggestions: string;
+    acceptAll: string;
+    rejectAll: string;
+    accept: string;
+    reject: string;
+    noErrors: string;
+    errorsFound: string;
+    grammarErrors: string;
+    spellingErrors: string;
+    styleImprovements: string;
+    applyChanges: string;
+    revertChanges: string;
+  };
+
   // Chat
   chat: {
     title: string;
@@ -313,6 +341,8 @@ export interface TranslationKeys {
       passwordChanged: string;
       subscriptionUpdated: string;
       languageChanged: string;
+      grammarChecked: string;
+      correctionsApplied: string;
     };
   };
 

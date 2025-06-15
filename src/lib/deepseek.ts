@@ -85,6 +85,24 @@ export interface HumanizeResponse {
   }>;
 }
 
+export interface GrammarError {
+  id: string;
+  type: 'grammar' | 'spelling' | 'style';
+  original: string;
+  suggestion: string;
+  explanation: string;
+  startIndex: number;
+  endIndex: number;
+}
+
+export interface GrammarResponse {
+  originalText: string;
+  correctedText: string;
+  errors: GrammarError[];
+  overallScore: number;
+  improvements: string[];
+}
+
 export class DeepseekService {
   private apiKey: string;
   private apiEndpoint: string;
@@ -528,6 +546,94 @@ export class DeepseekService {
       return data.choices[0].message.content || text;
     } catch (error) {
       console.error('Error calling Deepseek API for grammar check:', error);
+      if (error instanceof Error) {
+        throw error;
+      }
+      throw new Error('Failed to check grammar. Please try again.');
+    }
+  }
+
+  async checkGrammarAdvanced(text: string): Promise<GrammarResponse> {
+    const systemPrompt = `You are an advanced grammar and style checker. Analyze the given text for:
+
+    1. Grammar errors (subject-verb agreement, tense consistency, etc.)
+    2. Spelling mistakes
+    3. Style improvements (clarity, conciseness, flow)
+    4. Punctuation issues
+    5. Word choice and vocabulary enhancements
+
+    For each error found, provide:
+    - The exact text that needs correction
+    - A suggested replacement
+    - A clear explanation of why the change is needed
+    - The position in the text (start and end character indices)
+    - The type of error (grammar, spelling, or style)
+
+    Respond with a JSON object containing:
+    - correctedText: the fully corrected version of the text
+    - errors: array of error objects with id, type, original, suggestion, explanation, startIndex, endIndex
+    - overallScore: grammar quality score from 0-100 (100 being perfect)
+    - improvements: array of 3-5 general writing improvements made
+
+    Be thorough but focus on meaningful improvements that enhance clarity and correctness.`;
+
+    try {
+      const response = await fetch(`${this.apiEndpoint}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: text }
+          ],
+          response_format: { type: 'json_object' },
+          temperature: 0.1,
+          max_tokens: 2000,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`Deepseek API error: ${response.statusText}${errorData.error?.message ? ` - ${errorData.error.message}` : ''}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Invalid response format from Deepseek API');
+      }
+
+      let result;
+      try {
+        result = JSON.parse(data.choices[0].message.content);
+      } catch (parseError) {
+        throw new Error('Failed to parse JSON response from Deepseek API');
+      }
+
+      // Add unique IDs to errors and ensure proper structure
+      const errors = (result.errors || []).map((error: any, index: number) => ({
+        id: `error-${index}-${Date.now()}`,
+        type: error.type || 'grammar',
+        original: error.original || '',
+        suggestion: error.suggestion || '',
+        explanation: error.explanation || 'Improvement suggested',
+        startIndex: error.startIndex || 0,
+        endIndex: error.endIndex || 0,
+      }));
+
+      return {
+        originalText: text,
+        correctedText: result.correctedText || text,
+        errors,
+        overallScore: result.overallScore || (errors.length === 0 ? 100 : Math.max(60, 100 - errors.length * 5)),
+        improvements: result.improvements || [],
+      };
+    } catch (error) {
+      console.error('Error calling Deepseek API for advanced grammar check:', error);
       if (error instanceof Error) {
         throw error;
       }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot } from 'lucide-react';
+import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot, BookCheck } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { useTranslation } from '../../hooks/useTranslation';
 import UsageIndicator from './UsageIndicator';
@@ -27,6 +27,12 @@ export default function Sidebar() {
       label: t('nav.translation'), 
       key: 'translation' as const,
       active: currentView === 'translation' 
+    },
+    { 
+      icon: BookCheck, 
+      label: t('nav.grammar'), 
+      key: 'grammar' as const,
+      active: currentView === 'grammar' 
     },
     { 
       icon: Shield, 
@@ -67,6 +73,8 @@ export default function Sidebar() {
         return 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 shadow-lg';
       case 'translation':
         return 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-blue-400 shadow-lg';
+      case 'grammar':
+        return 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 dark:text-green-400 shadow-lg';
       case 'plagiarism':
         return 'bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-600 dark:text-red-400 shadow-lg';
       case 'content-detector':
@@ -104,7 +112,7 @@ export default function Sidebar() {
               whileHover={{ scale: 1.02, x: 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
+                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'grammar' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
                   setCurrentView(item.key);
                 } else if (item.key === 'upgrade') {
                   setCurrentView('settings');

@@ -11,6 +11,7 @@ export const en: TranslationKeys = {
     history: 'History',
     settings: 'Settings',
     upgrade: 'Upgrade',
+    grammar: 'Grammar Check',
   },
 
   common: {
@@ -165,6 +166,30 @@ export const en: TranslationKeys = {
     emptyState: 'Ready for Plagiarism Analysis',
   },
 
+  grammar: {
+    title: 'AI Grammar & Style Checker',
+    subtitle: 'Enhance your writing with advanced AI-powered grammar checking, spelling correction, and style improvements. Get real-time suggestions to make your text clear, correct, and compelling.',
+    originalText: 'Original Text',
+    correctedText: 'Corrected Text',
+    checkGrammarButton: 'Check Grammar',
+    processing: 'Analyzing...',
+    placeholder: 'Enter your text here for comprehensive grammar and style analysis...',
+    emptyState: 'Your grammar-checked text will appear here',
+    corrections: 'Corrections',
+    suggestions: 'Suggestions',
+    acceptAll: 'Accept All',
+    rejectAll: 'Reject All',
+    accept: 'Accept',
+    reject: 'Reject',
+    noErrors: 'No errors found! Your text looks great.',
+    errorsFound: 'errors found',
+    grammarErrors: 'Grammar Errors',
+    spellingErrors: 'Spelling Errors',
+    styleImprovements: 'Style Improvements',
+    applyChanges: 'Apply Changes',
+    revertChanges: 'Revert to Original',
+  },
+
   chat: {
     title: 'AI Chat Assistant',
     subtitle: 'Chat with your AI writing assistant for help with paraphrasing, summarizing, translation, and more',
@@ -299,6 +324,8 @@ export const en: TranslationKeys = {
       passwordChanged: 'Password changed successfully!',
       subscriptionUpdated: 'Subscription updated successfully!',
       languageChanged: 'Language changed successfully!',
+      grammarChecked: 'Grammar check completed successfully!',
+      correctionsApplied: 'Corrections applied successfully!',
     },
   },
 
