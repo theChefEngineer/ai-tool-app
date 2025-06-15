@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle } from 'lucide-react';
+import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 
 export default function Sidebar() {
@@ -24,6 +24,18 @@ export default function Sidebar() {
       label: 'Translation', 
       key: 'translation' as const,
       active: currentView === 'translation' 
+    },
+    { 
+      icon: Shield, 
+      label: 'Plagiarism Checker', 
+      key: 'plagiarism' as const,
+      active: currentView === 'plagiarism' 
+    },
+    { 
+      icon: Bot, 
+      label: 'AI Content Detector', 
+      key: 'content-detector' as const,
+      active: currentView === 'content-detector' 
     },
     { 
       icon: MessageCircle, 
@@ -52,6 +64,10 @@ export default function Sidebar() {
         return 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 shadow-lg';
       case 'translation':
         return 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-blue-400 shadow-lg';
+      case 'plagiarism':
+        return 'bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-600 dark:text-red-400 shadow-lg';
+      case 'content-detector':
+        return 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-blue-600 dark:text-blue-400 shadow-lg';
       case 'chat':
         return 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 shadow-lg';
       case 'settings':
@@ -67,7 +83,7 @@ export default function Sidebar() {
     <motion.aside
       initial={{ x: -300 }}
       animate={{ x: 0 }}
-      className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40"
+      className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto"
     >
       <div className="p-6">
         <nav className="space-y-2">
@@ -80,7 +96,7 @@ export default function Sidebar() {
               whileHover={{ scale: 1.02, x: 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'chat') {
+                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
                   setCurrentView(item.key);
                 }
               }}

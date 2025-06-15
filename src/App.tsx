@@ -6,6 +6,8 @@ import TranslationInterface from './components/Translation/TranslationInterface'
 import SettingsInterface from './components/Settings/SettingsInterface';
 import HistoryInterface from './components/History/HistoryInterface';
 import ChatInterface from './components/Chat/ChatInterface';
+import PlagiarismInterface from './components/PlagiarismChecker/PlagiarismInterface';
+import ContentDetectorInterface from './components/ContentDetector/ContentDetectorInterface';
 import { useAppStore } from './store/appStore';
 
 function App() {
@@ -28,6 +30,10 @@ function App() {
         return <HistoryInterface />;
       case 'chat':
         return <ChatInterface />;
+      case 'plagiarism':
+        return <PlagiarismInterface />;
+      case 'content-detector':
+        return <ContentDetectorInterface />;
       case 'paraphrase':
       default:
         return <ParaphraseInterface />;
