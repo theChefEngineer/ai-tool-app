@@ -1,132 +1,90 @@
 import { supabase } from './supabase';
-import { stripeProducts, type StripeProduct } from '../stripe-config';
-
-export interface SubscriptionData {
-  customer_id: string;
-  subscription_id: string | null;
-  subscription_status: string;
-  price_id: string | null;
-  current_period_start: number | null;
-  current_period_end: number | null;
-  cancel_at_period_end: boolean;
-  payment_method_brand: string | null;
-  payment_method_last4: string | null;
-}
-
-export interface OrderData {
-  customer_id: string;
-  order_id: number;
-  checkout_session_id: string;
-  payment_intent_id: string;
-  amount_subtotal: number;
-  amount_total: number;
-  currency: string;
-  payment_status: string;
-  order_status: string;
-  order_date: string;
-}
 
 export class StripeService {
-  static async createCheckoutSession(priceId: string, mode: 'payment' | 'subscription' = 'subscription') {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session?.access_token) {
-      throw new Error('User not authenticated');
+  static async createCheckoutSession(priceId: string, mode: 'subscription' | 'payment' = 'subscription') {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+
+      // Construct the correct Edge Function URL
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`;
+      
+      const response = await fetch(functionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          priceId,
+          mode,
+          userId: user.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL returned from server');
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      throw error;
     }
-
-    const product = stripeProducts.find(p => p.priceId === priceId);
-    if (!product) {
-      throw new Error('Product not found');
-    }
-
-    const baseUrl = window.location.origin;
-    const successUrl = `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${baseUrl}/settings`;
-
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        price_id: priceId,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        mode: mode,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Failed to create checkout session');
-    }
-
-    const data = await response.json();
-    return data;
   }
 
-  static async getUserSubscription(): Promise<SubscriptionData | null> {
+  static async getSubscriptionStatus() {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return null;
+      }
+
       const { data, error } = await supabase
         .from('stripe_user_subscriptions')
         .select('*')
-        .maybeSingle();
+        .single();
 
-      if (error) {
-        console.error('Error fetching subscription:', error);
-        return null;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
       }
 
       return data;
     } catch (error) {
-      console.error('Error fetching subscription:', error);
+      console.error('Error getting subscription status:', error);
       return null;
     }
   }
 
-  static async getUserOrders(): Promise<OrderData[]> {
+  static async cancelSubscription() {
     try {
-      const { data, error } = await supabase
-        .from('stripe_user_orders')
-        .select('*')
-        .order('order_date', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching orders:', error);
-        return [];
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error('User not authenticated');
       }
 
-      return data || [];
+      // This would typically call a Supabase Edge Function to handle cancellation
+      // For now, we'll just update the local state
+      console.log('Cancel subscription requested for user:', user.id);
+      
+      // You would implement the actual cancellation logic here
+      // by calling another Edge Function or Stripe API
+      
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      return [];
+      console.error('Error canceling subscription:', error);
+      throw error;
     }
-  }
-
-  static async getActiveSubscription(): Promise<{ product: StripeProduct; subscription: SubscriptionData } | null> {
-    const subscription = await this.getUserSubscription();
-    
-    if (!subscription || !subscription.price_id || subscription.subscription_status !== 'active') {
-      return null;
-    }
-
-    const product = stripeProducts.find(p => p.priceId === subscription.price_id);
-    if (!product) {
-      return null;
-    }
-
-    return { product, subscription };
-  }
-
-  static formatPrice(amount: number, currency: string = 'EUR'): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency.toUpperCase(),
-    }).format(amount);
-  }
-
-  static formatDate(timestamp: number): string {
-    return new Date(timestamp * 1000).toLocaleDateString();
   }
 }
