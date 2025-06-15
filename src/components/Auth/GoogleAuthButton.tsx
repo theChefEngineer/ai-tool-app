@@ -20,7 +20,7 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
     setIsLoading(true);
     try {
       await signInWithGoogle();
-      toast.success(variant === 'signin' ? t('auth.welcomeBack') : t('messages.success.profileUpdated'));
+      // Don't show success toast here as the redirect will happen
     } catch (error: any) {
       console.error('Google authentication error:', error);
       
@@ -39,7 +39,6 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
       } else {
         toast.error(error.message || t('messages.error.authentication'));
       }
-    } finally {
       setIsLoading(false);
     }
   };
@@ -63,7 +62,7 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
         <div className="mt-3 p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
           <p className="text-xs text-orange-600 dark:text-orange-400">
             <strong>Setup Required:</strong> Ensure your Google Cloud Console has the correct redirect URI: 
-            <code className="ml-1 px-1 bg-orange-200 dark:bg-orange-800 rounded">
+            <code className="ml-1 px-1 bg-orange-200 dark:bg-orange-800 rounded text-xs">
               https://engtcvuodpykxrzkkwjm.supabase.co/auth/v1/callback
             </code>
           </p>

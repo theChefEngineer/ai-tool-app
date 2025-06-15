@@ -51,8 +51,9 @@ function App() {
     return <SuccessPage />;
   }
 
-  // Check if we're on the auth callback page
-  if (window.location.pathname === '/auth/callback') {
+  // Check if we're on the auth callback page OR have auth parameters in URL
+  const hasAuthCode = urlParams.get('code') || window.location.hash.includes('access_token');
+  if (window.location.pathname === '/auth/callback' || hasAuthCode) {
     return <AuthCallback />;
   }
 

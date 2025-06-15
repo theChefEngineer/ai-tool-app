@@ -12,57 +12,105 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Handle the auth callback from the URL hash
-        const { data, error } = await supabase.auth.getSession();
+        // Check if we have auth data in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
         
+        const code = urlParams.get('code') || hashParams.get('code');
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const error = urlParams.get('error') || hashParams.get('error');
+        const errorDescription = urlParams.get('error_description') || hashParams.get('error_description');
+
+        console.log('Auth callback data:', { code, accessToken, error, errorDescription });
+
         if (error) {
-          console.error('Auth callback error:', error);
+          console.error('OAuth error:', error, errorDescription);
           setStatus('error');
-          setMessage(error.message || 'Authentication failed');
+          setMessage(errorDescription || error || 'Authentication failed');
           
-          // Redirect to home after error display
           setTimeout(() => {
             window.location.href = '/';
           }, 3000);
           return;
         }
 
-        if (data.session) {
-          setStatus('success');
-          setMessage('Successfully authenticated! Redirecting...');
+        if (code || accessToken) {
+          setMessage('Processing authentication...');
           
-          // Redirect to main app after a short delay
+          // Let Supabase handle the OAuth callback
+          const { data, error: sessionError } = await supabase.auth.getSession();
+          
+          if (sessionError) {
+            console.error('Session error:', sessionError);
+            
+            // Try to exchange the code for a session if we have one
+            if (code) {
+              try {
+                const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+                
+                if (exchangeError) {
+                  throw exchangeError;
+                }
+                
+                if (exchangeData.session) {
+                  setStatus('success');
+                  setMessage('Successfully authenticated! Redirecting...');
+                  
+                  setTimeout(() => {
+                    window.location.href = '/';
+                  }, 1500);
+                  return;
+                }
+              } catch (exchangeError) {
+                console.error('Code exchange error:', exchangeError);
+                throw sessionError;
+              }
+            }
+            
+            throw sessionError;
+          }
+
+          if (data.session) {
+            setStatus('success');
+            setMessage('Successfully authenticated! Redirecting...');
+            
+            setTimeout(() => {
+              window.location.href = '/';
+            }, 1500);
+          } else {
+            // Wait a bit for the session to be established
+            setTimeout(async () => {
+              const { data: retryData } = await supabase.auth.getSession();
+              if (retryData.session) {
+                setStatus('success');
+                setMessage('Successfully authenticated! Redirecting...');
+                
+                setTimeout(() => {
+                  window.location.href = '/';
+                }, 1500);
+              } else {
+                setStatus('error');
+                setMessage('Authentication session could not be established. Please try again.');
+                
+                setTimeout(() => {
+                  window.location.href = '/';
+                }, 3000);
+              }
+            }, 2000);
+          }
+        } else {
+          setStatus('error');
+          setMessage('No authentication data found. Please try signing in again.');
+          
           setTimeout(() => {
             window.location.href = '/';
-          }, 1500);
-        } else {
-          // Check if we have auth data in the URL hash
-          const hashParams = new URLSearchParams(window.location.hash.substring(1));
-          const accessToken = hashParams.get('access_token');
-          const refreshToken = hashParams.get('refresh_token');
-          
-          if (accessToken) {
-            // We have tokens in the URL, let Supabase handle them
-            setStatus('success');
-            setMessage('Processing authentication...');
-            
-            // Let the auth state change listener handle the session
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 2000);
-          } else {
-            setStatus('error');
-            setMessage('No authentication data found. Please try signing in again.');
-            
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 3000);
-          }
+          }, 3000);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Unexpected error during auth callback:', error);
         setStatus('error');
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage(error.message || 'An unexpected error occurred. Please try again.');
         
         setTimeout(() => {
           window.location.href = '/';
