@@ -131,6 +131,9 @@ export default function GrammarInterface() {
       errors: prev!.errors.map(error => ({ ...error, accepted: true, rejected: false }))
     }));
     setSelectedErrors(new Set(result.errors.map(e => e.id)));
+    
+    // Automatically apply all corrections when accepting all
+    applyCorrections(result.errors);
   };
 
   const handleRejectAll = () => {
@@ -143,10 +146,17 @@ export default function GrammarInterface() {
     setSelectedErrors(new Set());
   };
 
-  const applyCorrections = () => {
+  const applyCorrections = (errorsToApply?: GrammarError[]) => {
     if (!result) return;
 
-    const acceptedErrors = result.errors.filter(error => error.accepted);
+    // Use provided errors or get accepted errors from current result
+    const acceptedErrors = errorsToApply || result.errors.filter(error => error.accepted);
+    
+    if (acceptedErrors.length === 0) {
+      toast.info('No corrections selected to apply');
+      return;
+    }
+
     let correctedText = inputText;
 
     // Apply corrections in reverse order to maintain indices
@@ -159,9 +169,13 @@ export default function GrammarInterface() {
           correctedText.slice(error.endIndex);
       });
 
+    // Update the input text with corrections
     setInputText(correctedText);
+    
+    // Clear the result to show the corrected text in the input
     setResult(null);
     setSelectedErrors(new Set());
+    
     toast.success(t('messages.success.correctionsApplied'));
   };
 
@@ -384,7 +398,7 @@ export default function GrammarInterface() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={applyCorrections}
+                    onClick={() => applyCorrections()}
                     className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-1"
                   >
                     <Sparkles className="w-4 h-4" />
