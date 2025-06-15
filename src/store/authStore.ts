@@ -18,25 +18,58 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   initialize: async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // Clear any invalid tokens from localStorage
+      const invalidTokens = ['sb-access-token', 'sb-refresh-token'];
+      invalidTokens.forEach(key => {
+        const item = localStorage.getItem(key);
+        if (item && (item === 'undefined' || item === 'null' || item === '')) {
+          localStorage.removeItem(key);
+        }
+      });
+
+      // Get current session
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.warn('Session error during initialization:', error.message);
+        // Clear potentially corrupted session data
+        await supabase.auth.signOut();
+        set({ user: null, loading: false });
+        return;
+      }
+
       set({ user: session?.user ?? null, loading: false });
 
+      // Set up auth state change listener
       supabase.auth.onAuthStateChange(async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Handle successful sign in
-          set({ user: session.user, loading: false });
-        } else if (event === 'SIGNED_OUT') {
-          // Handle sign out
-          set({ user: null, loading: false });
-        } else {
-          set({ user: session?.user ?? null, loading: false });
+        switch (event) {
+          case 'SIGNED_IN':
+            if (session?.user) {
+              set({ user: session.user, loading: false });
+            }
+            break;
+          case 'SIGNED_OUT':
+            set({ user: null, loading: false });
+            break;
+          case 'TOKEN_REFRESHED':
+            if (session?.user) {
+              set({ user: session.user, loading: false });
+            }
+            break;
+          case 'USER_UPDATED':
+            if (session?.user) {
+              set({ user: session.user, loading: false });
+            }
+            break;
+          default:
+            set({ user: session?.user ?? null, loading: false });
         }
       });
     } catch (error) {
       console.error('Auth initialization error:', error);
-      set({ loading: false });
+      set({ user: null, loading: false });
     }
   },
 

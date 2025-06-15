@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Chrome, Loader2, AlertCircle } from 'lucide-react';
+import { Chrome, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
@@ -12,7 +12,7 @@ interface GoogleAuthButtonProps {
 
 export default function GoogleAuthButton({ variant = 'signin', className = '' }: GoogleAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(true); // Assume configured initially
   const { signInWithGoogle } = useAuthStore();
   const { t, isRTL } = useTranslation();
 
@@ -25,13 +25,17 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
       console.error('Google authentication error:', error);
       
       // Handle specific Google OAuth errors
-      if (error.message.includes('provider is not enabled') || error.message.includes('validation_failed')) {
-        setIsDisabled(true);
+      if (error.message.includes('provider is not enabled') || 
+          error.message.includes('validation_failed') ||
+          error.message.includes('not configured')) {
+        setIsConfigured(false);
         toast.error('Google Sign-In is currently being configured. Please use email/password for now.');
       } else if (error.message.includes('popup')) {
         toast.error('Please allow popups and try again.');
       } else if (error.message.includes('cancelled')) {
         toast.error('Sign-in was cancelled.');
+      } else if (error.message.includes('network')) {
+        toast.error('Network error. Please check your connection and try again.');
       } else {
         toast.error(error.message || t('messages.error.authentication'));
       }
@@ -44,12 +48,25 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
     ? t('auth.continueWithGoogle')
     : t('auth.continueWithGoogle');
 
-  if (isDisabled) {
+  if (!isConfigured) {
     return (
       <div className="w-full p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/30 rounded-xl">
         <div className="flex items-center space-x-2 text-orange-700 dark:text-orange-300">
           <AlertCircle className="w-5 h-5" />
-          <span className="text-sm">Google Sign-In is being configured. Please use email/password.</span>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Google Sign-In Configuration</p>
+            <p className="text-xs mt-1">
+              Google OAuth is being configured. Please use email/password authentication.
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+          <p className="text-xs text-orange-600 dark:text-orange-400">
+            <strong>Setup Required:</strong> Ensure your Google Cloud Console has the correct redirect URI: 
+            <code className="ml-1 px-1 bg-orange-200 dark:bg-orange-800 rounded">
+              https://engtcvuodpykxrzkkwjm.supabase.co/auth/v1/callback
+            </code>
+          </p>
         </div>
       </div>
     );
