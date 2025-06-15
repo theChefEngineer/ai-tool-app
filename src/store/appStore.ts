@@ -48,11 +48,11 @@ interface AppState {
   translationHistory: TranslationHistory[];
   isProcessing: boolean;
   isLoadingHistory: boolean;
-  currentView: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector';
+  currentView: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'transcription' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector';
   toggleTheme: () => void;
   setMode: (mode: ParaphraseMode) => void;
   setSummaryMode: (mode: SummaryMode) => void;
-  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector') => void;
+  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'transcription' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector') => void;
   addToHistory: (item: Omit<ParaphraseHistory, 'id' | 'timestamp'>) => Promise<void>;
   addToSummaryHistory: (item: Omit<SummaryHistory, 'id' | 'timestamp'>) => Promise<void>;
   addToTranslationHistory: (item: Omit<TranslationHistory, 'id' | 'timestamp'>) => Promise<void>;
@@ -85,7 +85,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setSummaryMode: (mode: SummaryMode) => set({ currentSummaryMode: mode }),
 
-  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector') => set({ currentView: view }),
+  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'grammar' | 'transcription' | 'settings' | 'history' | 'chat' | 'plagiarism' | 'content-detector') => set({ currentView: view }),
 
   addToHistory: async (item) => {
     const { user } = useAuthStore.getState();

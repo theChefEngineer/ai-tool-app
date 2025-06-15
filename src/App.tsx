@@ -4,6 +4,7 @@ import ParaphraseInterface from './components/Paraphrase/ParaphraseInterface';
 import SummaryInterface from './components/Summary/SummaryInterface';
 import TranslationInterface from './components/Translation/TranslationInterface';
 import GrammarInterface from './components/Grammar/GrammarInterface';
+import TranscriptionInterface from './components/Transcription/TranscriptionInterface';
 import SettingsInterface from './components/Settings/SettingsInterface';
 import HistoryInterface from './components/History/HistoryInterface';
 import ChatInterface from './components/Chat/ChatInterface';
@@ -63,6 +64,8 @@ function App() {
         return <TranslationInterface />;
       case 'grammar':
         return <GrammarInterface />;
+      case 'transcription':
+        return <TranscriptionInterface />;
       case 'settings':
         return <SettingsInterface />;
       case 'history':

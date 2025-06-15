@@ -12,6 +12,7 @@ export const en: TranslationKeys = {
     settings: 'Settings',
     upgrade: 'Upgrade',
     grammar: 'Grammar Check',
+    transcription: 'Transcription',
   },
 
   common: {
@@ -190,6 +191,44 @@ export const en: TranslationKeys = {
     revertChanges: 'Revert to Original',
   },
 
+  transcription: {
+    title: 'Document Transcription',
+    subtitle: 'Upload PDF and document files for AI-powered transcription, then enhance your content with powerful text processing tools.',
+    uploadDocument: 'Upload Document',
+    dragDropText: 'Drag and drop your file here, or click to browse',
+    browseFiles: 'Browse Files',
+    supportedFormats: 'Supported formats',
+    maxFileSize: 'Max size',
+    processing: 'Processing document...',
+    transcriptionComplete: 'Document transcribed successfully!',
+    originalTranscription: 'Original Transcription',
+    processedResults: 'Processed Results',
+    wordCount: 'words',
+    readingTime: 'min read',
+    fileName: 'File Name',
+    fileSize: 'File Size',
+    tools: {
+      summarize: 'Summarize',
+      paraphrase: 'Paraphrase',
+      grammar: 'Grammar Check',
+      plagiarism: 'Plagiarism Check',
+      export: 'Export',
+    },
+    exportFormats: {
+      txt: 'TXT',
+      pdf: 'PDF',
+      doc: 'DOC',
+    },
+    errors: {
+      unsupportedFile: 'Unsupported file type. Please upload: PDF, DOC, DOCX, TXT',
+      fileTooLarge: 'File size too large. Maximum size is 10MB.',
+      uploadFailed: 'Failed to upload file. Please try again.',
+      processingFailed: 'Failed to process document. Please try again.',
+    },
+    emptyState: 'Upload a document to get started with transcription',
+    noResults: 'No processed results yet. Use the tools above to process your transcribed text.',
+  },
+
   chat: {
     title: 'AI Chat Assistant',
     subtitle: 'Chat with your AI writing assistant for help with paraphrasing, summarizing, translation, and more',
@@ -326,6 +365,7 @@ export const en: TranslationKeys = {
       languageChanged: 'Language changed successfully!',
       grammarChecked: 'Grammar check completed successfully!',
       correctionsApplied: 'Corrections applied successfully!',
+      transcriptionComplete: 'Document transcribed successfully!',
     },
   },
 

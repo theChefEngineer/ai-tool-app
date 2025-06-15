@@ -15,6 +15,7 @@ export interface TranslationKeys {
     settings: string;
     upgrade: string;
     grammar: string;
+    transcription: string;
   };
   
   // Common
@@ -201,6 +202,45 @@ export interface TranslationKeys {
     revertChanges: string;
   };
 
+  // Transcription
+  transcription: {
+    title: string;
+    subtitle: string;
+    uploadDocument: string;
+    dragDropText: string;
+    browseFiles: string;
+    supportedFormats: string;
+    maxFileSize: string;
+    processing: string;
+    transcriptionComplete: string;
+    originalTranscription: string;
+    processedResults: string;
+    wordCount: string;
+    readingTime: string;
+    fileName: string;
+    fileSize: string;
+    tools: {
+      summarize: string;
+      paraphrase: string;
+      grammar: string;
+      plagiarism: string;
+      export: string;
+    };
+    exportFormats: {
+      txt: string;
+      pdf: string;
+      doc: string;
+    };
+    errors: {
+      unsupportedFile: string;
+      fileTooLarge: string;
+      uploadFailed: string;
+      processingFailed: string;
+    };
+    emptyState: string;
+    noResults: string;
+  };
+
   // Chat
   chat: {
     title: string;
@@ -343,6 +383,7 @@ export interface TranslationKeys {
       languageChanged: string;
       grammarChecked: string;
       correctionsApplied: string;
+      transcriptionComplete: string;
     };
   };
 
