@@ -31,9 +31,10 @@ export class StripeService {
           'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({
-          priceId,
+          price_id: priceId,
           mode,
-          userId: user.id,
+          success_url: `${window.location.origin}/success`,
+          cancel_url: `${window.location.origin}/settings`,
         }),
       });
 
@@ -66,7 +67,7 @@ export class StripeService {
       const { data, error } = await supabase
         .from('stripe_user_subscriptions')
         .select('*')
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
         throw error;
