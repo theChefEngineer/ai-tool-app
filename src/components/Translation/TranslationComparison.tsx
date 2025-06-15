@@ -1,0 +1,138 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import { ArrowRight, Globe, FileText } from 'lucide-react';
+
+interface TranslationComparisonProps {
+  originalText: string;
+  translatedText: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+}
+
+export default function TranslationComparison({
+  originalText,
+  translatedText,
+  sourceLanguage,
+  targetLanguage,
+}: TranslationComparisonProps) {
+  const originalWords = originalText.split(/\s+/).length;
+  const translatedWords = translatedText.split(/\s+/).length;
+  const wordDifference = translatedWords - originalWords;
+  const percentageChange = originalWords > 0 ? Math.round((wordDifference / originalWords) * 100) : 0;
+
+  const getLanguageFlag = (code: string) => {
+    const flags: { [key: string]: string } = {
+      'en': '🇺🇸', 'es': '🇪🇸', 'fr': '🇫🇷', 'de': '🇩🇪', 'it': '🇮🇹',
+      'pt': '🇵🇹', 'ru': '🇷🇺', 'ja': '🇯🇵', 'ko': '🇰🇷', 'zh': '🇨🇳',
+      'ar': '🇸🇦', 'hi': '🇮🇳', 'th': '🇹🇭', 'vi': '🇻🇳', 'nl': '🇳🇱',
+      'sv': '🇸🇪', 'da': '🇩🇰', 'no': '🇳🇴', 'fi': '🇫🇮'
+    };
+    return flags[code] || '🌐';
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="glass-card p-6 rounded-2xl"
+    >
+      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">
+        Translation Comparison
+      </h3>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Original Text */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">{getLanguageFlag(sourceLanguage)}</span>
+              <h4 className="font-medium text-slate-700 dark:text-slate-300">
+                Original ({sourceLanguage.toUpperCase()})
+              </h4>
+            </div>
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              {originalWords} words
+            </span>
+          </div>
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-l-4 border-slate-300 max-h-48 overflow-y-auto">
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              {originalText}
+            </p>
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="hidden lg:flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full"
+          >
+            <ArrowRight className="w-6 h-6 text-white" />
+          </motion.div>
+        </div>
+
+        {/* Translated Text */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl">{getLanguageFlag(targetLanguage)}</span>
+              <h4 className="font-medium text-slate-700 dark:text-slate-300">
+                Translation ({targetLanguage.toUpperCase()})
+              </h4>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-slate-500 dark:text-slate-400">
+                {translatedWords} words
+              </span>
+              {wordDifference !== 0 && (
+                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${
+                  wordDifference > 0 
+                    ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300'
+                    : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                }`}>
+                  <span>{wordDifference > 0 ? '+' : ''}{percentageChange}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border-l-4 border-blue-300 max-h-48 overflow-y-auto">
+            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+              {translatedText}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Statistics */}
+      <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="text-center p-3 glass-card rounded-xl">
+          <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">
+            {originalWords}
+          </div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">Source Words</div>
+        </div>
+        <div className="text-center p-3 glass-card rounded-xl">
+          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            {translatedWords}
+          </div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">Translated Words</div>
+        </div>
+        <div className="text-center p-3 glass-card rounded-xl">
+          <div className={`text-2xl font-bold ${
+            wordDifference > 0 
+              ? 'text-orange-600 dark:text-orange-400' 
+              : wordDifference < 0
+              ? 'text-green-600 dark:text-green-400'
+              : 'text-slate-600 dark:text-slate-400'
+          }`}>
+            {wordDifference > 0 ? '+' : ''}{wordDifference}
+          </div>
+          <div className="text-sm text-slate-500 dark:text-slate-400">Word Difference</div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
