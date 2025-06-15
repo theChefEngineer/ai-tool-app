@@ -44,6 +44,9 @@ export interface TranslationKeys {
     premium: string;
     active: string;
     inactive: string;
+    search: string;
+    refresh: string;
+    filters: string;
   };
 
   // Authentication
@@ -90,6 +93,7 @@ export interface TranslationKeys {
     improvements: string;
     readabilityScore: string;
     placeholder: string;
+    emptyState: string;
   };
 
   // Summary
@@ -118,6 +122,7 @@ export interface TranslationKeys {
     keyPoints: string;
     compressionRatio: string;
     placeholder: string;
+    emptyState: string;
   };
 
   // Translation
@@ -135,6 +140,7 @@ export interface TranslationKeys {
     confidence: string;
     alternatives: string;
     placeholder: string;
+    emptyState: string;
   };
 
   // Content Detector
@@ -157,6 +163,14 @@ export interface TranslationKeys {
     keyChanges: string;
     placeholder: string;
     poweredBy: string;
+    emptyState: string;
+  };
+
+  // Plagiarism
+  plagiarism: {
+    title: string;
+    subtitle: string;
+    emptyState: string;
   };
 
   // Chat
@@ -229,6 +243,7 @@ export interface TranslationKeys {
     permanent: string;
     language: string;
     selectLanguage: string;
+    languageFeatures: string;
   };
 
   // Subscription
@@ -239,6 +254,7 @@ export interface TranslationKeys {
     subscribeNow: string;
     upgradeNow: string;
     processing: string;
+    chooseYourPlan: string;
     features: {
       unlimitedOperations: string;
       priorityProcessing: string;

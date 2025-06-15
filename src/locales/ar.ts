@@ -42,6 +42,9 @@ export const ar: TranslationKeys = {
     premium: 'مميز',
     active: 'نشط',
     inactive: 'غير نشط',
+    search: 'بحث',
+    refresh: 'تحديث',
+    filters: 'مرشحات',
   },
 
   auth: {
@@ -86,6 +89,7 @@ export const ar: TranslationKeys = {
     improvements: 'التحسينات الرئيسية:',
     readabilityScore: 'النتيجة',
     placeholder: 'أدخل نصك هنا للبدء في إعادة الصياغة بالذكاء الاصطناعي...',
+    emptyState: 'النص المُعاد صياغته سيظهر هنا',
   },
 
   summary: {
@@ -113,6 +117,7 @@ export const ar: TranslationKeys = {
     keyPoints: 'النقاط الرئيسية المُلتقطة:',
     compressionRatio: 'أقصر',
     placeholder: 'أدخل نصك الطويل هنا للحصول على ملخص شامل يحافظ على جميع الأفكار الرئيسية والتفاصيل المهمة...',
+    emptyState: 'الملخص الشامل سيظهر هنا',
   },
 
   translation: {
@@ -129,6 +134,7 @@ export const ar: TranslationKeys = {
     confidence: 'الثقة:',
     alternatives: 'ترجمات بديلة:',
     placeholder: 'أدخل النص للترجمة...',
+    emptyState: 'الترجمة ستظهر هنا',
   },
 
   contentDetector: {
@@ -150,6 +156,13 @@ export const ar: TranslationKeys = {
     keyChanges: 'التغييرات الرئيسية المُجراة',
     placeholder: 'الصق نصك لتحليل احتمالية الذكاء الاصطناعي وتنسينه بـ DeepSeek R1...',
     poweredBy: 'مدعوم بـ DeepSeek R1 - كشف وتنسين الذكاء الاصطناعي المتقدم',
+    emptyState: 'تحليل وتنسين المحتوى الذكي',
+  },
+
+  plagiarism: {
+    title: 'كاشف الانتحال بالذكاء الاصطناعي',
+    subtitle: 'اكتشف الانتحال المحتمل بتحليل متقدم بالذكاء الاصطناعي. احصل على مطابقة مفصلة للمصادر ونسب التشابه وتوصيات قابلة للتنفيذ لتحسين أصالة المحتوى.',
+    emptyState: 'جاهز لتحليل الانتحال',
   },
 
   chat: {
@@ -219,6 +232,7 @@ export const ar: TranslationKeys = {
     permanent: 'دائم',
     language: 'اللغة',
     selectLanguage: 'اختر اللغة',
+    languageFeatures: 'ميزات اللغة',
   },
 
   subscription: {
@@ -228,6 +242,7 @@ export const ar: TranslationKeys = {
     subscribeNow: 'اشترك الآن',
     upgradeNow: 'ترقية الآن',
     processing: 'جاري المعالجة...',
+    chooseYourPlan: 'اختر خطتك',
     features: {
       unlimitedOperations: 'عمليات غير محدودة',
       priorityProcessing: 'معالجة ذات أولوية',

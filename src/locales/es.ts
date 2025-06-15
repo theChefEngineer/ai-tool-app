@@ -42,6 +42,9 @@ export const es: TranslationKeys = {
     premium: 'Premium',
     active: 'Activo',
     inactive: 'Inactivo',
+    search: 'Buscar',
+    refresh: 'Actualizar',
+    filters: 'Filtros',
   },
 
   auth: {
@@ -86,6 +89,7 @@ export const es: TranslationKeys = {
     improvements: 'Mejoras Clave:',
     readabilityScore: 'Puntuación',
     placeholder: 'Ingresa tu texto aquí para comenzar con el parafraseo asistido por IA...',
+    emptyState: 'Tu texto parafraseado aparecerá aquí',
   },
 
   summary: {
@@ -113,6 +117,7 @@ export const es: TranslationKeys = {
     keyPoints: 'Puntos Clave Capturados:',
     compressionRatio: 'más corto',
     placeholder: 'Ingresa tu texto extenso aquí para obtener un resumen completo que mantenga todas las ideas clave y detalles importantes...',
+    emptyState: 'Tu resumen completo aparecerá aquí',
   },
 
   translation: {
@@ -129,6 +134,7 @@ export const es: TranslationKeys = {
     confidence: 'Confianza:',
     alternatives: 'Traducciones Alternativas:',
     placeholder: 'Ingresa texto para traducir...',
+    emptyState: 'Tu traducción aparecerá aquí',
   },
 
   contentDetector: {
@@ -150,6 +156,13 @@ export const es: TranslationKeys = {
     keyChanges: 'Cambios Clave Realizados',
     placeholder: 'Pega tu texto para analizar la probabilidad de IA y humanizarlo con DeepSeek R1...',
     poweredBy: 'Impulsado por DeepSeek R1 - Detección y Humanización IA Avanzadas',
+    emptyState: 'Análisis y Humanización de Contenido IA',
+  },
+
+  plagiarism: {
+    title: 'Detector de Plagio IA',
+    subtitle: 'Detecta plagio potencial con análisis IA avanzado. Obtén coincidencia detallada de fuentes, porcentajes de similitud y recomendaciones accionables para mejorar la originalidad del contenido.',
+    emptyState: 'Listo para Análisis de Plagio',
   },
 
   chat: {
@@ -219,6 +232,7 @@ export const es: TranslationKeys = {
     permanent: 'Permanente',
     language: 'Idioma',
     selectLanguage: 'Seleccionar Idioma',
+    languageFeatures: 'Características del Idioma',
   },
 
   subscription: {
@@ -228,6 +242,7 @@ export const es: TranslationKeys = {
     subscribeNow: 'Suscribirse Ahora',
     upgradeNow: 'Actualizar Ahora',
     processing: 'Procesando...',
+    chooseYourPlan: 'Elige Tu Plan',
     features: {
       unlimitedOperations: 'Operaciones ilimitadas',
       priorityProcessing: 'Procesamiento prioritario',

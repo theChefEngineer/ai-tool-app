@@ -42,6 +42,9 @@ export const en: TranslationKeys = {
     premium: 'Premium',
     active: 'Active',
     inactive: 'Inactive',
+    search: 'Search',
+    refresh: 'Refresh',
+    filters: 'Filters',
   },
 
   auth: {
@@ -86,6 +89,7 @@ export const en: TranslationKeys = {
     improvements: 'Key Improvements:',
     readabilityScore: 'Score',
     placeholder: 'Enter your text here to get started with AI-powered paraphrasing...',
+    emptyState: 'Your paraphrased text will appear here',
   },
 
   summary: {
@@ -113,6 +117,7 @@ export const en: TranslationKeys = {
     keyPoints: 'Key Points Captured:',
     compressionRatio: 'shorter',
     placeholder: 'Enter your lengthy text here to get a comprehensive summary that maintains all key ideas and important details...',
+    emptyState: 'Your comprehensive summary will appear here',
   },
 
   translation: {
@@ -129,6 +134,7 @@ export const en: TranslationKeys = {
     confidence: 'Confidence:',
     alternatives: 'Alternative Translations:',
     placeholder: 'Enter text to translate...',
+    emptyState: 'Your translation will appear here',
   },
 
   contentDetector: {
@@ -150,6 +156,13 @@ export const en: TranslationKeys = {
     keyChanges: 'Key Changes Made',
     placeholder: 'Paste your text to analyze AI probability and humanize with DeepSeek R1...',
     poweredBy: 'Powered by DeepSeek R1 - Advanced AI Detection & Humanization',
+    emptyState: 'AI Content Analysis & Humanization',
+  },
+
+  plagiarism: {
+    title: 'AI Plagiarism Checker',
+    subtitle: 'Detect potential plagiarism with advanced AI analysis. Get detailed source matching, similarity percentages, and actionable recommendations for improving content originality.',
+    emptyState: 'Ready for Plagiarism Analysis',
   },
 
   chat: {
@@ -219,6 +232,7 @@ export const en: TranslationKeys = {
     permanent: 'Permanent',
     language: 'Language',
     selectLanguage: 'Select Language',
+    languageFeatures: 'Language Features',
   },
 
   subscription: {
@@ -228,6 +242,7 @@ export const en: TranslationKeys = {
     subscribeNow: 'Subscribe Now',
     upgradeNow: 'Upgrade Now',
     processing: 'Processing...',
+    chooseYourPlan: 'Choose Your Plan',
     features: {
       unlimitedOperations: 'Unlimited operations',
       priorityProcessing: 'Priority processing',
