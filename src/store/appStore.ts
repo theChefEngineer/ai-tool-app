@@ -45,11 +45,11 @@ interface AppState {
   summaryHistory: SummaryHistory[];
   translationHistory: TranslationHistory[];
   isProcessing: boolean;
-  currentView: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'language-detection';
+  currentView: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'chat';
   toggleTheme: () => void;
   setMode: (mode: ParaphraseMode) => void;
   setSummaryMode: (mode: SummaryMode) => void;
-  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'language-detection') => void;
+  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'chat') => void;
   addToHistory: (item: Omit<ParaphraseHistory, 'id' | 'timestamp'>) => void;
   addToSummaryHistory: (item: Omit<SummaryHistory, 'id' | 'timestamp'>) => void;
   addToTranslationHistory: (item: Omit<TranslationHistory, 'id' | 'timestamp'>) => void;
@@ -79,7 +79,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setSummaryMode: (mode: SummaryMode) => set({ currentSummaryMode: mode }),
 
-  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'language-detection') => set({ currentView: view }),
+  setCurrentView: (view: 'paraphrase' | 'summary' | 'translation' | 'settings' | 'history' | 'chat') => set({ currentView: view }),
 
   addToHistory: (item) => {
     const historyItem: ParaphraseHistory = {
