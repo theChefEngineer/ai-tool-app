@@ -28,6 +28,9 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { DatabaseService, type UserProfile } from '../../lib/database';
+import { StripeService, type SubscriptionData } from '../../lib/stripe';
+import { stripeProducts } from '../../stripe-config';
+import SubscriptionManager from '../Subscription/SubscriptionManager';
 import toast from 'react-hot-toast';
 
 export default function SettingsInterface() {
@@ -46,6 +49,10 @@ export default function SettingsInterface() {
   });
   const [profileErrors, setProfileErrors] = useState<{[key: string]: string}>({});
 
+  // Subscription state
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(true);
+
   // Password change state
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordData, setPasswordData] = useState({
@@ -61,9 +68,10 @@ export default function SettingsInterface() {
   const [passwordErrors, setPasswordErrors] = useState<{[key: string]: string}>({});
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  // Load user profile on component mount
+  // Load user profile and subscription on component mount
   useEffect(() => {
     loadUserProfile();
+    loadSubscription();
   }, [user]);
 
   const loadUserProfile = async () => {
@@ -85,6 +93,18 @@ export default function SettingsInterface() {
       toast.error('Failed to load profile');
     } finally {
       setIsLoadingProfile(false);
+    }
+  };
+
+  const loadSubscription = async () => {
+    setIsLoadingSubscription(true);
+    try {
+      const data = await StripeService.getUserSubscription();
+      setSubscription(data);
+    } catch (error) {
+      console.error('Error loading subscription:', error);
+    } finally {
+      setIsLoadingSubscription(false);
     }
   };
 
@@ -269,6 +289,15 @@ export default function SettingsInterface() {
       case 5: return { label: 'Strong', color: 'bg-green-500' };
       default: return { label: 'Very Weak', color: 'bg-red-500' };
     }
+  };
+
+  const getCurrentPlan = () => {
+    if (!subscription || subscription.subscription_status !== 'active' || !subscription.price_id) {
+      return { name: 'Free Plan', description: '20 operations per day' };
+    }
+
+    const product = stripeProducts.find(p => p.priceId === subscription.price_id);
+    return product ? { name: product.name, description: product.description } : { name: 'Unknown Plan', description: 'Active subscription' };
   };
 
   if (isLoadingProfile) {
@@ -459,7 +488,7 @@ export default function SettingsInterface() {
         </div>
       </motion.div>
 
-      {/* Subscription Information */}
+      {/* Subscription Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -473,96 +502,129 @@ export default function SettingsInterface() {
           </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Current Plan */}
-          <div className="space-y-4">
-            <div className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/30">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg">
-                  <Crown className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                    Free Plan
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    20 operations per day
-                  </p>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">Status</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-green-600 dark:text-green-400 font-medium">Active</span>
+        {isLoadingSubscription ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Current Plan */}
+            <div className="space-y-4">
+              <div className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800/30">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg">
+                    <Crown className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                      {getCurrentPlan().name}
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {getCurrentPlan().description}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-600 dark:text-slate-400">Usage Today</span>
-                  <span className="text-slate-800 dark:text-white font-medium">15 / 20</span>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-600 dark:text-slate-400">Status</span>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        subscription?.subscription_status === 'active' ? 'bg-green-500' : 'bg-yellow-500'
+                      }`}></div>
+                      <span className={`font-medium capitalize ${
+                        subscription?.subscription_status === 'active' 
+                          ? 'text-green-600 dark:text-green-400' 
+                          : 'text-yellow-600 dark:text-yellow-400'
+                      }`}>
+                        {subscription?.subscription_status === 'active' ? 'Active' : 'Free'}
+                      </span>
+                    </div>
+                  </div>
+                  {subscription?.subscription_status !== 'active' && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Usage Today</span>
+                      <span className="text-slate-800 dark:text-white font-medium">15 / 20</span>
+                    </div>
+                  )}
+                  {subscription?.current_period_end && subscription.subscription_status === 'active' && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-600 dark:text-slate-400">Next Billing</span>
+                      <span className="text-slate-800 dark:text-white font-medium">
+                        {StripeService.formatDate(subscription.current_period_end)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {subscription?.subscription_status !== 'active' && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    // Scroll to subscription manager
+                    const element = document.getElementById('subscription-manager');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                  className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2"
+                >
+                  <Crown className="w-5 h-5" />
+                  <span>Upgrade to Pro</span>
+                </motion.button>
+              )}
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2"
-            >
-              <Crown className="w-5 h-5" />
-              <span>Upgrade to Pro</span>
-            </motion.button>
-          </div>
-
-          {/* Pro Plan Preview */}
-          <div className="space-y-4">
-            <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800/30">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
-                  <Crown className="w-5 h-5 text-white" />
+            {/* Pro Plan Preview */}
+            <div className="space-y-4">
+              <div className="p-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800/30">
+                <div className="flex items-center space-x-3 mb-3">
+                  <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg">
+                    <Crown className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                      Pro Plan
+                    </h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      €5.00/month
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                    Pro Plan
-                  </h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    $9.99/month
-                  </p>
-                </div>
+                
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-slate-700 dark:text-slate-300">Unlimited operations</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-slate-700 dark:text-slate-300">Priority processing</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-slate-700 dark:text-slate-300">Advanced AI models</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-green-500" />
+                    <span className="text-slate-700 dark:text-slate-300">Export history</span>
+                  </li>
+                </ul>
               </div>
-              
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Unlimited operations</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Priority processing</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Advanced AI models</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <Check className="w-4 h-4 text-green-500" />
-                  <span className="text-slate-700 dark:text-slate-300">Export history</span>
-                </li>
-              </ul>
-            </div>
 
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full px-6 py-2 glass-button rounded-xl flex items-center justify-center space-x-2"
-            >
-              <CreditCard className="w-4 h-4" />
-              <span>Manage Billing</span>
-            </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full px-6 py-2 glass-button rounded-xl flex items-center justify-center space-x-2"
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>Manage Billing</span>
+              </motion.button>
+            </div>
           </div>
-        </div>
+        )}
       </motion.div>
 
       {/* Appearance Settings */}
@@ -738,6 +800,16 @@ export default function SettingsInterface() {
             </div>
           </div>
         </div>
+      </motion.div>
+
+      {/* Subscription Manager */}
+      <motion.div
+        id="subscription-manager"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <SubscriptionManager />
       </motion.div>
 
       {/* Password Change Modal */}

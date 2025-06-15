@@ -8,6 +8,7 @@ import HistoryInterface from './components/History/HistoryInterface';
 import ChatInterface from './components/Chat/ChatInterface';
 import PlagiarismInterface from './components/PlagiarismChecker/PlagiarismInterface';
 import ContentDetectorInterface from './components/ContentDetector/ContentDetectorInterface';
+import SuccessPage from './components/Success/SuccessPage';
 import { useAppStore } from './store/appStore';
 
 function App() {
@@ -17,6 +18,14 @@ function App() {
     // Initialize theme on app load
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, []);
+
+  // Check if we're on the success page
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('session_id');
+  
+  if (sessionId) {
+    return <SuccessPage />;
+  }
 
   const renderCurrentView = () => {
     switch (currentView) {

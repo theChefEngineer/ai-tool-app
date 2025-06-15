@@ -1,0 +1,31 @@
+export interface StripeProduct {
+  id: string;
+  priceId: string;
+  name: string;
+  description: string;
+  mode: 'payment' | 'subscription';
+  price: number;
+  currency: string;
+  interval?: 'month' | 'year';
+}
+
+export const stripeProducts: StripeProduct[] = [
+  {
+    id: 'prod_SVIhB2E1arLwLY',
+    priceId: 'price_1RaI60QuiDoWEii08tD5PN6o',
+    name: 'AI Tool',
+    description: 'Tool that summarize / paraphrase / ai detect text',
+    mode: 'subscription',
+    price: 5.00,
+    currency: 'EUR',
+    interval: 'month',
+  },
+];
+
+export const getProductByPriceId = (priceId: string): StripeProduct | undefined => {
+  return stripeProducts.find(product => product.priceId === priceId);
+};
+
+export const getProductById = (id: string): StripeProduct | undefined => {
+  return stripeProducts.find(product => product.id === id);
+};
