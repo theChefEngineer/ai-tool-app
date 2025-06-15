@@ -13,10 +13,10 @@ export const stripeProducts: StripeProduct[] = [
   {
     id: 'prod_SVIhB2E1arLwLY',
     priceId: 'price_1RaI60QuiDoWEii08tD5PN6o',
-    name: 'AI Tool',
-    description: 'Tool that summarize / paraphrase / ai detect text',
+    name: 'ParaText Pro',
+    description: 'Unlimited AI-powered writing tools with premium features',
     mode: 'subscription',
-    price: 5.00,
+    price: 500, // 5.00 EUR in cents
     currency: 'EUR',
     interval: 'month',
   },

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
+import UsageIndicator from './UsageIndicator';
 
 export default function Sidebar() {
   const { currentView, setCurrentView } = useAppStore();
@@ -86,6 +87,11 @@ export default function Sidebar() {
       className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto"
     >
       <div className="p-6">
+        {/* Usage Indicator */}
+        <div className="mb-6">
+          <UsageIndicator />
+        </div>
+
         <nav className="space-y-2">
           {menuItems.map((item, index) => (
             <motion.button
@@ -98,6 +104,15 @@ export default function Sidebar() {
               onClick={() => {
                 if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
                   setCurrentView(item.key);
+                } else if (item.key === 'upgrade') {
+                  setCurrentView('settings');
+                  // Scroll to subscription section after navigation
+                  setTimeout(() => {
+                    const element = document.getElementById('subscription-manager');
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }, 100);
                 }
               }}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
@@ -116,21 +131,6 @@ export default function Sidebar() {
             </motion.button>
           ))}
         </nav>
-
-        <div className="mt-8 p-4 glass-card rounded-xl bg-gradient-to-br from-indigo-500/10 to-purple-500/10">
-          <div className="flex items-center space-x-2 mb-2">
-            <Zap className="w-4 h-4 text-indigo-500" />
-            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-              Usage Today
-            </span>
-          </div>
-          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mb-2">
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full w-3/4"></div>
-          </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            15 of 20 free operations used
-          </p>
-        </div>
       </div>
     </motion.aside>
   );

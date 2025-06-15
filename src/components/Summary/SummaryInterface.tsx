@@ -3,20 +3,30 @@ import { motion } from 'framer-motion';
 import { Send, Loader2, Copy, Check, RotateCcw, BookOpen, FileText } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
+import { UsageChecker } from '../../lib/usageChecker';
 import toast from 'react-hot-toast';
 import SummaryModeSelector from './SummaryModeSelector';
 import SummaryComparison from './SummaryComparison';
+import UsageLimitModal from '../Layout/UsageLimitModal';
 
 export default function SummaryInterface() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { currentSummaryMode, isProcessing, setProcessing, addToSummaryHistory } = useAppStore();
 
   const handleSummarize = async () => {
     if (!inputText.trim()) {
       toast.error('Please enter some text to summarize');
+      return;
+    }
+
+    // Check usage limit before processing
+    const canProceed = await UsageChecker.checkAndIncrementUsage('summary');
+    if (!canProceed) {
+      setShowUsageLimitModal(true);
       return;
     }
 
@@ -260,6 +270,13 @@ export default function SummaryInterface() {
           compressionRatio={result.compressionRatio}
         />
       )}
+
+      {/* Usage Limit Modal */}
+      <UsageLimitModal
+        isOpen={showUsageLimitModal}
+        onClose={() => setShowUsageLimitModal(false)}
+        onUpgrade={() => setShowUsageLimitModal(false)}
+      />
     </div>
   );
 }

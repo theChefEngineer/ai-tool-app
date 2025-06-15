@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { ArrowRightLeft, Loader2, Copy, Check, RotateCcw, Languages, Volume2 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
+import { UsageChecker } from '../../lib/usageChecker';
 import toast from 'react-hot-toast';
 import LanguageSelector from './LanguageSelector';
 import TranslationComparison from './TranslationComparison';
+import UsageLimitModal from '../Layout/UsageLimitModal';
 
 export default function TranslationInterface() {
   const [inputText, setInputText] = useState('');
@@ -13,6 +15,7 @@ export default function TranslationInterface() {
   const [copied, setCopied] = useState(false);
   const [sourceLanguage, setSourceLanguage] = useState('auto');
   const [targetLanguage, setTargetLanguage] = useState('en');
+  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { isProcessing, setProcessing, addToTranslationHistory } = useAppStore();
 
@@ -24,6 +27,13 @@ export default function TranslationInterface() {
 
     if (sourceLanguage === targetLanguage && sourceLanguage !== 'auto') {
       toast.error('Source and target languages cannot be the same');
+      return;
+    }
+
+    // Check usage limit before processing
+    const canProceed = await UsageChecker.checkAndIncrementUsage('translation');
+    if (!canProceed) {
+      setShowUsageLimitModal(true);
       return;
     }
 
@@ -257,6 +267,13 @@ export default function TranslationInterface() {
           targetLanguage={targetLanguage}
         />
       )}
+
+      {/* Usage Limit Modal */}
+      <UsageLimitModal
+        isOpen={showUsageLimitModal}
+        onClose={() => setShowUsageLimitModal(false)}
+        onUpgrade={() => setShowUsageLimitModal(false)}
+      />
     </div>
   );
 }

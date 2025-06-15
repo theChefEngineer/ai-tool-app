@@ -3,20 +3,30 @@ import { motion } from 'framer-motion';
 import { Send, Loader2, Copy, Check, RotateCcw, Wand2 } from 'lucide-react';
 import { useAppStore, type ParaphraseMode } from '../../store/appStore';
 import { deepseekService } from '../../lib/deepseek';
+import { UsageChecker } from '../../lib/usageChecker';
 import toast from 'react-hot-toast';
 import ModeSelector from './ModeSelector';
 import TextComparison from './TextComparison';
+import UsageLimitModal from '../Layout/UsageLimitModal';
 
 export default function ParaphraseInterface() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
+  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { currentMode, isProcessing, setProcessing, addToHistory } = useAppStore();
 
   const handleParaphrase = async () => {
     if (!inputText.trim()) {
       toast.error('Please enter some text to paraphrase');
+      return;
+    }
+
+    // Check usage limit before processing
+    const canProceed = await UsageChecker.checkAndIncrementUsage('paraphrase');
+    if (!canProceed) {
+      setShowUsageLimitModal(true);
       return;
     }
 
@@ -210,6 +220,13 @@ export default function ParaphraseInterface() {
           paraphrasedText={result.paraphrasedText}
         />
       )}
+
+      {/* Usage Limit Modal */}
+      <UsageLimitModal
+        isOpen={showUsageLimitModal}
+        onClose={() => setShowUsageLimitModal(false)}
+        onUpgrade={() => setShowUsageLimitModal(false)}
+      />
     </div>
   );
 }
