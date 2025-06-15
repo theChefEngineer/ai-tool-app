@@ -106,10 +106,10 @@ export default function Sidebar() {
                   : 'hover:bg-white/5 text-slate-600 dark:text-slate-300'
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              <span className="font-medium text-left flex-1">{item.label}</span>
               {item.premium && (
-                <span className="ml-auto px-2 py-1 text-xs bg-gradient-to-r from-yellow-400 to-orange-400 text-black rounded-full font-bold">
+                <span className="px-2 py-1 text-xs bg-gradient-to-r from-yellow-400 to-orange-400 text-black rounded-full font-bold flex-shrink-0">
                   PRO
                 </span>
               )}
