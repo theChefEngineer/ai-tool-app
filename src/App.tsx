@@ -9,6 +9,7 @@ import ChatInterface from './components/Chat/ChatInterface';
 import PlagiarismInterface from './components/PlagiarismChecker/PlagiarismInterface';
 import ContentDetectorInterface from './components/ContentDetector/ContentDetectorInterface';
 import SuccessPage from './components/Success/SuccessPage';
+import AuthCallback from './components/Auth/AuthCallback';
 import { useAppStore } from './store/appStore';
 import { useLanguageStore } from './store/languageStore';
 
@@ -46,6 +47,11 @@ function App() {
   
   if (sessionId) {
     return <SuccessPage />;
+  }
+
+  // Check if we're on the auth callback page
+  if (window.location.pathname === '/auth/callback') {
+    return <AuthCallback />;
   }
 
   const renderCurrentView = () => {
