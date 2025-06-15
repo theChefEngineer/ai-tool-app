@@ -15,10 +15,11 @@ export const useLanguageStore = create<LanguageState>()(
   persist(
     (set, get) => ({
       currentLanguage: 'en',
-      isRTL: false,
+      isRTL: false, // Always false now, no RTL support
 
       setLanguage: (language: Language) => {
-        const isRTL = language === 'ar';
+        // Remove RTL support - always use LTR
+        const isRTL = false;
         
         set({ 
           currentLanguage: language, 
@@ -26,17 +27,13 @@ export const useLanguageStore = create<LanguageState>()(
         });
 
         // Update document direction and language
-        document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+        document.documentElement.dir = 'ltr'; // Always LTR
         document.documentElement.lang = language;
         
-        // Update body class for RTL styling
-        if (isRTL) {
-          document.body.classList.add('rtl');
-        } else {
-          document.body.classList.remove('rtl');
-        }
+        // Remove RTL class from body
+        document.body.classList.remove('rtl');
 
-        // Update font family for Arabic
+        // Update font family for Arabic (but keep LTR)
         if (language === 'ar') {
           document.documentElement.style.setProperty('--font-family', '"Noto Sans Arabic", "Cairo", "Amiri", system-ui, sans-serif');
         } else {
@@ -83,15 +80,12 @@ export const useLanguageStore = create<LanguageState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          // Apply language settings on app load
-          document.documentElement.dir = state.isRTL ? 'rtl' : 'ltr';
+          // Apply language settings on app load - always LTR
+          document.documentElement.dir = 'ltr';
           document.documentElement.lang = state.currentLanguage;
           
-          if (state.isRTL) {
-            document.body.classList.add('rtl');
-          } else {
-            document.body.classList.remove('rtl');
-          }
+          // Remove RTL class
+          document.body.classList.remove('rtl');
 
           if (state.currentLanguage === 'ar') {
             document.documentElement.style.setProperty('--font-family', '"Noto Sans Arabic", "Cairo", "Amiri", system-ui, sans-serif');

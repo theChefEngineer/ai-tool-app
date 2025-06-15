@@ -56,7 +56,7 @@ export default function LanguageSelector() {
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">{language.flag}</span>
                   <div>
-                    <h3 className="font-semibold text-slate-800 dark:text-white">
+                    <h3 className="font-semibold text-slate-800 dark:text-white text-base">
                       {language.nativeName}
                     </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -75,15 +75,6 @@ export default function LanguageSelector() {
                   </motion.div>
                 )}
               </div>
-
-              {language.code === 'ar' && (
-                <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400">
-                    <span>RTL Support</span>
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  </div>
-                </div>
-              )}
             </motion.button>
           ))}
         </div>
@@ -95,10 +86,10 @@ export default function LanguageSelector() {
           </h4>
           <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
             <li>• Complete interface translation</li>
-            <li>• Right-to-left (RTL) support for Arabic</li>
             <li>• Localized date and number formatting</li>
             <li>• Cultural adaptation for content</li>
             <li>• Automatic font optimization</li>
+            <li>• Consistent design across all languages</li>
           </ul>
         </div>
       </div>
