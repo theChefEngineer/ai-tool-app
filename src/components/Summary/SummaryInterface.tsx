@@ -51,6 +51,57 @@ export default function SummaryInterface() {
     setResult(null);
   };
 
+  // Function to render summary text with proper formatting for bullet points
+  const renderSummaryText = (text: string, mode: string) => {
+    if (mode === 'bullet') {
+      // Split by lines and render as bullet points
+      const lines = text.split('\n').filter(line => line.trim());
+      return (
+        <div className="space-y-2">
+          {lines.map((line, index) => {
+            const trimmedLine = line.trim();
+            if (trimmedLine.startsWith('•') || trimmedLine.startsWith('-') || trimmedLine.startsWith('*')) {
+              // Main bullet point
+              return (
+                <div key={index} className="flex items-start space-x-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="text-slate-800 dark:text-slate-200">
+                    {trimmedLine.replace(/^[•\-*]\s*/, '')}
+                  </span>
+                </div>
+              );
+            } else if (trimmedLine.startsWith('◦') || trimmedLine.startsWith('  ')) {
+              // Sub bullet point
+              return (
+                <div key={index} className="flex items-start space-x-2 ml-6">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full mt-2.5 flex-shrink-0"></span>
+                  <span className="text-slate-700 dark:text-slate-300 text-sm">
+                    {trimmedLine.replace(/^[◦\s]*/, '')}
+                  </span>
+                </div>
+              );
+            } else {
+              // Regular line (shouldn't happen in bullet mode, but fallback)
+              return (
+                <div key={index} className="flex items-start space-x-2">
+                  <span className="w-2 h-2 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
+                  <span className="text-slate-800 dark:text-slate-200">{trimmedLine}</span>
+                </div>
+              );
+            }
+          })}
+        </div>
+      );
+    } else {
+      // Regular paragraph text for other modes
+      return (
+        <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
+          {text}
+        </p>
+      );
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
@@ -169,12 +220,10 @@ export default function SummaryInterface() {
               </div>
 
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl mb-4">
-                <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
-                  {result.summaryText}
-                </p>
+                {renderSummaryText(result.summaryText, result.mode)}
               </div>
 
-              {result.keyPoints && result.keyPoints.length > 0 && (
+              {result.keyPoints && result.keyPoints.length > 0 && currentSummaryMode !== 'bullet' && (
                 <div>
                   <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                     Key Points Captured:

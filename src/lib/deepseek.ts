@@ -132,16 +132,29 @@ export class DeepseekService {
       comprehensive: 'Create a comprehensive summary that maintains the same level of detail and accuracy as a paraphrase. Capture all key ideas and main points while using clear, straightforward language. The summary should be approximately 60-70% of the original length while preserving all important information, statistics, and context.',
       executive: 'Create an executive summary focusing on high-level insights, key decisions, and strategic implications. Present information in a format suitable for senior leadership and decision-makers.',
       academic: 'Create an academic summary that maintains scholarly precision, includes technical terms, and follows formal academic structure. Preserve methodological details and research findings.',
-      bullet: 'Create a structured summary using bullet points that organize information hierarchically. Use clear headings and sub-points to present key information in an easily scannable format.',
+      bullet: 'Create a structured summary using ONLY bullet points. Do not include any paragraph text or introductory sentences. Present all key information as a hierarchical list of bullet points with clear, concise statements. Use main bullet points for major topics and sub-bullets for supporting details.',
       quick: 'Create a brief summary that captures only the most essential information and key takeaways. Focus on the core message and primary conclusions.'
     };
 
     const systemPrompt = `You are an expert content summarizer. ${prompts[request.mode]}
 
-    Respond with a JSON object containing:
-    - summaryText: the comprehensive summary text
-    - keyPoints: array of 4-6 main points captured in the summary
-    - compressionRatio: percentage reduction from original (as integer, e.g., 35 for 35% shorter)
+    ${request.mode === 'bullet' ? 
+      `For bullet point mode, respond with a JSON object containing:
+      - summaryText: ONLY bullet points formatted as a list (no paragraph text)
+      - keyPoints: array of 4-6 main bullet points
+      - compressionRatio: percentage reduction from original (as integer, e.g., 35 for 35% shorter)
+      
+      Format the summaryText as bullet points using "•" symbols. Example:
+      • Main point one with key information
+      • Main point two with supporting details
+        ◦ Sub-point with additional context
+        ◦ Another sub-point
+      • Main point three with conclusions` :
+      `Respond with a JSON object containing:
+      - summaryText: the comprehensive summary text
+      - keyPoints: array of 4-6 main points captured in the summary
+      - compressionRatio: percentage reduction from original (as integer, e.g., 35 for 35% shorter)`
+    }
 
     Ensure the summary maintains accuracy, preserves context, and follows a logical flow without introducing new information.`;
 
