@@ -5,6 +5,7 @@ import SummaryInterface from './components/Summary/SummaryInterface';
 import TranslationInterface from './components/Translation/TranslationInterface';
 import SettingsInterface from './components/Settings/SettingsInterface';
 import HistoryInterface from './components/History/HistoryInterface';
+import LanguageDetectionInterface from './components/LanguageDetection/LanguageDetectionInterface';
 import { useAppStore } from './store/appStore';
 
 function App() {
@@ -25,6 +26,8 @@ function App() {
         return <SettingsInterface />;
       case 'history':
         return <HistoryInterface />;
+      case 'language-detection':
+        return <LanguageDetectionInterface />;
       case 'paraphrase':
       default:
         return <ParaphraseInterface />;

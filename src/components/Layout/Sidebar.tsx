@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, History, Settings, BookOpen, Zap, Languages } from 'lucide-react';
+import { Home, History, Settings, BookOpen, Zap, Languages, Globe } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 
 export default function Sidebar() {
@@ -26,6 +26,12 @@ export default function Sidebar() {
       active: currentView === 'translation' 
     },
     { 
+      icon: Globe, 
+      label: 'Language Detection', 
+      key: 'language-detection' as const,
+      active: currentView === 'language-detection' 
+    },
+    { 
       icon: History, 
       label: 'History', 
       key: 'history' as const, 
@@ -46,6 +52,8 @@ export default function Sidebar() {
         return 'bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400 shadow-lg';
       case 'translation':
         return 'bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-600 dark:text-blue-400 shadow-lg';
+      case 'language-detection':
+        return 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 shadow-lg';
       case 'settings':
         return 'bg-gradient-to-r from-slate-500/20 to-gray-500/20 text-slate-600 dark:text-slate-400 shadow-lg';
       case 'history':
@@ -72,7 +80,7 @@ export default function Sidebar() {
               whileHover={{ scale: 1.02, x: 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
-                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history') {
+                if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'settings' || item.key === 'history' || item.key === 'language-detection') {
                   setCurrentView(item.key);
                 }
               }}
