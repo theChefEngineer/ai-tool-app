@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
@@ -22,23 +22,27 @@ import {
   EyeOff,
   Save,
   X,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
+import { DatabaseService, type UserProfile } from '../../lib/database';
 import toast from 'react-hot-toast';
 
 export default function SettingsInterface() {
   const { user } = useAuthStore();
-  const { theme, toggleTheme } = useAppStore();
+  const { theme, toggleTheme, clearAllHistory } = useAppStore();
   
-  // Profile editing state
+  // Profile state
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [profileData, setProfileData] = useState({
-    firstName: user?.user_metadata?.first_name || '',
-    lastName: user?.user_metadata?.last_name || '',
-    fullName: user?.user_metadata?.full_name || 'John Doe',
-    email: user?.email || 'user@example.com',
+    firstName: '',
+    lastName: '',
+    email: '',
   });
   const [profileErrors, setProfileErrors] = useState<{[key: string]: string}>({});
 
@@ -56,6 +60,33 @@ export default function SettingsInterface() {
   });
   const [passwordErrors, setPasswordErrors] = useState<{[key: string]: string}>({});
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  // Load user profile on component mount
+  useEffect(() => {
+    loadUserProfile();
+  }, [user]);
+
+  const loadUserProfile = async () => {
+    if (!user) return;
+
+    setIsLoadingProfile(true);
+    try {
+      const profile = await DatabaseService.getUserProfile(user.id);
+      if (profile) {
+        setUserProfile(profile);
+        setProfileData({
+          firstName: profile.first_name,
+          lastName: profile.last_name,
+          email: profile.email,
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      toast.error('Failed to load profile');
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
 
   // Profile validation
   const validateProfile = () => {
@@ -106,30 +137,39 @@ export default function SettingsInterface() {
   };
 
   const handleSaveProfile = async () => {
-    if (!validateProfile()) return;
+    if (!validateProfile() || !user) return;
 
+    setIsSavingProfile(true);
     try {
-      // Update full name from first and last name
-      const updatedProfileData = {
-        ...profileData,
-        fullName: `${profileData.firstName} ${profileData.lastName}`.trim(),
-      };
-      
-      setProfileData(updatedProfileData);
-      setIsEditingProfile(false);
-      toast.success('Profile updated successfully!');
+      const updatedProfile = await DatabaseService.updateUserProfile(user.id, {
+        first_name: profileData.firstName,
+        last_name: profileData.lastName,
+        email: profileData.email,
+      } as Partial<UserProfile>);
+
+      if (updatedProfile) {
+        setUserProfile(updatedProfile);
+        setIsEditingProfile(false);
+        toast.success('Profile updated successfully!');
+      } else {
+        throw new Error('Failed to update profile');
+      }
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast.error('Failed to update profile. Please try again.');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
   const handleCancelProfileEdit = () => {
-    setProfileData({
-      firstName: user?.user_metadata?.first_name || '',
-      lastName: user?.user_metadata?.last_name || '',
-      fullName: user?.user_metadata?.full_name || 'John Doe',
-      email: user?.email || 'user@example.com',
-    });
+    if (userProfile) {
+      setProfileData({
+        firstName: userProfile.first_name,
+        lastName: userProfile.last_name,
+        email: userProfile.email,
+      });
+    }
     setProfileErrors({});
     setIsEditingProfile(false);
   };
@@ -171,6 +211,44 @@ export default function SettingsInterface() {
     toast.success(`Switched to ${theme === 'dark' ? 'light' : 'dark'} mode`);
   };
 
+  const handleExportData = async () => {
+    if (!user) return;
+
+    try {
+      const exportData = await DatabaseService.exportAllHistory(user.id);
+      if (exportData) {
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `paratext-pro-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast.success('Data exported successfully!');
+      }
+    } catch (error) {
+      console.error('Error exporting data:', error);
+      toast.error('Failed to export data');
+    }
+  };
+
+  const handleClearAllData = async () => {
+    if (!user) return;
+
+    if (window.confirm('Are you sure you want to clear all your data? This action cannot be undone.')) {
+      try {
+        await clearAllHistory();
+        toast.success('All data cleared successfully!');
+      } catch (error) {
+        console.error('Error clearing data:', error);
+        toast.error('Failed to clear data');
+      }
+    }
+  };
+
   const getPasswordStrength = (password: string) => {
     let strength = 0;
     if (password.length >= 8) strength++;
@@ -192,6 +270,17 @@ export default function SettingsInterface() {
       default: return { label: 'Very Weak', color: 'bg-red-500' };
     }
   };
+
+  if (isLoadingProfile) {
+    return (
+      <div className="max-w-4xl mx-auto flex items-center justify-center h-64">
+        <div className="flex items-center space-x-3">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+          <span className="text-lg text-slate-600 dark:text-slate-300">Loading profile...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -255,6 +344,7 @@ export default function SettingsInterface() {
                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                     className={`w-full p-3 glass-input rounded-xl ${profileErrors.firstName ? 'border-red-500' : ''}`}
                     placeholder="Enter your first name"
+                    disabled={isSavingProfile}
                   />
                   {profileErrors.firstName && (
                     <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
@@ -275,6 +365,7 @@ export default function SettingsInterface() {
                     onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                     className={`w-full p-3 glass-input rounded-xl ${profileErrors.lastName ? 'border-red-500' : ''}`}
                     placeholder="Enter your last name"
+                    disabled={isSavingProfile}
                   />
                   {profileErrors.lastName && (
                     <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
@@ -295,6 +386,7 @@ export default function SettingsInterface() {
                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
                     className={`w-full p-3 glass-input rounded-xl ${profileErrors.email ? 'border-red-500' : ''}`}
                     placeholder="Enter your email address"
+                    disabled={isSavingProfile}
                   />
                   {profileErrors.email && (
                     <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
@@ -310,16 +402,27 @@ export default function SettingsInterface() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSaveProfile}
-                    className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2"
+                    disabled={isSavingProfile}
+                    className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50"
                   >
-                    <Save className="w-4 h-4" />
-                    <span>Save Changes</span>
+                    {isSavingProfile ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        <span>Save Changes</span>
+                      </>
+                    )}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCancelProfileEdit}
-                    className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2"
+                    disabled={isSavingProfile}
+                    className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50"
                   >
                     <X className="w-4 h-4" />
                     <span>Cancel</span>
@@ -330,15 +433,15 @@ export default function SettingsInterface() {
               <div className="space-y-3">
                 <div>
                   <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
-                    {profileData.fullName}
+                    {userProfile?.full_name || 'No name set'}
                   </h3>
                   <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 mt-1">
                     <Mail className="w-4 h-4" />
-                    <span>{profileData.email}</span>
+                    <span>{userProfile?.email || 'No email set'}</span>
                   </div>
                   <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
-                    <span>First Name: {profileData.firstName || 'Not set'}</span>
-                    <span>Last Name: {profileData.lastName || 'Not set'}</span>
+                    <span>First Name: {userProfile?.first_name || 'Not set'}</span>
+                    <span>Last Name: {userProfile?.last_name || 'Not set'}</span>
                   </div>
                 </div>
                 <motion.button
@@ -611,18 +714,26 @@ export default function SettingsInterface() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleExportData}
                 className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between"
               >
-                <span className="text-slate-700 dark:text-slate-300">Export History</span>
-                <Download className="w-4 h-4 text-slate-500" />
+                <div className="flex items-center space-x-2">
+                  <Download className="w-4 h-4 text-slate-500" />
+                  <span className="text-slate-700 dark:text-slate-300">Export All Data</span>
+                </div>
+                <span className="text-xs text-slate-500">JSON</span>
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={handleClearAllData}
                 className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between text-red-600 dark:text-red-400"
               >
-                <span>Clear All Data</span>
-                <Trash2 className="w-4 h-4" />
+                <div className="flex items-center space-x-2">
+                  <Trash2 className="w-4 h-4" />
+                  <span>Clear All Data</span>
+                </div>
+                <span className="text-xs">Permanent</span>
               </motion.button>
             </div>
           </div>

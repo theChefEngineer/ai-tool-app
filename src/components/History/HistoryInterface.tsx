@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   History as HistoryIcon,
@@ -17,9 +17,11 @@ import {
   Download,
   Trash2,
   ChevronDown,
-  ArrowUpDown
+  ArrowUpDown,
+  Loader2
 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
+import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
 type ActivityType = 'paraphrase' | 'summary' | 'translation';
@@ -42,7 +44,15 @@ interface Activity {
 }
 
 export default function HistoryInterface() {
-  const { history, summaryHistory, translationHistory } = useAppStore();
+  const { user } = useAuthStore();
+  const { 
+    history, 
+    summaryHistory, 
+    translationHistory, 
+    isLoadingHistory,
+    loadHistory 
+  } = useAppStore();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<ActivityType | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<ActivityStatus | 'all'>('all');
@@ -51,6 +61,13 @@ export default function HistoryInterface() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Load history when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      loadHistory();
+    }
+  }, [user, loadHistory]);
 
   // Combine all activities into a single array
   const allActivities: Activity[] = useMemo(() => {
@@ -166,11 +183,17 @@ export default function HistoryInterface() {
   }, [filteredActivities]);
 
   const handleRefresh = async () => {
+    if (!user) return;
+    
     setIsRefreshing(true);
-    // Simulate refresh delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
-    toast.success('History refreshed!');
+    try {
+      await loadHistory();
+      toast.success('History refreshed!');
+    } catch (error) {
+      toast.error('Failed to refresh history');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const handleExportActivity = (activity: Activity) => {
@@ -258,6 +281,17 @@ export default function HistoryInterface() {
     
     return date.toLocaleDateString();
   };
+
+  if (isLoadingHistory) {
+    return (
+      <div className="max-w-6xl mx-auto flex items-center justify-center h-64">
+        <div className="flex items-center space-x-3">
+          <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
+          <span className="text-lg text-slate-600 dark:text-slate-300">Loading history...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
