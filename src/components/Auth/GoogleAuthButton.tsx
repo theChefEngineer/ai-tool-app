@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Chrome, Loader2 } from 'lucide-react';
+import { Chrome, Loader2, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
@@ -12,6 +12,7 @@ interface GoogleAuthButtonProps {
 
 export default function GoogleAuthButton({ variant = 'signin', className = '' }: GoogleAuthButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const { signInWithGoogle } = useAuthStore();
   const { t, isRTL } = useTranslation();
 
@@ -22,7 +23,18 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
       toast.success(variant === 'signin' ? t('auth.welcomeBack') : t('messages.success.profileUpdated'));
     } catch (error: any) {
       console.error('Google authentication error:', error);
-      toast.error(error.message || t('messages.error.authentication'));
+      
+      // Handle specific Google OAuth errors
+      if (error.message.includes('provider is not enabled') || error.message.includes('validation_failed')) {
+        setIsDisabled(true);
+        toast.error('Google Sign-In is currently being configured. Please use email/password for now.');
+      } else if (error.message.includes('popup')) {
+        toast.error('Please allow popups and try again.');
+      } else if (error.message.includes('cancelled')) {
+        toast.error('Sign-in was cancelled.');
+      } else {
+        toast.error(error.message || t('messages.error.authentication'));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -31,6 +43,17 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
   const buttonText = variant === 'signin' 
     ? t('auth.continueWithGoogle')
     : t('auth.continueWithGoogle');
+
+  if (isDisabled) {
+    return (
+      <div className="w-full p-4 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800/30 rounded-xl">
+        <div className="flex items-center space-x-2 text-orange-700 dark:text-orange-300">
+          <AlertCircle className="w-5 h-5" />
+          <span className="text-sm">Google Sign-In is being configured. Please use email/password.</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.button
@@ -49,9 +72,12 @@ export default function GoogleAuthButton({ variant = 'signin', className = '' }:
       `}
     >
       {isLoading ? (
-        <Loader2 className="w-5 h-5 animate-spin text-slate-600 dark:text-slate-300" />
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-5 h-5 animate-spin text-slate-600 dark:text-slate-300" />
+          <span className="text-slate-700 dark:text-slate-200">Connecting...</span>
+        </div>
       ) : (
-        <div className="flex items-center space-x-3">
+        <div className={`flex items-center space-x-3 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}>
           {/* Google Logo SVG */}
           <svg
             width="20"

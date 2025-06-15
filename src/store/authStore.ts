@@ -103,33 +103,40 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   signInWithGoogle: async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
-      },
-    });
-    
-    if (error) {
-      console.error('Google sign in error:', error);
+      });
       
-      // Provide user-friendly error messages
-      if (error.message.includes('popup')) {
-        throw new Error('Please allow popups for this site and try again.');
-      } else if (error.message.includes('network')) {
-        throw new Error('Network error. Please check your connection and try again.');
-      } else if (error.message.includes('cancelled')) {
-        throw new Error('Sign in was cancelled. Please try again.');
+      if (error) {
+        console.error('Google sign in error:', error);
+        
+        // Handle specific OAuth errors
+        if (error.message.includes('provider is not enabled') || error.message.includes('validation_failed')) {
+          throw new Error('Google Sign-In is not configured yet. Please use email and password to sign in.');
+        } else if (error.message.includes('popup')) {
+          throw new Error('Please allow popups for this site and try again.');
+        } else if (error.message.includes('network')) {
+          throw new Error('Network error. Please check your connection and try again.');
+        } else if (error.message.includes('cancelled')) {
+          throw new Error('Sign in was cancelled. Please try again.');
+        }
+        
+        throw new Error(error.message || 'Google sign in failed. Please try again.');
       }
-      
-      throw new Error('Google sign in failed. Please try again.');
-    }
 
-    // The actual user setting will be handled by the auth state change listener
-    console.log('Google OAuth initiated');
+      // The actual user setting will be handled by the auth state change listener
+      console.log('Google OAuth initiated');
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      throw error;
+    }
   },
 }));
