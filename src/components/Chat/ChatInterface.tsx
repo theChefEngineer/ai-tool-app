@@ -11,9 +11,23 @@ import {
   Sparkles,
   Loader2,
   Trash2,
-  Download
+  Download,
+  FileText,
+  Upload,
+  Link,
+  Globe,
+  Search,
+  ExternalLink,
+  X,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  FileIcon,
+  Paperclip
 } from 'lucide-react';
 import { deepseekService } from '../../lib/deepseek';
+import { DocumentProcessor, type DocumentProcessingResult } from '../../lib/documentProcessor';
+import { WebBrowser, type WebBrowsingResult, type WebSearchResult } from '../../lib/webBrowser';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
@@ -22,6 +36,27 @@ interface Message {
   content: string;
   role: 'user' | 'assistant';
   timestamp: Date;
+  attachments?: Attachment[];
+  webContent?: WebContent;
+}
+
+interface Attachment {
+  id: string;
+  type: 'document' | 'image';
+  name: string;
+  size: string;
+  content?: string;
+  metadata?: any;
+}
+
+interface WebContent {
+  type: 'search' | 'browse';
+  query?: string;
+  url?: string;
+  title?: string;
+  results?: WebSearchResult[];
+  content?: string;
+  metadata?: any;
 }
 
 export default function ChatInterface() {
@@ -29,8 +64,18 @@ export default function ChatInterface() {
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [processingStep, setProcessingStep] = useState('');
+  const [isProcessingWeb, setIsProcessingWeb] = useState(false);
+  const [webUrl, setWebUrl] = useState('');
+  const [webSearchQuery, setWebSearchQuery] = useState('');
+  const [showWebInput, setShowWebInput] = useState(false);
+  const [showWebSearch, setShowWebSearch] = useState(false);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
 
   // Initialize with welcome message
@@ -54,20 +99,115 @@ export default function ChatInterface() {
   }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isTyping) return;
+    if ((!inputMessage.trim() && !webUrl && !webSearchQuery) || isTyping) return;
 
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      content: inputMessage.trim(),
-      role: 'user',
-      timestamp: new Date(),
-    };
+    let userMessage: Message;
 
+    // Handle web browsing
+    if (webUrl) {
+      setIsProcessingWeb(true);
+      try {
+        const result = await WebBrowser.browseUrl(webUrl);
+        
+        userMessage = {
+          id: crypto.randomUUID(),
+          content: `Please analyze this web page: ${webUrl}`,
+          role: 'user',
+          timestamp: new Date(),
+          webContent: {
+            type: 'browse',
+            url: result.url,
+            title: result.title,
+            content: result.content,
+            metadata: result.metadata
+          }
+        };
+        
+        setWebUrl('');
+        setShowWebInput(false);
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to browse URL');
+        setIsProcessingWeb(false);
+        return;
+      }
+    } 
+    // Handle web search
+    else if (webSearchQuery) {
+      setIsProcessingWeb(true);
+      try {
+        const results = await WebBrowser.searchWeb(webSearchQuery, 5);
+        
+        userMessage = {
+          id: crypto.randomUUID(),
+          content: `Search the web for: ${webSearchQuery}`,
+          role: 'user',
+          timestamp: new Date(),
+          webContent: {
+            type: 'search',
+            query: webSearchQuery,
+            results: results
+          }
+        };
+        
+        setWebSearchQuery('');
+        setShowWebSearch(false);
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to search web');
+        setIsProcessingWeb(false);
+        return;
+      }
+    }
+    // Handle regular text message
+    else {
+      userMessage = {
+        id: crypto.randomUUID(),
+        content: inputMessage.trim(),
+        role: 'user',
+        timestamp: new Date(),
+      };
+      
+      setInputMessage('');
+    }
+
+    setIsProcessingWeb(false);
     setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
     setIsTyping(true);
 
     try {
+      // Prepare messages for API
+      const messageHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // Add attachments or web content if present
+      let systemPrompt = 'You are a helpful AI writing assistant specializing in paraphrasing, summarizing, translation, grammar checking, and creative writing. Provide clear, helpful, and engaging responses. Be concise but thorough in your explanations.';
+      
+      if (userMessage.attachments) {
+        systemPrompt += '\n\nThe user has shared a document with the following content:\n\n';
+        userMessage.attachments.forEach(attachment => {
+          if (attachment.content) {
+            systemPrompt += `--- Document: ${attachment.name} ---\n${attachment.content}\n\n`;
+          }
+        });
+        systemPrompt += 'Please analyze this document and respond to the user\'s query about it.';
+      }
+      
+      if (userMessage.webContent) {
+        if (userMessage.webContent.type === 'browse') {
+          systemPrompt += `\n\nThe user has shared a web page with the following content:\n\n`;
+          systemPrompt += `--- Web Page: ${userMessage.webContent.title} (${userMessage.webContent.url}) ---\n${userMessage.webContent.content}\n\n`;
+          systemPrompt += 'Please analyze this web content and respond to the user\'s query about it.';
+        } else if (userMessage.webContent.type === 'search') {
+          systemPrompt += `\n\nThe user has performed a web search for: "${userMessage.webContent.query}"\n\n`;
+          systemPrompt += 'Search results:\n\n';
+          userMessage.webContent.results?.forEach((result, index) => {
+            systemPrompt += `${index + 1}. ${result.title} (${result.url})\n${result.snippet}\n\n`;
+          });
+          systemPrompt += 'Please analyze these search results and respond to the user\'s query.';
+        }
+      }
+
       const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -79,12 +219,9 @@ export default function ChatInterface() {
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful AI writing assistant specializing in paraphrasing, summarizing, translation, grammar checking, and creative writing. Provide clear, helpful, and engaging responses. Be concise but thorough in your explanations.'
+              content: systemPrompt
             },
-            ...messages.map(msg => ({
-              role: msg.role,
-              content: msg.content
-            })),
+            ...messageHistory,
             {
               role: 'user',
               content: userMessage.content
@@ -181,6 +318,290 @@ export default function ChatInterface() {
     });
   };
 
+  // File handling functions
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      await handleFileUpload(files[0]);
+    }
+  };
+
+  const handleFileInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await handleFileUpload(file);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    // Validate file
+    const validation = DocumentProcessor.validateFile(file);
+    if (!validation.isValid) {
+      toast.error(validation.error!);
+      return;
+    }
+
+    setIsProcessingFile(true);
+    setProcessingStep('Analyzing document...');
+    
+    try {
+      // Process the file
+      setProcessingStep('Extracting text content...');
+      const result = await DocumentProcessor.extractText(file);
+      
+      // Create a new message with the document attachment
+      const newMessage: Message = {
+        id: crypto.randomUUID(),
+        content: `I've uploaded a document: ${file.name}. Please analyze this document.`,
+        role: 'user',
+        timestamp: new Date(),
+        attachments: [
+          {
+            id: crypto.randomUUID(),
+            type: 'document',
+            name: file.name,
+            size: DocumentProcessor.formatFileSize(file.size),
+            content: result.text,
+            metadata: result.metadata
+          }
+        ]
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+      
+      // Automatically trigger AI response
+      setTimeout(() => {
+        setIsTyping(true);
+        
+        // Prepare AI response
+        const systemPrompt = `You are a helpful AI assistant. The user has shared a document with the following content:
+
+Document: ${file.name}
+Word Count: ${result.metadata.wordCount}
+Character Count: ${result.metadata.characterCount}
+Language: ${result.metadata.language || 'Unknown'}
+
+Content:
+${result.text.substring(0, 2000)}${result.text.length > 2000 ? '...' : ''}
+
+Please analyze this document and provide a helpful response. Consider:
+1. Summarizing the key points
+2. Identifying the main topics
+3. Suggesting potential actions or next steps
+4. Offering to answer specific questions about the document`;
+
+        // Simulate AI response
+        fetch('https://api.deepseek.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer sk-79ed40b434d140a0a0fa9becefe4b5aa',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              {
+                role: 'system',
+                content: systemPrompt
+              },
+              {
+                role: 'user',
+                content: newMessage.content
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 1000,
+          }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to get AI response');
+          }
+          return response.json();
+        })
+        .then(data => {
+          const aiResponse = data.choices[0]?.message?.content || 'I\'ve analyzed your document. What specific aspects would you like me to help with?';
+          
+          const assistantMessage: Message = {
+            id: crypto.randomUUID(),
+            content: aiResponse,
+            role: 'assistant',
+            timestamp: new Date(),
+          };
+          
+          setMessages(prev => [...prev, assistantMessage]);
+        })
+        .catch(error => {
+          console.error('Error processing document:', error);
+          
+          const errorMessage: Message = {
+            id: crypto.randomUUID(),
+            content: 'I encountered an error while analyzing your document. Could you please ask me specific questions about it?',
+            role: 'assistant',
+            timestamp: new Date(),
+          };
+          
+          setMessages(prev => [...prev, errorMessage]);
+        })
+        .finally(() => {
+          setIsTyping(false);
+        });
+      }, 1000);
+      
+      toast.success('Document uploaded successfully!');
+    } catch (error: any) {
+      console.error('Document processing error:', error);
+      toast.error(error.message || 'Failed to process document');
+    } finally {
+      setIsProcessingFile(false);
+      setProcessingStep('');
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleBrowseWeb = async () => {
+    if (!webUrl.trim()) {
+      toast.error('Please enter a valid URL');
+      return;
+    }
+    
+    handleSendMessage();
+  };
+
+  const handleWebSearch = async () => {
+    if (!webSearchQuery.trim()) {
+      toast.error('Please enter a search query');
+      return;
+    }
+    
+    handleSendMessage();
+  };
+
+  const renderAttachment = (attachment: Attachment) => {
+    if (attachment.type === 'document') {
+      return (
+        <div className="mt-2 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800/30">
+          <div className="flex items-center space-x-3">
+            <span className="text-2xl">{DocumentProcessor.getFileTypeIcon(attachment.name)}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-indigo-800 dark:text-indigo-200 truncate">{attachment.name}</p>
+              <div className="flex items-center space-x-4 text-xs text-indigo-600 dark:text-indigo-400">
+                <span>{attachment.size}</span>
+                {attachment.metadata && (
+                  <>
+                    <span>•</span>
+                    <span>{attachment.metadata.wordCount} words</span>
+                    <span>•</span>
+                    <span>{DocumentProcessor.calculateReadingTime(attachment.metadata.wordCount)} min read</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                if (attachment.content) {
+                  navigator.clipboard.writeText(attachment.content);
+                  toast.success('Document content copied to clipboard');
+                }
+              }}
+              className="p-1.5 glass-button rounded-lg"
+            >
+              <Copy className="w-4 h-4" />
+            </motion.button>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderWebContent = (webContent: WebContent) => {
+    if (webContent.type === 'browse' && webContent.url && webContent.title) {
+      return (
+        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/30">
+          <div className="flex items-center space-x-2 mb-2">
+            <Globe className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <div className="flex items-center space-x-1 overflow-hidden">
+              <span className="font-medium text-blue-800 dark:text-blue-200 truncate">{webContent.title}</span>
+              <a 
+                href={webContent.url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <ExternalLink className="w-3 h-3 text-blue-500" />
+              </a>
+            </div>
+          </div>
+          <div className="text-xs text-blue-600 dark:text-blue-400 truncate mb-2">
+            {webContent.url}
+          </div>
+          {webContent.metadata && (
+            <div className="flex items-center space-x-3 text-xs text-blue-600 dark:text-blue-400 mb-1">
+              <span>{webContent.metadata.wordCount} words</span>
+              <span>•</span>
+              <span>{webContent.metadata.readingTime} min read</span>
+              {webContent.metadata.language && (
+                <>
+                  <span>•</span>
+                  <span>{webContent.metadata.language.toUpperCase()}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    } else if (webContent.type === 'search' && webContent.query && webContent.results) {
+      return (
+        <div className="mt-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/30">
+          <div className="flex items-center space-x-2 mb-3">
+            <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span className="font-medium text-blue-800 dark:text-blue-200">
+              Search results for: "{webContent.query}"
+            </span>
+          </div>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {webContent.results.map((result, index) => (
+              <div key={index} className="text-sm">
+                <a 
+                  href={result.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+                >
+                  {result.title}
+                  <ExternalLink className="w-3 h-3 ml-1" />
+                </a>
+                <div className="text-xs text-blue-500 dark:text-blue-300 truncate">{result.url}</div>
+                <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{result.snippet}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col">
       {/* Header */}
@@ -242,6 +663,9 @@ export default function ChatInterface() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="flex-1 glass-card rounded-2xl p-6 overflow-hidden flex flex-col"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         {/* Messages List */}
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
@@ -287,6 +711,16 @@ export default function ChatInterface() {
                     }`}>
                       <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
                     </div>
+
+                    {/* Attachments */}
+                    {message.attachments && message.attachments.length > 0 && (
+                      <div className="mt-2">
+                        {message.attachments.map(attachment => renderAttachment(attachment))}
+                      </div>
+                    )}
+
+                    {/* Web Content */}
+                    {message.webContent && renderWebContent(message.webContent)}
 
                     {/* Copy Button */}
                     <motion.button
@@ -342,8 +776,175 @@ export default function ChatInterface() {
             )}
           </AnimatePresence>
 
+          {/* File Processing Indicator */}
+          <AnimatePresence>
+            {isProcessingFile && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex justify-center"
+              >
+                <div className="p-4 glass-card rounded-xl max-w-md">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      {processingStep || 'Processing document...'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <motion.div 
+                      className="h-full bg-gradient-to-r from-purple-500 to-pink-600"
+                      initial={{ width: "0%" }}
+                      animate={{ 
+                        width: ["0%", "50%", "70%", "90%", "95%"],
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        ease: "easeInOut",
+                        times: [0, 0.2, 0.4, 0.6, 0.8],
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Drag Overlay */}
+          <AnimatePresence>
+            {isDragOver && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-indigo-500/20 backdrop-blur-sm rounded-2xl flex items-center justify-center z-10"
+              >
+                <div className="text-center p-6 glass-card rounded-xl">
+                  <Upload className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                    Drop your document here
+                  </h3>
+                  <p className="text-slate-600 dark:text-slate-400">
+                    Supported formats: PDF, DOC, DOCX, TXT
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div ref={messagesEndRef} />
         </div>
+
+        {/* Web URL Input */}
+        <AnimatePresence>
+          {showWebInput && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mt-4 overflow-hidden"
+            >
+              <div className="flex items-end space-x-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Enter URL to browse
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input
+                      type="url"
+                      value={webUrl}
+                      onChange={(e) => setWebUrl(e.target.value)}
+                      placeholder="https://example.com"
+                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl"
+                      disabled={isProcessingWeb}
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowWebInput(false)}
+                    className="p-3 glass-button rounded-xl"
+                  >
+                    <X className="w-5 h-5 text-slate-600" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleBrowseWeb}
+                    disabled={!webUrl.trim() || isProcessingWeb}
+                    className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl disabled:opacity-50"
+                  >
+                    {isProcessingWeb ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Globe className="w-5 h-5" />
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Web Search Input */}
+        <AnimatePresence>
+          {showWebSearch && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="mt-4 overflow-hidden"
+            >
+              <div className="flex items-end space-x-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Search the web
+                  </label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input
+                      type="text"
+                      value={webSearchQuery}
+                      onChange={(e) => setWebSearchQuery(e.target.value)}
+                      placeholder="Enter your search query"
+                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl"
+                      disabled={isProcessingWeb}
+                    />
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowWebSearch(false)}
+                    className="p-3 glass-button rounded-xl"
+                  >
+                    <X className="w-5 h-5 text-slate-600" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleWebSearch}
+                    disabled={!webSearchQuery.trim() || isProcessingWeb}
+                    className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl disabled:opacity-50"
+                  >
+                    {isProcessingWeb ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Search className="w-5 h-5" />
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Input Area */}
         <div className="mt-6 pt-6 border-t border-white/10">
@@ -356,24 +957,84 @@ export default function ChatInterface() {
                 onKeyPress={handleKeyPress}
                 placeholder={t('chat.placeholder')}
                 className="w-full p-4 glass-input rounded-xl resize-none min-h-[60px] max-h-32"
-                disabled={isTyping}
+                disabled={isTyping || isProcessingFile || isProcessingWeb}
                 rows={1}
               />
             </div>
             
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isTyping}
-              className="p-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              {isTyping ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <Send className="w-5 h-5" />
-              )}
-            </motion.button>
+            <div className="flex space-x-2">
+              {/* File Upload Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isTyping || isProcessingFile || isProcessingWeb}
+                className="p-4 glass-button rounded-xl flex items-center justify-center disabled:opacity-50"
+                title="Upload document"
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileInputChange}
+                  accept=".pdf,.doc,.docx,.txt"
+                  className="hidden"
+                />
+                <Paperclip className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+              </motion.button>
+
+              {/* Web Browse Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setShowWebInput(!showWebInput);
+                  if (showWebSearch) setShowWebSearch(false);
+                }}
+                disabled={isTyping || isProcessingFile || isProcessingWeb}
+                className={`p-4 rounded-xl flex items-center justify-center disabled:opacity-50 ${
+                  showWebInput 
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' 
+                    : 'glass-button'
+                }`}
+                title="Browse web"
+              >
+                <Globe className="w-5 h-5" />
+              </motion.button>
+
+              {/* Web Search Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setShowWebSearch(!showWebSearch);
+                  if (showWebInput) setShowWebInput(false);
+                }}
+                disabled={isTyping || isProcessingFile || isProcessingWeb}
+                className={`p-4 rounded-xl flex items-center justify-center disabled:opacity-50 ${
+                  showWebSearch 
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' 
+                    : 'glass-button'
+                }`}
+                title="Search web"
+              >
+                <Search className="w-5 h-5" />
+              </motion.button>
+
+              {/* Send Button */}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSendMessage}
+                disabled={(!inputMessage.trim() && !webUrl && !webSearchQuery) || isTyping || isProcessingFile || isProcessingWeb}
+                className="p-4 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isTyping || isProcessingFile || isProcessingWeb ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <Send className="w-5 h-5" />
+                )}
+              </motion.button>
+            </div>
           </div>
           
           <div className="flex items-center justify-between mt-3 text-sm text-slate-500 dark:text-slate-400">
