@@ -156,6 +156,23 @@
   .hamburger-menu-item.active {
     @apply bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-600 dark:text-indigo-400 shadow-lg;
   }
+
+  /* Mobile optimizations */
+  .mobile-friendly-card {
+    @apply p-4 md:p-6 rounded-xl md:rounded-2xl;
+  }
+
+  .mobile-friendly-text {
+    @apply text-sm md:text-base;
+  }
+
+  .mobile-friendly-heading {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+
+  .mobile-friendly-button {
+    @apply px-3 py-2 md:px-4 md:py-3 text-sm md:text-base;
+  }
 }
 
 /* Custom scrollbar */
@@ -308,4 +325,35 @@ body {
 .arabic-text {
   letter-spacing: 0.02em;
   word-spacing: 0.1em;
+}
+
+/* Mobile responsiveness improvements */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.75rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  .glass-card {
+    padding: 1rem;
+  }
+}
+
+/* Sidebar transition */
+.sidebar-transition {
+  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* Sidebar overlay */
+.sidebar-overlay {
+  @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-30;
+  transition: opacity 0.3s ease-in-out;
 }

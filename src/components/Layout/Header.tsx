@@ -1,20 +1,19 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import { Moon, Sun, User, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { useTranslation } from '../../hooks/useTranslation';
-import MobileMenu from './MobileMenu';
 
-export default function Header() {
+interface HeaderProps {
+  toggleSidebar: () => void;
+  sidebarVisible: boolean;
+}
+
+export default function Header({ toggleSidebar, sidebarVisible }: HeaderProps) {
   const { user, signOut } = useAuthStore();
   const { theme, toggleTheme } = useAppStore();
   const { t, isRTL } = useTranslation();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
 
   return (
     <motion.header
@@ -24,22 +23,24 @@ export default function Header() {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Hamburger Menu Button (Mobile) */}
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleMobileMenu}
-            className="p-2 glass-button rounded-xl md:hidden"
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-            ) : (
-              <Menu className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-            )}
-          </motion.button>
+          {/* Sidebar Toggle Button */}
+          {user && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleSidebar}
+              className="p-2 glass-button rounded-xl"
+              aria-label={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+              aria-expanded={sidebarVisible}
+              aria-controls="sidebar"
+            >
+              {sidebarVisible ? (
+                <X className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+              ) : (
+                <Menu className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+              )}
+            </motion.button>
+          )}
 
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -94,16 +95,6 @@ export default function Header() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <MobileMenu 
-            isOpen={mobileMenuOpen} 
-            onClose={() => setMobileMenuOpen(false)} 
-          />
-        )}
-      </AnimatePresence>
     </motion.header>
   );
 }

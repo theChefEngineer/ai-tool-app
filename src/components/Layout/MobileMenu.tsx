@@ -13,7 +13,8 @@ import {
   FileText, 
   User, 
   LogOut, 
-  Crown 
+  Crown,
+  X
 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { useAuthStore } from '../../store/authStore';
@@ -163,9 +164,20 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
         aria-modal="true"
         id="mobile-menu"
       >
+        {/* Close button */}
+        <div className="flex justify-end p-4">
+          <button
+            onClick={onClose}
+            className="p-2 glass-button rounded-full"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
         {/* User Info */}
         {user && (
-          <div className="p-6 border-b border-white/10">
+          <div className="px-6 pb-6 border-b border-white/10">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
                 <User className="w-6 h-6 text-white" />

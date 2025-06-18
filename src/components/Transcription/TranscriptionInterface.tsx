@@ -408,10 +408,10 @@ export default function TranscriptionInterface() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('transcription.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('transcription.subtitle')}
         </p>
       </motion.div>
@@ -422,10 +422,10 @@ export default function TranscriptionInterface() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass-card p-8 rounded-2xl"
+          className="glass-card p-4 md:p-8 rounded-2xl mobile-friendly-card"
         >
           <div
-            className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-200 ${
+            className={`relative border-2 border-dashed rounded-2xl p-6 md:p-12 text-center transition-all duration-200 ${
               isDragOver
                 ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/20'
                 : 'border-slate-300 dark:border-slate-600 hover:border-purple-400 hover:bg-purple-50/50 dark:hover:bg-purple-900/10'
@@ -451,17 +451,17 @@ export default function TranscriptionInterface() {
               </motion.div>
               
               <div>
-                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2 mobile-friendly-heading">
                   {isDragOver ? t('transcription.dropDocument') : t('transcription.uploadDocument')}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-4">
+                <p className="text-slate-600 dark:text-slate-400 mb-4 mobile-friendly-text">
                   {t('transcription.dragDropText')}
                 </p>
-                <div className="flex items-center justify-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
+                <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                   <span>{t('transcription.supportedFormats')}: {acceptedFileTypes.join(', ')}</span>
-                  <span>•</span>
+                  <span className="hidden md:inline">•</span>
                   <span>{t('transcription.maxFileSize')}: 10MB</span>
-                  <span>•</span>
+                  <span className="hidden md:inline">•</span>
                   <span>{t('transcription.aiPoweredExtraction')}</span>
                 </div>
               </div>
@@ -513,26 +513,26 @@ export default function TranscriptionInterface() {
           className="space-y-6"
         >
           {/* File Info and Controls */}
-          <div className="glass-card p-6 rounded-2xl">
-            <div className="flex items-center justify-between mb-6">
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center space-x-3">
                 <span className="text-3xl">{DocumentProcessor.getFileTypeIcon(transcriptionResult.fileName)}</span>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                     {transcriptionResult.fileName}
                   </h3>
-                  <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="flex flex-wrap items-center gap-2 md:gap-4 text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
                     <span>{transcriptionResult.fileSize}</span>
-                    <span>•</span>
+                    <span className="hidden md:inline">•</span>
                     <span>{transcriptionResult.wordCount} {t('transcription.wordCount')}</span>
-                    <span>•</span>
+                    <span className="hidden md:inline">•</span>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
                       <span>{transcriptionResult.readingTime} {t('transcription.readingTime')}</span>
                     </div>
                     {transcriptionResult.language && (
                       <>
-                        <span>•</span>
+                        <span className="hidden md:inline">•</span>
                         <div className="flex items-center space-x-1">
                           <Globe className="w-4 h-4" />
                           <span>{transcriptionResult.language.toUpperCase()}</span>
@@ -541,7 +541,7 @@ export default function TranscriptionInterface() {
                     )}
                     {transcriptionResult.confidence && (
                       <>
-                        <span>•</span>
+                        <span className="hidden md:inline">•</span>
                         <div className="flex items-center space-x-1">
                           <Sparkles className="w-4 h-4" />
                           <span>{transcriptionResult.confidence}% {t('common.confidence')}</span>
@@ -580,10 +580,10 @@ export default function TranscriptionInterface() {
 
             {/* AI Processing Tools */}
             <div className="mb-6">
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 mobile-friendly-text">
                 {t('transcription.aiProcessingTools')}
               </h4>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {tools.map((tool) => (
                   <motion.button
                     key={tool.id}
@@ -591,11 +591,11 @@ export default function TranscriptionInterface() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleToolAction(tool.id)}
                     disabled={isProcessing}
-                    className={`p-4 rounded-xl transition-all duration-200 ${
+                    className={`p-3 md:p-4 rounded-xl transition-all duration-200 ${
                       selectedTool === tool.id
                         ? `bg-gradient-to-r ${tool.color} text-white shadow-lg`
                         : `${tool.bgColor} border ${tool.borderColor} ${tool.textColor} hover:shadow-md`
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    } disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-card`}
                   >
                     <div className="flex items-center space-x-2 mb-2">
                       {selectedTool === tool.id ? (
@@ -605,25 +605,25 @@ export default function TranscriptionInterface() {
                           <tool.icon className="w-4 h-4 text-white" />
                         </div>
                       )}
-                      <span className="font-semibold">{tool.label}</span>
+                      <span className="font-semibold text-sm md:text-base">{tool.label}</span>
                     </div>
-                    <p className="text-xs opacity-80">{tool.description}</p>
+                    <p className="text-xs opacity-80 hidden md:block">{tool.description}</p>
                   </motion.button>
                 ))}
               </div>
             </div>
 
             {/* Export Options */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-slate-600 dark:text-slate-400">{t('transcription.exportOptions')}</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">{t('transcription.exportOptions')}</span>
                 {['txt', 'json', 'md'].map((format) => (
                   <motion.button
                     key={format}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleExport(format)}
-                    className="px-3 py-1 glass-button rounded-lg text-sm flex items-center space-x-1"
+                    className="px-3 py-1 glass-button rounded-lg text-sm flex items-center space-x-1 mobile-friendly-button"
                   >
                     <Download className="w-3 h-3" />
                     <span>{format.toUpperCase()}</span>
@@ -631,7 +631,7 @@ export default function TranscriptionInterface() {
                 ))}
               </div>
 
-              <div className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                 {t('transcription.transcribedWithAi')} • {new Date().toLocaleDateString()}
               </div>
             </div>
@@ -644,7 +644,7 @@ export default function TranscriptionInterface() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveView('original')}
-                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 mobile-friendly-button ${
                   activeView === 'original'
                     ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
@@ -652,7 +652,7 @@ export default function TranscriptionInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <FileText className="w-5 h-5" />
-                  <span>{t('transcription.originalTranscription')}</span>
+                  <span className="text-sm md:text-base">{t('transcription.originalTranscription')}</span>
                 </div>
               </motion.button>
               
@@ -661,7 +661,7 @@ export default function TranscriptionInterface() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveView('processed')}
                 disabled={processedResults.length === 0}
-                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button ${
                   activeView === 'processed'
                     ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
@@ -669,7 +669,7 @@ export default function TranscriptionInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <Bot className="w-5 h-5" />
-                  <span>{t('transcription.processedResults')} ({processedResults.length})</span>
+                  <span className="text-sm md:text-base">{t('transcription.processedResults')} ({processedResults.length})</span>
                 </div>
               </motion.button>
             </div>
@@ -683,19 +683,19 @@ export default function TranscriptionInterface() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
-                className="glass-card p-6 rounded-2xl"
+                className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                     {t('transcription.aiExtractedContent')}
                   </h3>
-                  <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                     <Eye className="w-4 h-4" />
                     <span>{t('transcription.originalTranscription')}</span>
                   </div>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text">
                     {transcriptionResult.originalText}
                   </p>
                 </div>
@@ -703,28 +703,28 @@ export default function TranscriptionInterface() {
                 {/* Transcription Metadata */}
                 <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center p-3 glass-card rounded-xl">
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    <div className="text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400">
                       {transcriptionResult.wordCount}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('transcription.wordCount')}</div>
+                    <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('transcription.wordCount')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
-                    <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+                    <div className="text-xl md:text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                       {transcriptionResult.metadata.characterCount}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('common.characters')}</div>
+                    <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('common.characters')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {transcriptionResult.readingTime}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('transcription.readingTime')}</div>
+                    <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('transcription.readingTime')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    <div className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
                       {transcriptionResult.confidence || 95}%
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('common.confidence')}</div>
+                    <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('common.confidence')}</div>
                   </div>
                 </div>
               </motion.div>
@@ -737,12 +737,12 @@ export default function TranscriptionInterface() {
                 className="space-y-4"
               >
                 {processedResults.length === 0 ? (
-                  <div className="glass-card p-12 rounded-2xl text-center">
-                    <Bot className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <div className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card">
+                    <Bot className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
                       {t('transcription.noProcessingResults')}
                     </h3>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
+                    <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mobile-friendly-text">
                       {t('transcription.useToolsAbove')}
                     </p>
                   </div>
@@ -757,9 +757,9 @@ export default function TranscriptionInterface() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`glass-card p-6 rounded-2xl ${toolConfig?.bgColor ? toolConfig.bgColor + ' border ' + toolConfig.borderColor : ''}`}
+                        className={`glass-card p-4 md:p-6 rounded-2xl ${toolConfig?.bgColor ? toolConfig.bgColor + ' border ' + toolConfig.borderColor : ''} mobile-friendly-card`}
                       >
-                        <div className="flex items-center justify-between mb-4">
+                        <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
                           <div className="flex items-center space-x-3">
                             <div className={`p-2 rounded-lg bg-gradient-to-r ${toolConfig?.color || 'from-slate-500 to-slate-600'}`}>
                               {result.type === 'summary' && <BookOpen className="w-5 h-5 text-white" />}
@@ -769,10 +769,10 @@ export default function TranscriptionInterface() {
                               {result.type === 'translation' && <Languages className="w-5 h-5 text-white" />}
                             </div>
                             <div>
-                              <h3 className={`text-lg font-semibold ${toolConfig?.textColor || 'text-slate-800 dark:text-white'}`}>
+                              <h3 className={`text-lg font-semibold ${toolConfig?.textColor || 'text-slate-800 dark:text-white'} mobile-friendly-heading`}>
                                 {result.title}
                               </h3>
-                              <p className="text-sm text-slate-500 dark:text-slate-400">
+                              <p className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                                 {t('transcription.processedOn')} {result.timestamp.toLocaleString()}
                               </p>
                             </div>
@@ -788,44 +788,44 @@ export default function TranscriptionInterface() {
                         </div>
                         
                         <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                          <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                          <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text">
                             {result.content}
                           </p>
                         </div>
 
                         {result.metadata && (
                           <div className={`mt-4 p-3 ${toolConfig?.bgColor || 'bg-blue-50 dark:bg-blue-900/20'} rounded-xl`}>
-                            <div className={`text-sm ${toolConfig?.textColor || 'text-blue-700 dark:text-blue-300'}`}>
+                            <div className={`text-xs md:text-sm ${toolConfig?.textColor || 'text-blue-700 dark:text-blue-300'} mobile-friendly-text`}>
                               {result.type === 'summary' && (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                   <span>Compression: {result.metadata.compressionRatio}%</span>
                                   <span>Key Points: {result.metadata.keyPoints?.length || 0}</span>
                                   <span>Mode: {result.metadata.mode}</span>
                                 </div>
                               )}
                               {result.type === 'paraphrase' && (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                   <span>Readability: {result.metadata.readabilityScore}/10</span>
                                   <span>Improvements: {result.metadata.improvements?.length || 0}</span>
                                   <span>Mode: {result.metadata.mode}</span>
                                 </div>
                               )}
                               {result.type === 'grammar' && (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                   <span>Score: {result.metadata.overallScore}%</span>
                                   <span>Errors Fixed: {result.metadata.errors?.length || 0}</span>
                                   <span>Improvements: {result.metadata.improvements?.length || 0}</span>
                                 </div>
                               )}
                               {result.type === 'plagiarism' && (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                   <span>AI Probability: {result.metadata.aiProbability}%</span>
                                   <span>Confidence: {result.metadata.confidence}%</span>
                                   <span>Status: {result.metadata.status}</span>
                                 </div>
                               )}
                               {result.type === 'translation' && (
-                                <div className="flex items-center space-x-4">
+                                <div className="flex flex-wrap items-center gap-4">
                                   <span>From: {result.metadata.sourceLanguage}</span>
                                   <span>To: {result.metadata.targetLanguage}</span>
                                   <span>Confidence: {result.metadata.confidence}%</span>

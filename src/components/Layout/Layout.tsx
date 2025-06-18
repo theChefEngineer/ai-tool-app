@@ -17,6 +17,7 @@ export default function Layout({ children }: LayoutProps) {
   const theme = useAppStore(state => state.theme);
   const { isRTL } = useTranslation();
   const [isMobile, setIsMobile] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   useEffect(() => {
     initialize();
@@ -28,7 +29,14 @@ export default function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      // Auto-hide sidebar on mobile
+      if (mobile) {
+        setSidebarVisible(false);
+      } else {
+        setSidebarVisible(true);
+      }
     };
 
     checkMobile();
@@ -36,16 +44,26 @@ export default function Layout({ children }: LayoutProps) {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 transition-all duration-500 ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.015] pointer-events-none" />
       
-      <Header />
+      <Header toggleSidebar={toggleSidebar} sidebarVisible={sidebarVisible} />
       
       <div className="flex">
-        {user && !isMobile && <Sidebar />}
+        {user && (
+          <Sidebar 
+            visible={sidebarVisible} 
+            isMobile={isMobile} 
+            onClose={() => setSidebarVisible(false)} 
+          />
+        )}
         
-        <main className={`flex-1 transition-all duration-300 ${user && !isMobile ? (isRTL ? 'mr-64' : 'ml-64') : ''}`}>
+        <main className={`flex-1 transition-all duration-300 ${user && !isMobile && sidebarVisible ? (isRTL ? 'mr-64' : 'ml-64') : ''}`}>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
