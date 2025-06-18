@@ -43,9 +43,8 @@ export class AIService {
   }
 
   async humanizeText(request: any) {
-    return this.provider === 'gemini'
-      ? geminiService.humanizeText(request)
-      : deepseekService.humanizeText(request);
+    // Always use Gemini for humanization with the specialized prompt
+    return geminiService.humanizeText(request);
   }
 
   async checkGrammar(text: string) {

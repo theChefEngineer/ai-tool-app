@@ -21,6 +21,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { aiService } from '../../lib/aiService';
+import { geminiService } from '../../lib/gemini';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
@@ -99,7 +100,8 @@ export default function ContentDetectorInterface() {
 
     setIsHumanizing(true);
     try {
-      const result = await aiService.humanizeText({
+      // Use Gemini directly for humanization with the specialized prompt
+      const result = await geminiService.humanizeText({
         text: inputText,
         creativityLevel: humanizeSettings.creativityLevel,
         preserveMeaning: humanizeSettings.preserveMeaning,
