@@ -28,31 +28,34 @@ export class GeminiService {
     try {
       const url = `${this.apiEndpoint}?key=${this.apiKey}`;
       
-      const requestBody: any = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }]
-          }
-        ],
+      const contents = [];
+      
+      // Add system prompt if provided
+      if (systemPrompt) {
+        contents.push({
+          role: "system",
+          parts: [{ text: systemPrompt }]
+        });
+      }
+      
+      // Add user prompt
+      contents.push({
+        role: "user",
+        parts: [{ text: prompt }]
+      });
+      
+      const requestBody = {
+        contents,
         generationConfig: {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 2048,
-        },
-        thinkingConfig: {
-          thinkingBudget: 0
+          thinkingConfig: {
+            thinkingBudget: 0
+          }
         }
       };
-
-      // Add system prompt if provided
-      if (systemPrompt) {
-        requestBody.contents.unshift({
-          role: "system",
-          parts: [{ text: systemPrompt }]
-        });
-      }
 
       const response = await fetch(url, {
         method: 'POST',
