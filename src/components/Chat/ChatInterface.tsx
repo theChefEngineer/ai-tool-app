@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
+import { geminiService } from '../../lib/gemini';
 
 interface Message {
   id: string;
@@ -193,12 +194,46 @@ export default function ChatInterface() {
     setIsTyping(true);
 
     try {
-      // Simulate AI response
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Prepare messages for API
+      const messageHistory = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // Add attachments or web content if present
+      let systemPrompt = 'You are a helpful AI writing assistant specializing in paraphrasing, summarizing, translation, grammar checking, and creative writing. Provide clear, helpful, and engaging responses. Be concise but thorough in your explanations.';
+      
+      if (userMessage.attachments) {
+        systemPrompt += '\n\nThe user has shared a document with the following content:\n\n';
+        userMessage.attachments.forEach(attachment => {
+          if (attachment.content) {
+            systemPrompt += `--- Document: ${attachment.name} ---\n${attachment.content}\n\n`;
+          }
+        });
+        systemPrompt += 'Please analyze this document and respond to the user\'s query about it.';
+      }
+      
+      if (userMessage.webContent) {
+        if (userMessage.webContent.type === 'browse') {
+          systemPrompt += `\n\nThe user has shared a web page with the following content:\n\n`;
+          systemPrompt += `--- Web Page: ${userMessage.webContent.title} (${userMessage.webContent.url}) ---\n${userMessage.webContent.content}\n\n`;
+          systemPrompt += 'Please analyze this web content and respond to the user\'s query about it.';
+        } else if (userMessage.webContent.type === 'search') {
+          systemPrompt += `\n\nThe user has performed a web search for: "${userMessage.webContent.query}"\n\n`;
+          systemPrompt += 'Search results:\n\n';
+          userMessage.webContent.results?.forEach((result, index) => {
+            systemPrompt += `${index + 1}. ${result.title} (${result.url})\n${result.snippet}\n\n`;
+          });
+          systemPrompt += 'Please analyze these search results and respond to the user\'s query.';
+        }
+      }
+
+      // Call Gemini API
+      const response = await geminiService.callGeminiAPI(userMessage.content, systemPrompt);
       
       const aiResponse: Message = {
         id: crypto.randomUUID(),
-        content: `This is a simulated response from Gemini 2.5 Flash Lite. In a real implementation, this would be an actual response from the Gemini API based on your message: "${userMessage.content}"`,
+        content: response.result,
         role: 'assistant',
         timestamp: new Date(),
       };
@@ -339,18 +374,48 @@ export default function ChatInterface() {
       setTimeout(() => {
         setIsTyping(true);
         
-        // Simulate AI response
-        setTimeout(() => {
-          const assistantMessage: Message = {
-            id: crypto.randomUUID(),
-            content: `I've analyzed the document "${file.name}". This appears to be a document with approximately 500 words. Would you like me to summarize it, extract key information, or answer specific questions about its content?`,
-            role: 'assistant',
-            timestamp: new Date(),
-          };
-          
-          setMessages(prev => [...prev, assistantMessage]);
-          setIsTyping(false);
-        }, 2000);
+        // Call Gemini API for document analysis
+        const systemPrompt = `You are a helpful AI assistant. The user has shared a document with the following content:
+
+Document: ${file.name}
+Word Count: 500
+Character Count: 3000
+Language: English
+
+Content:
+This is simulated content from the file ${file.name}. In a real implementation, this would contain the actual content extracted from the document.
+
+Please analyze this document and provide a helpful response. Consider:
+1. Summarizing the key points
+2. Identifying the main topics
+3. Suggesting potential actions or next steps
+4. Offering to answer specific questions about the document`;
+
+        geminiService.callGeminiAPI(`I've uploaded a document: ${file.name}. Please analyze this document.`, systemPrompt)
+          .then(response => {
+            const assistantMessage: Message = {
+              id: crypto.randomUUID(),
+              content: response.result,
+              role: 'assistant',
+              timestamp: new Date(),
+            };
+            
+            setMessages(prev => [...prev, assistantMessage]);
+            setIsTyping(false);
+          })
+          .catch(error => {
+            console.error('Error processing document:', error);
+            
+            const errorMessage: Message = {
+              id: crypto.randomUUID(),
+              content: 'I encountered an error while analyzing your document. Could you please ask me specific questions about it?',
+              role: 'assistant',
+              timestamp: new Date(),
+            };
+            
+            setMessages(prev => [...prev, errorMessage]);
+            setIsTyping(false);
+          });
       }, 1000);
       
       toast.success('Document uploaded successfully!');

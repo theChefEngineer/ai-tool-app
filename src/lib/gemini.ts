@@ -21,10 +21,10 @@ export class GeminiService {
 
   constructor() {
     this.apiKey = 'AIzaSyAx88sgBb8hI5a8BPI85alXqiYzHL37nxY';
-    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
   }
 
-  private async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
+  async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
     try {
       const url = `${this.apiEndpoint}?key=${this.apiKey}`;
 
@@ -39,6 +39,9 @@ export class GeminiService {
           topK: 40,
           topP: 0.95,
           maxOutputTokens: 2048,
+          thinkingConfig: {
+            thinkingBudget: 0
+          }
         }
       };
 
