@@ -20,7 +20,7 @@ import {
   Settings,
   Sliders
 } from 'lucide-react';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
@@ -80,7 +80,7 @@ export default function ContentDetectorInterface() {
 
     setIsDetecting(true);
     try {
-      const result = await deepseekService.detectAI({ text: inputText });
+      const result = await aiService.detectAI({ text: inputText });
       setDetectionResult(result);
       setActiveTab('detection');
       toast.success(t('messages.success.analyzed'));
@@ -99,7 +99,7 @@ export default function ContentDetectorInterface() {
 
     setIsHumanizing(true);
     try {
-      const result = await deepseekService.humanizeText({
+      const result = await aiService.humanizeText({
         text: inputText,
         creativityLevel: humanizeSettings.creativityLevel,
         preserveMeaning: humanizeSettings.preserveMeaning,
@@ -615,7 +615,7 @@ export default function ContentDetectorInterface() {
                     <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
-                          {t('contentDetector.humanizedVersion')} (DeepSeek R1)
+                          {t('contentDetector.humanizedVersion')} (Gemini 2.5)
                         </h3>
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">

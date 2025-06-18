@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRightLeft, Loader2, Copy, Check, RotateCcw, Languages, Volume2 } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
@@ -41,7 +41,7 @@ export default function TranslationInterface() {
 
     setProcessing(true);
     try {
-      const response = await deepseekService.translate({
+      const response = await aiService.translate({
         text: inputText,
         sourceLanguage,
         targetLanguage,
@@ -134,7 +134,7 @@ export default function TranslationInterface() {
               placeholder={t('translation.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
-              dir="auto" // Automatically detect text direction
+              dir="auto"
             />
 
             <div className="flex items-center justify-between mt-4">

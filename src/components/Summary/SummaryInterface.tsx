@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Send, Loader2, Copy, Check, RotateCcw, BookOpen, FileText } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
@@ -17,7 +17,7 @@ export default function SummaryInterface() {
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   
   const { currentSummaryMode, isProcessing, setProcessing, addToSummaryHistory } = useAppStore();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const handleSummarize = async () => {
     if (!inputText.trim()) {
@@ -34,7 +34,7 @@ export default function SummaryInterface() {
 
     setProcessing(true);
     try {
-      const response = await deepseekService.summarize({
+      const response = await aiService.summarize({
         text: inputText,
         mode: currentSummaryMode,
       });
@@ -107,7 +107,7 @@ export default function SummaryInterface() {
     } else {
       // Regular paragraph text for other modes
       return (
-        <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
+        <p className="text-slate-800 dark:text-slate-200 leading-relaxed mobile-friendly-text" dir="auto">
           {text}
         </p>
       );
@@ -115,17 +115,17 @@ export default function SummaryInterface() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className={`max-w-6xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('summary.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('summary.subtitle')}
         </p>
       </motion.div>
@@ -141,12 +141,12 @@ export default function SummaryInterface() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-4"
         >
-          <div className="glass-card p-6 rounded-2xl">
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                 {t('summary.originalText')}
               </h3>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
+              <span className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                 {inputText.length} {t('common.characters')}
               </span>
             </div>
@@ -157,6 +157,7 @@ export default function SummaryInterface() {
               placeholder={t('summary.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
+              dir="auto"
             />
 
             <div className="flex items-center justify-between mt-4">
@@ -165,7 +166,7 @@ export default function SummaryInterface() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleReset}
-                  className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2"
+                  className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2 mobile-friendly-button"
                   disabled={isProcessing}
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -178,7 +179,7 @@ export default function SummaryInterface() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSummarize}
                 disabled={isProcessing || !inputText.trim()}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
               >
                 {isProcessing ? (
                   <>
@@ -203,15 +204,15 @@ export default function SummaryInterface() {
           className="space-y-4"
         >
           {result ? (
-            <div className="glass-card p-6 rounded-2xl">
+            <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                   {t('summary.summaryText')}
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 rounded-full">
                     <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+                    <span className="text-sm text-emerald-700 dark:text-emerald-300 font-medium mobile-friendly-text">
                       {result.compressionRatio}% {t('summary.compressionRatio')}
                     </span>
                   </div>
@@ -236,12 +237,12 @@ export default function SummaryInterface() {
 
               {result.keyPoints && result.keyPoints.length > 0 && currentSummaryMode !== 'bullet' && (
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
                     {t('summary.keyPoints')}
                   </h4>
                   <ul className="space-y-1">
                     {result.keyPoints.map((point: string, index: number) => (
-                      <li key={index} className="text-sm text-slate-600 dark:text-slate-400 flex items-start space-x-2">
+                      <li key={index} className="text-sm text-slate-600 dark:text-slate-400 flex items-start space-x-2 mobile-friendly-text">
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 flex-shrink-0"></span>
                         <span>{point}</span>
                       </li>
@@ -251,11 +252,11 @@ export default function SummaryInterface() {
               )}
             </div>
           ) : (
-            <div className="glass-card p-6 rounded-2xl h-64 flex items-center justify-center">
+            <div className="glass-card p-4 md:p-6 rounded-2xl h-64 flex items-center justify-center mobile-friendly-card">
               <div className="text-center">
                 <BookOpen className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-500 dark:text-slate-400">
-                  Your comprehensive summary will appear here
+                <p className="text-slate-500 dark:text-slate-400 mobile-friendly-text">
+                  {t('summary.emptyState')}
                 </p>
               </div>
             </div>

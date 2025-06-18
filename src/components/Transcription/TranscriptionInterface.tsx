@@ -23,7 +23,7 @@ import {
   Globe,
   Wand2
 } from 'lucide-react';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { DocumentProcessor, type DocumentProcessingResult } from '../../lib/documentProcessor';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -167,7 +167,7 @@ export default function TranscriptionInterface() {
 
       switch (tool) {
         case 'summarize':
-          const summaryResponse = await deepseekService.summarize({
+          const summaryResponse = await aiService.summarize({
             text: transcriptionResult.originalText,
             mode: 'comprehensive'
           });
@@ -185,7 +185,7 @@ export default function TranscriptionInterface() {
           break;
 
         case 'paraphrase':
-          const paraphraseResponse = await deepseekService.paraphrase({
+          const paraphraseResponse = await aiService.paraphrase({
             text: transcriptionResult.originalText,
             mode: 'standard'
           });
@@ -203,7 +203,7 @@ export default function TranscriptionInterface() {
           break;
 
         case 'grammar':
-          const grammarResponse = await deepseekService.checkGrammarAdvanced(transcriptionResult.originalText);
+          const grammarResponse = await aiService.checkGrammarAdvanced(transcriptionResult.originalText);
           result = {
             type: 'grammar',
             title: t('transcription.tools.grammar'),
@@ -219,7 +219,7 @@ export default function TranscriptionInterface() {
 
         case 'plagiarism':
           // Use AI detection service for plagiarism check
-          const plagiarismResponse = await deepseekService.detectAI({
+          const plagiarismResponse = await aiService.detectAI({
             text: transcriptionResult.originalText
           });
           result = {
@@ -239,7 +239,7 @@ export default function TranscriptionInterface() {
         case 'translation':
           // Auto-detect source language and translate to English (or vice versa)
           const targetLang = transcriptionResult.language === 'en' ? 'es' : 'en';
-          const translationResponse = await deepseekService.translate({
+          const translationResponse = await aiService.translate({
             text: transcriptionResult.originalText,
             sourceLanguage: transcriptionResult.language || 'auto',
             targetLanguage: targetLang
@@ -401,7 +401,7 @@ export default function TranscriptionInterface() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className={`max-w-6xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -695,7 +695,7 @@ export default function TranscriptionInterface() {
                   </div>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text">
+                  <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text" dir="auto">
                     {transcriptionResult.originalText}
                   </p>
                 </div>
@@ -788,7 +788,7 @@ export default function TranscriptionInterface() {
                         </div>
                         
                         <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                          <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text">
+                          <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text" dir="auto">
                             {result.content}
                           </p>
                         </div>

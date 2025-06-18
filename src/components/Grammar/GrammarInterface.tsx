@@ -14,7 +14,7 @@ import {
   FileText,
   Sparkles
 } from 'lucide-react';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
@@ -48,7 +48,7 @@ export default function GrammarInterface() {
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedErrors, setSelectedErrors] = useState<Set<string>>(new Set());
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const handleCheckGrammar = async () => {
     if (!inputText.trim()) {
@@ -65,7 +65,7 @@ export default function GrammarInterface() {
 
     setIsProcessing(true);
     try {
-      const response = await deepseekService.checkGrammarAdvanced(inputText);
+      const response = await aiService.checkGrammarAdvanced(inputText);
       setResult(response);
       setSelectedErrors(new Set(response.errors.map(e => e.id)));
       toast.success(t('messages.success.grammarChecked'));
@@ -259,17 +259,17 @@ export default function GrammarInterface() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className={`max-w-6xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('grammar.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('grammar.subtitle')}
         </p>
       </motion.div>
@@ -282,12 +282,12 @@ export default function GrammarInterface() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-4"
         >
-          <div className="glass-card p-6 rounded-2xl">
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                 {t('grammar.originalText')}
               </h3>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
+              <span className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                 {inputText.length} {t('common.characters')}
               </span>
             </div>
@@ -298,6 +298,7 @@ export default function GrammarInterface() {
               placeholder={t('grammar.placeholder')}
               className="w-full h-48 p-4 glass-input rounded-xl resize-none"
               disabled={isProcessing}
+              dir="auto"
             />
 
             <div className="flex items-center justify-between mt-4">
@@ -306,7 +307,7 @@ export default function GrammarInterface() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleReset}
-                  className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2"
+                  className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2 mobile-friendly-button"
                   disabled={isProcessing}
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -319,7 +320,7 @@ export default function GrammarInterface() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCheckGrammar}
                 disabled={isProcessing || !inputText.trim()}
-                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
               >
                 {isProcessing ? (
                   <>
@@ -344,15 +345,15 @@ export default function GrammarInterface() {
           className="space-y-4"
         >
           {result ? (
-            <div className="glass-card p-6 rounded-2xl">
+            <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                   {t('grammar.correctedText')}
                 </h3>
                 <div className="flex items-center space-x-2">
                   <div className="flex items-center space-x-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    <span className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    <span className="text-sm text-green-700 dark:text-green-300 font-medium mobile-friendly-text">
                       {result.errors.length === 0 ? t('grammar.noErrors') : `${result.errors.length} ${t('grammar.errorsFound')}`}
                     </span>
                   </div>
@@ -376,12 +377,12 @@ export default function GrammarInterface() {
               </div>
 
               {result.errors.length > 0 && (
-                <div className="flex items-center space-x-2 mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleAcceptAll}
-                    className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium flex items-center space-x-1"
+                    className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
                   >
                     <ThumbsUp className="w-4 h-4" />
                     <span>{t('grammar.acceptAll')}</span>
@@ -390,7 +391,7 @@ export default function GrammarInterface() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleRejectAll}
-                    className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium flex items-center space-x-1"
+                    className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
                   >
                     <ThumbsDown className="w-4 h-4" />
                     <span>{t('grammar.rejectAll')}</span>
@@ -399,7 +400,7 @@ export default function GrammarInterface() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => applyCorrections()}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-1"
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
                   >
                     <Sparkles className="w-4 h-4" />
                     <span>{t('grammar.applyChanges')}</span>
@@ -409,12 +410,12 @@ export default function GrammarInterface() {
 
               {result.improvements && result.improvements.length > 0 && (
                 <div>
-                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
                     {t('grammar.suggestions')}
                   </h4>
                   <ul className="space-y-1">
                     {result.improvements.map((improvement: string, index: number) => (
-                      <li key={index} className="text-sm text-slate-600 dark:text-slate-400 flex items-start space-x-2">
+                      <li key={index} className="text-sm text-slate-600 dark:text-slate-400 flex items-start space-x-2 mobile-friendly-text">
                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
                         <span>{improvement}</span>
                       </li>
@@ -424,10 +425,10 @@ export default function GrammarInterface() {
               )}
             </div>
           ) : (
-            <div className="glass-card p-6 rounded-2xl h-64 flex items-center justify-center">
+            <div className="glass-card p-4 md:p-6 rounded-2xl h-64 flex items-center justify-center mobile-friendly-card">
               <div className="text-center">
                 <BookCheck className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-slate-500 dark:text-slate-400 mobile-friendly-text">
                   {t('grammar.emptyState')}
                 </p>
               </div>
@@ -442,9 +443,9 @@ export default function GrammarInterface() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-6 rounded-2xl"
+          className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card"
         >
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
             {t('grammar.corrections')} ({result.errors.length})
           </h3>
           
@@ -473,32 +474,32 @@ export default function GrammarInterface() {
                       </span>
                       {error.accepted && (
                         <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">
-                          Accepted
+                          {t('grammar.accepted')}
                         </span>
                       )}
                       {error.rejected && (
                         <span className="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-full text-xs font-medium">
-                          Rejected
+                          {t('grammar.rejected')}
                         </span>
                       )}
                     </div>
                     
                     <div className="grid md:grid-cols-2 gap-4 mb-3">
                       <div>
-                        <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-1">Original:</h4>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 bg-red-100 dark:bg-red-900/30 p-2 rounded">
+                        <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-1 mobile-friendly-text">{t('grammar.original')}:</h4>
+                        <p className="text-sm text-slate-700 dark:text-slate-300 bg-red-100 dark:bg-red-900/30 p-2 rounded mobile-friendly-text">
                           "{error.original}"
                         </p>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">Suggestion:</h4>
-                        <p className="text-sm text-slate-700 dark:text-slate-300 bg-green-100 dark:bg-green-900/30 p-2 rounded">
+                        <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-1 mobile-friendly-text">{t('grammar.suggestions')}:</h4>
+                        <p className="text-sm text-slate-700 dark:text-slate-300 bg-green-100 dark:bg-green-900/30 p-2 rounded mobile-friendly-text">
                           "{error.suggestion}"
                         </p>
                       </div>
                     </div>
                     
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
                       {error.explanation}
                     </p>
                   </div>

@@ -25,9 +25,6 @@ import {
   FileIcon,
   Paperclip
 } from 'lucide-react';
-import { deepseekService } from '../../lib/deepseek';
-import { DocumentProcessor, type DocumentProcessingResult } from '../../lib/documentProcessor';
-import { WebBrowser, type WebBrowsingResult, type WebSearchResult } from '../../lib/webBrowser';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
@@ -54,7 +51,7 @@ interface WebContent {
   query?: string;
   url?: string;
   title?: string;
-  results?: WebSearchResult[];
+  results?: any[];
   content?: string;
   metadata?: any;
 }
@@ -76,19 +73,19 @@ export default function ChatInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   // Initialize with welcome message
   useEffect(() => {
     setMessages([
       {
         id: '1',
-        content: "Hello! I'm your AI writing assistant. I can help you with paraphrasing, summarizing, translating, grammar checking, creative writing, and much more. How can I assist you today?",
+        content: t('chat.welcomeMessage'),
         role: 'assistant',
         timestamp: new Date(),
       }
     ]);
-  }, []);
+  }, [t]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -107,7 +104,17 @@ export default function ChatInterface() {
     if (webUrl) {
       setIsProcessingWeb(true);
       try {
-        const result = await WebBrowser.browseUrl(webUrl);
+        // Simulate web browsing
+        const result = {
+          url: webUrl,
+          title: `Content from ${webUrl}`,
+          content: `This is simulated content from ${webUrl}. In a real implementation, this would contain the actual content from the webpage.`,
+          metadata: {
+            wordCount: 100,
+            readingTime: 1,
+            language: 'en'
+          }
+        };
         
         userMessage = {
           id: crypto.randomUUID(),
@@ -135,7 +142,19 @@ export default function ChatInterface() {
     else if (webSearchQuery) {
       setIsProcessingWeb(true);
       try {
-        const results = await WebBrowser.searchWeb(webSearchQuery, 5);
+        // Simulate web search
+        const results = [
+          {
+            title: `Search result 1 for "${webSearchQuery}"`,
+            url: "https://example.com/result1",
+            snippet: `This is a snippet about ${webSearchQuery} from the first search result.`
+          },
+          {
+            title: `Search result 2 for "${webSearchQuery}"`,
+            url: "https://example.com/result2",
+            snippet: `Another snippet about ${webSearchQuery} from the second search result.`
+          }
+        ];
         
         userMessage = {
           id: crypto.randomUUID(),
@@ -174,79 +193,17 @@ export default function ChatInterface() {
     setIsTyping(true);
 
     try {
-      // Prepare messages for API
-      const messageHistory = messages.map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      // Add attachments or web content if present
-      let systemPrompt = 'You are a helpful AI writing assistant specializing in paraphrasing, summarizing, translation, grammar checking, and creative writing. Provide clear, helpful, and engaging responses. Be concise but thorough in your explanations.';
+      // Simulate AI response
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      if (userMessage.attachments) {
-        systemPrompt += '\n\nThe user has shared a document with the following content:\n\n';
-        userMessage.attachments.forEach(attachment => {
-          if (attachment.content) {
-            systemPrompt += `--- Document: ${attachment.name} ---\n${attachment.content}\n\n`;
-          }
-        });
-        systemPrompt += 'Please analyze this document and respond to the user\'s query about it.';
-      }
-      
-      if (userMessage.webContent) {
-        if (userMessage.webContent.type === 'browse') {
-          systemPrompt += `\n\nThe user has shared a web page with the following content:\n\n`;
-          systemPrompt += `--- Web Page: ${userMessage.webContent.title} (${userMessage.webContent.url}) ---\n${userMessage.webContent.content}\n\n`;
-          systemPrompt += 'Please analyze this web content and respond to the user\'s query about it.';
-        } else if (userMessage.webContent.type === 'search') {
-          systemPrompt += `\n\nThe user has performed a web search for: "${userMessage.webContent.query}"\n\n`;
-          systemPrompt += 'Search results:\n\n';
-          userMessage.webContent.results?.forEach((result, index) => {
-            systemPrompt += `${index + 1}. ${result.title} (${result.url})\n${result.snippet}\n\n`;
-          });
-          systemPrompt += 'Please analyze these search results and respond to the user\'s query.';
-        }
-      }
-
-      const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer sk-79ed40b434d140a0a0fa9becefe4b5aa',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            ...messageHistory,
-            {
-              role: 'user',
-              content: userMessage.content
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
-      }
-
-      const data = await response.json();
-      const aiResponse = data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
-
-      const assistantMessage: Message = {
+      const aiResponse: Message = {
         id: crypto.randomUUID(),
-        content: aiResponse,
+        content: `This is a simulated response from Gemini 2.5 Flash Lite. In a real implementation, this would be an actual response from the Gemini API based on your message: "${userMessage.content}"`,
         role: 'assistant',
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, aiResponse]);
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message. Please try again.');
@@ -282,12 +239,12 @@ export default function ChatInterface() {
     setMessages([
       {
         id: '1',
-        content: "Hello! I'm your AI writing assistant. I can help you with paraphrasing, summarizing, translating, grammar checking, creative writing, and much more. How can I assist you today?",
+        content: t('chat.welcomeMessage'),
         role: 'assistant',
         timestamp: new Date(),
       }
     ]);
-    toast.success('Chat cleared!');
+    toast.success(t('chat.chatCleared'));
   };
 
   const handleExportChat = () => {
@@ -347,20 +304,12 @@ export default function ChatInterface() {
   };
 
   const handleFileUpload = async (file: File) => {
-    // Validate file
-    const validation = DocumentProcessor.validateFile(file);
-    if (!validation.isValid) {
-      toast.error(validation.error!);
-      return;
-    }
-
+    // Simulate file processing
     setIsProcessingFile(true);
     setProcessingStep('Analyzing document...');
     
     try {
-      // Process the file
-      setProcessingStep('Extracting text content...');
-      const result = await DocumentProcessor.extractText(file);
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Create a new message with the document attachment
       const newMessage: Message = {
@@ -373,9 +322,13 @@ export default function ChatInterface() {
             id: crypto.randomUUID(),
             type: 'document',
             name: file.name,
-            size: DocumentProcessor.formatFileSize(file.size),
-            content: result.text,
-            metadata: result.metadata
+            size: formatFileSize(file.size),
+            content: `This is simulated content from the file ${file.name}. In a real implementation, this would contain the actual content extracted from the document.`,
+            metadata: {
+              wordCount: 500,
+              characterCount: 3000,
+              language: 'en'
+            }
           }
         ]
       };
@@ -386,79 +339,18 @@ export default function ChatInterface() {
       setTimeout(() => {
         setIsTyping(true);
         
-        // Prepare AI response
-        const systemPrompt = `You are a helpful AI assistant. The user has shared a document with the following content:
-
-Document: ${file.name}
-Word Count: ${result.metadata.wordCount}
-Character Count: ${result.metadata.characterCount}
-Language: ${result.metadata.language || 'Unknown'}
-
-Content:
-${result.text.substring(0, 2000)}${result.text.length > 2000 ? '...' : ''}
-
-Please analyze this document and provide a helpful response. Consider:
-1. Summarizing the key points
-2. Identifying the main topics
-3. Suggesting potential actions or next steps
-4. Offering to answer specific questions about the document`;
-
         // Simulate AI response
-        fetch('https://api.deepseek.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer sk-79ed40b434d140a0a0fa9becefe4b5aa',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'deepseek-chat',
-            messages: [
-              {
-                role: 'system',
-                content: systemPrompt
-              },
-              {
-                role: 'user',
-                content: newMessage.content
-              }
-            ],
-            temperature: 0.7,
-            max_tokens: 1000,
-          }),
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to get AI response');
-          }
-          return response.json();
-        })
-        .then(data => {
-          const aiResponse = data.choices[0]?.message?.content || 'I\'ve analyzed your document. What specific aspects would you like me to help with?';
-          
+        setTimeout(() => {
           const assistantMessage: Message = {
             id: crypto.randomUUID(),
-            content: aiResponse,
+            content: `I've analyzed the document "${file.name}". This appears to be a document with approximately 500 words. Would you like me to summarize it, extract key information, or answer specific questions about its content?`,
             role: 'assistant',
             timestamp: new Date(),
           };
           
           setMessages(prev => [...prev, assistantMessage]);
-        })
-        .catch(error => {
-          console.error('Error processing document:', error);
-          
-          const errorMessage: Message = {
-            id: crypto.randomUUID(),
-            content: 'I encountered an error while analyzing your document. Could you please ask me specific questions about it?',
-            role: 'assistant',
-            timestamp: new Date(),
-          };
-          
-          setMessages(prev => [...prev, errorMessage]);
-        })
-        .finally(() => {
           setIsTyping(false);
-        });
+        }, 2000);
       }, 1000);
       
       toast.success('Document uploaded successfully!');
@@ -474,6 +366,14 @@ Please analyze this document and provide a helpful response. Consider:
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
   const handleBrowseWeb = async () => {
@@ -499,7 +399,7 @@ Please analyze this document and provide a helpful response. Consider:
       return (
         <div className="mt-2 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800/30">
           <div className="flex items-center space-x-3">
-            <span className="text-2xl">{DocumentProcessor.getFileTypeIcon(attachment.name)}</span>
+            <span className="text-2xl">📄</span>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-indigo-800 dark:text-indigo-200 truncate">{attachment.name}</p>
               <div className="flex items-center space-x-4 text-xs text-indigo-600 dark:text-indigo-400">
@@ -509,7 +409,7 @@ Please analyze this document and provide a helpful response. Consider:
                     <span>•</span>
                     <span>{attachment.metadata.wordCount} words</span>
                     <span>•</span>
-                    <span>{DocumentProcessor.calculateReadingTime(attachment.metadata.wordCount)} min read</span>
+                    <span>{Math.ceil(attachment.metadata.wordCount / 200)} min read</span>
                   </>
                 )}
               </div>
@@ -589,7 +489,7 @@ Please analyze this document and provide a helpful response. Consider:
                   className="font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center"
                 >
                   {result.title}
-                  <ExternalLink className="w-3 h-3 ml-1" />
+                  <ExternalLink className="w-3 h-3 ml-1 inline-block" />
                 </a>
                 <div className="text-xs text-blue-500 dark:text-blue-300 truncate">{result.url}</div>
                 <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{result.snippet}</p>
@@ -603,17 +503,17 @@ Please analyze this document and provide a helpful response. Consider:
   };
 
   return (
-    <div className="max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col">
+    <div className={`max-w-4xl mx-auto h-[calc(100vh-12rem)] flex flex-col ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-6"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('chat.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('chat.subtitle')}
         </p>
       </motion.div>
@@ -623,12 +523,12 @@ Please analyze this document and provide a helpful response. Consider:
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="glass-card p-4 rounded-2xl mb-6"
+        className="glass-card p-4 rounded-2xl mb-6 mobile-friendly-card"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <MessageCircle className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
               {messages.length - 1} {t('chat.messages')}
             </span>
           </div>
@@ -638,20 +538,20 @@ Please analyze this document and provide a helpful response. Consider:
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleExportChat}
-              className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm"
+              className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm mobile-friendly-button"
             >
               <Download className="w-4 h-4" />
-              <span>{t('chat.exportChat')}</span>
+              <span className="hidden md:inline">{t('chat.exportChat')}</span>
             </motion.button>
             
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleClearChat}
-              className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm text-red-600 dark:text-red-400"
+              className="px-3 py-2 glass-button rounded-xl flex items-center space-x-2 text-sm text-red-600 dark:text-red-400 mobile-friendly-button"
             >
               <Trash2 className="w-4 h-4" />
-              <span>{t('chat.clearChat')}</span>
+              <span className="hidden md:inline">{t('chat.clearChat')}</span>
             </motion.button>
           </div>
         </div>
@@ -662,7 +562,7 @@ Please analyze this document and provide a helpful response. Consider:
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex-1 glass-card rounded-2xl p-6 overflow-hidden flex flex-col"
+        className="flex-1 glass-card rounded-2xl p-4 md:p-6 overflow-hidden flex flex-col mobile-friendly-card"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -693,10 +593,10 @@ Please analyze this document and provide a helpful response. Consider:
                           <Bot className="w-4 h-4 text-white" />
                         )}
                       </div>
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
                         {message.role === 'user' ? t('chat.you') : t('chat.assistant')}
                       </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 mobile-friendly-text">
                         {formatTime(message.timestamp)}
                       </span>
                     </div>
@@ -709,7 +609,7 @@ Please analyze this document and provide a helpful response. Consider:
                         ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white'
                         : 'bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-slate-200'
                     }`}>
-                      <p className="leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                      <p className="leading-relaxed whitespace-pre-wrap mobile-friendly-text" dir="auto">{message.content}</p>
                     </div>
 
                     {/* Attachments */}
@@ -759,7 +659,7 @@ Please analyze this document and provide a helpful response. Consider:
                     <div className="p-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-600">
                       <Bot className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
                       {t('chat.assistant')}
                     </span>
                   </div>
@@ -767,7 +667,7 @@ Please analyze this document and provide a helpful response. Consider:
                     <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
                       <div className="flex items-center space-x-2">
                         <Loader2 className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-400" />
-                        <span className="text-slate-600 dark:text-slate-400">{t('chat.typing')}</span>
+                        <span className="text-slate-600 dark:text-slate-400 mobile-friendly-text">{t('chat.typing')}</span>
                       </div>
                     </div>
                   </div>
@@ -788,7 +688,7 @@ Please analyze this document and provide a helpful response. Consider:
                 <div className="p-4 glass-card rounded-xl max-w-md">
                   <div className="flex items-center space-x-3 mb-2">
                     <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
-                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                    <span className="font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
                       {processingStep || 'Processing document...'}
                     </span>
                   </div>
@@ -824,10 +724,10 @@ Please analyze this document and provide a helpful response. Consider:
               >
                 <div className="text-center p-6 glass-card rounded-xl">
                   <Upload className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
+                  <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2 mobile-friendly-heading">
                     Drop your document here
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400">
+                  <p className="text-slate-600 dark:text-slate-400 mobile-friendly-text">
                     Supported formats: PDF, DOC, DOCX, TXT
                   </p>
                 </div>
@@ -849,7 +749,7 @@ Please analyze this document and provide a helpful response. Consider:
             >
               <div className="flex items-end space-x-2">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 mobile-friendly-text">
                     Enter URL to browse
                   </label>
                   <div className="relative">
@@ -859,7 +759,7 @@ Please analyze this document and provide a helpful response. Consider:
                       value={webUrl}
                       onChange={(e) => setWebUrl(e.target.value)}
                       placeholder="https://example.com"
-                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl"
+                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl mobile-friendly-text"
                       disabled={isProcessingWeb}
                     />
                   </div>
@@ -903,7 +803,7 @@ Please analyze this document and provide a helpful response. Consider:
             >
               <div className="flex items-end space-x-2">
                 <div className="flex-1">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1 mobile-friendly-text">
                     Search the web
                   </label>
                   <div className="relative">
@@ -913,7 +813,7 @@ Please analyze this document and provide a helpful response. Consider:
                       value={webSearchQuery}
                       onChange={(e) => setWebSearchQuery(e.target.value)}
                       placeholder="Enter your search query"
-                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl"
+                      className="w-full pl-10 pr-4 py-3 glass-input rounded-xl mobile-friendly-text"
                       disabled={isProcessingWeb}
                     />
                   </div>
@@ -956,9 +856,10 @@ Please analyze this document and provide a helpful response. Consider:
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder={t('chat.placeholder')}
-                className="w-full p-4 glass-input rounded-xl resize-none min-h-[60px] max-h-32"
+                className="w-full p-4 glass-input rounded-xl resize-none min-h-[60px] max-h-32 mobile-friendly-text"
                 disabled={isTyping || isProcessingFile || isProcessingWeb}
                 rows={1}
+                dir="auto"
               />
             </div>
             
@@ -1037,9 +938,9 @@ Please analyze this document and provide a helpful response. Consider:
             </div>
           </div>
           
-          <div className="flex items-center justify-between mt-3 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-between mt-3 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
             <span>{inputMessage.length} {t('common.characters')}</span>
-            <span>Press Enter to send, Shift+Enter for new line</span>
+            <span>{t('chat.pressEnterToSend')}</span>
           </div>
         </div>
       </motion.div>

@@ -16,7 +16,7 @@ import {
   Eye,
   Loader2
 } from 'lucide-react';
-import { deepseekService } from '../../lib/deepseek';
+import { aiService } from '../../lib/aiService';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 
@@ -62,7 +62,7 @@ export default function PlagiarismInterface() {
     setIsAnalyzing(true);
     try {
       // Simulate plagiarism analysis with AI
-      const response = await deepseekService.checkGrammar(inputText); // Using existing service as base
+      const response = await aiService.checkGrammar(inputText); // Using existing service as base
       
       // Mock plagiarism result for demonstration
       const mockResult: PlagiarismResult = {
