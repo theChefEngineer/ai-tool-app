@@ -21,36 +21,24 @@ export class GeminiService {
 
   constructor() {
     this.apiKey = 'AIzaSyAx88sgBb8hI5a8BPI85alXqiYzHL37nxY';
-    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
   }
 
   private async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
     try {
       const url = `${this.apiEndpoint}?key=${this.apiKey}`;
 
-      const contents = [];
-
-      // Add system prompt if provided
-      if (systemPrompt) {
-        contents.push({
-          role: "user",
-          parts: [{ text: systemPrompt }]
-        });
-      }
-
-      // Add user prompt
-      contents.push({
-        role: "user",
-        parts: [{ text: prompt }]
-      });
+      const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
 
       const requestBody = {
-        contents,
+        contents: [{
+          parts: [{ text: fullPrompt }]
+        }],
         generationConfig: {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 2048
+          maxOutputTokens: 2048,
         }
       };
 
@@ -74,12 +62,14 @@ export class GeminiService {
       }
 
       const textResponse = data.candidates[0].content.parts[0].text;
+      
+      const cleanedResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
 
-      if (textResponse.trim().startsWith('{') && textResponse.trim().endsWith('}')) {
+      if (cleanedResponse.startsWith('{') && cleanedResponse.endsWith('}')) {
         try {
-          const jsonResult = JSON.parse(textResponse);
+          const jsonResult = JSON.parse(cleanedResponse);
           return {
-            result: jsonResult.result || jsonResult.text || jsonResult.content || textResponse,
+            result: cleanedResponse,
             metadata: jsonResult
           };
         } catch (e) {
@@ -116,6 +106,15 @@ export class GeminiService {
     Ensure the rewritten text is natural, grammatically correct, and maintains the original intent.`;
     const response = await this.callGeminiAPI(request.text, systemPrompt);
     const result = response.metadata;
+    if (!result) {
+        return {
+            originalText: request.text,
+            paraphrasedText: response.result || 'Failed to get a valid response.',
+            mode: mode,
+            improvements: [],
+            readabilityScore: 0
+        };
+    }
     return {
       originalText: request.text,
       paraphrasedText: result.paraphrasedText || 'No paraphrased text generated',
@@ -144,6 +143,15 @@ export class GeminiService {
     Ensure the summary is accurate and maintains context.`;
     const response = await this.callGeminiAPI(request.text, systemPrompt);
     const result = response.metadata;
+     if (!result) {
+        return {
+            originalText: request.text,
+            summaryText: response.result || 'Failed to get a valid response.',
+            mode: request.mode || 'comprehensive',
+            keyPoints: [],
+            compressionRatio: 0
+        }
+    }
     return {
       originalText: request.text,
       summaryText: result.summaryText || 'No summary generated',
@@ -163,6 +171,16 @@ export class GeminiService {
     - alternatives: array of 2-3 alternative translations (if applicable)`;
     const response = await this.callGeminiAPI(request.text, systemPrompt);
     const result = response.metadata;
+    if (!result) {
+        return {
+            originalText: request.text,
+            translatedText: response.result || 'Failed to get a valid response.',
+            sourceLanguage: request.sourceLanguage,
+            targetLanguage: request.targetLanguage,
+            confidence: 0,
+            alternatives: []
+        }
+    }
     return {
       originalText: request.text,
       translatedText: result.translatedText || 'No translation generated',
@@ -185,6 +203,15 @@ export class GeminiService {
     - highlightedSegments: array of text segments with isAI boolean and confidence score`;
     const response = await this.callGeminiAPI(request.text, systemPrompt);
     const result = response.metadata;
+    if (!result) {
+        return {
+            aiProbability: 50,
+            confidence: 50,
+            status: 'mixed',
+            analysis: { writingStyle: 50, patternRecognition: 50, vocabularyDiversity: 50, sentenceStructure: 50 },
+            highlightedSegments: [{ text: request.text, isAI: true, confidence: 50 }],
+        }
+    }
     return {
       aiProbability: result.aiProbability || 50,
       confidence: result.confidence || 80,
@@ -214,6 +241,15 @@ export class GeminiService {
     - changes: array of objects with "original", "humanized", and "reason" for major changes`;
     const response = await this.callGeminiAPI(request.text, systemPrompt);
     const result = response.metadata;
+    if (!result) {
+        return {
+            originalText: request.text,
+            humanizedText: response.result || 'Failed to get a valid response.',
+            improvements: [],
+            humanScore: 0,
+            changes: []
+        }
+    }
     return {
       originalText: request.text,
       humanizedText: result.humanizedText || 'No humanized text generated',
@@ -237,6 +273,15 @@ export class GeminiService {
     - improvements: array of 3-5 general writing improvements made`;
     const response = await this.callGeminiAPI(text, systemPrompt);
     const result = response.metadata;
+    if (!result) {
+        return {
+            originalText: text,
+            correctedText: response.result || text,
+            errors: [],
+            overallScore: 0,
+            improvements: []
+        }
+    }
     const errors = (result.errors || []).map((error: any, index: number) => ({
       id: `error-${index}-${Date.now()}`,
       ...error
