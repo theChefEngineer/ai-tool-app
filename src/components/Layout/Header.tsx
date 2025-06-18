@@ -1,14 +1,20 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Moon, Sun, User, LogOut, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Moon, Sun, User, LogOut, Sparkles, Menu, X } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { useTranslation } from '../../hooks/useTranslation';
+import MobileMenu from './MobileMenu';
 
 export default function Header() {
   const { user, signOut } = useAuthStore();
   const { theme, toggleTheme } = useAppStore();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
     <motion.header
@@ -18,9 +24,26 @@ export default function Header() {
     >
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
+          {/* Hamburger Menu Button (Mobile) */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleMobileMenu}
+            className="p-2 glass-button rounded-xl md:hidden"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+            ) : (
+              <Menu className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+            )}
+          </motion.button>
+
           <motion.div
             whileHover={{ scale: 1.05 }}
-            className="flex items-center space-x-3"
+            className={`flex items-center space-x-3 ${isRTL ? 'flex-row-reverse space-x-reverse' : ''}`}
           >
             <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl">
               <Sparkles className="w-6 h-6 text-white" />
@@ -51,7 +74,7 @@ export default function Header() {
 
             {user && (
               <>
-                <div className="flex items-center space-x-2 px-3 py-2 glass-card rounded-xl">
+                <div className="hidden md:flex items-center space-x-2 px-3 py-2 glass-card rounded-xl">
                   <User className="w-4 h-4 text-slate-600 dark:text-slate-300" />
                   <span className="text-sm text-slate-700 dark:text-slate-200">
                     {user.email?.split('@')[0]}
@@ -62,7 +85,7 @@ export default function Header() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={signOut}
-                  className="p-2 rounded-xl glass-button text-red-500 hover:text-red-400"
+                  className="hidden md:flex p-2 rounded-xl glass-button text-red-500 hover:text-red-400"
                 >
                   <LogOut className="w-5 h-5" />
                 </motion.button>
@@ -71,6 +94,16 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <MobileMenu 
+            isOpen={mobileMenuOpen} 
+            onClose={() => setMobileMenuOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

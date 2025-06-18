@@ -134,6 +134,28 @@
   .google-auth-btn:active {
     @apply transform translate-y-0 shadow-md;
   }
+  
+  /* Hamburger menu styles */
+  .hamburger-menu {
+    @apply fixed inset-0 z-50 bg-black/50 backdrop-blur-sm;
+  }
+  
+  .hamburger-menu-content {
+    @apply fixed top-0 h-full w-4/5 max-w-xs glass-card z-50 overflow-y-auto;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .hamburger-menu-item {
+    @apply w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200;
+  }
+  
+  .hamburger-menu-item:hover {
+    @apply bg-white/10 dark:bg-slate-700/30;
+  }
+  
+  .hamburger-menu-item.active {
+    @apply bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-600 dark:text-indigo-400 shadow-lg;
+  }
 }
 
 /* Custom scrollbar */

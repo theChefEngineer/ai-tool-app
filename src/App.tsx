@@ -22,7 +22,7 @@ function App() {
   useEffect(() => {
     // Initialize theme on app load
     document.documentElement.classList.toggle('dark', theme === 'dark');
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
     // Apply language and RTL settings
