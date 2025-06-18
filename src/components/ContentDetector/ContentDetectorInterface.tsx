@@ -65,7 +65,7 @@ export default function ContentDetectorInterface() {
     preserveMeaning: true,
   });
   const [showSettings, setShowSettings] = useState(false);
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const handleDetectAI = async () => {
     if (!inputText.trim()) {
@@ -83,7 +83,7 @@ export default function ContentDetectorInterface() {
       const result = await deepseekService.detectAI({ text: inputText });
       setDetectionResult(result);
       setActiveTab('detection');
-      toast.success('AI detection analysis completed!');
+      toast.success(t('messages.success.analyzed'));
     } catch (error: any) {
       toast.error(error.message || 'Failed to analyze text');
     } finally {
@@ -107,7 +107,7 @@ export default function ContentDetectorInterface() {
 
       setHumanizedResult(result);
       setActiveTab('humanized');
-      toast.success('Text humanized successfully with DeepSeek R1!');
+      toast.success(t('messages.success.humanized'));
     } catch (error: any) {
       toast.error(error.message || 'Failed to humanize text');
     } finally {
@@ -184,25 +184,25 @@ export default function ContentDetectorInterface() {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'human': return 'Human Written';
-      case 'mixed': return 'Mixed Content';
-      case 'ai': return 'AI Generated';
-      default: return 'Unknown';
+      case 'human': return t('contentDetector.humanWritten');
+      case 'mixed': return t('contentDetector.mixedContent');
+      case 'ai': return t('contentDetector.aiGenerated');
+      default: return t('contentDetector.unknown');
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className={`max-w-6xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('contentDetector.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('contentDetector.subtitle')}
         </p>
       </motion.div>
@@ -212,12 +212,12 @@ export default function ContentDetectorInterface() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="glass-card p-6 rounded-2xl"
+        className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
             <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
               {t('contentDetector.contentAnalysis')}
             </h3>
           </div>
@@ -242,12 +242,12 @@ export default function ContentDetectorInterface() {
             >
               <div className="flex items-center space-x-2 mb-3">
                 <Sliders className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <h4 className="font-medium text-blue-800 dark:text-blue-200">{t('contentDetector.humanizationSettings')}</h4>
+                <h4 className="font-medium text-blue-800 dark:text-blue-200 mobile-friendly-text">{t('contentDetector.humanizationSettings')}</h4>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-2 mobile-friendly-text">
                     {t('contentDetector.creativityLevel')}
                   </label>
                   <select
@@ -256,11 +256,11 @@ export default function ContentDetectorInterface() {
                       ...humanizeSettings,
                       creativityLevel: e.target.value as 'low' | 'medium' | 'high'
                     })}
-                    className="w-full p-2 glass-input rounded-xl text-sm"
+                    className="w-full p-2 glass-input rounded-xl text-sm mobile-friendly-text"
                   >
-                    <option value="low">Low - Minimal changes</option>
-                    <option value="medium">Medium - Balanced approach</option>
-                    <option value="high">High - Extensive humanization</option>
+                    <option value="low">{t('contentDetector.creativityLow')}</option>
+                    <option value="medium">{t('contentDetector.creativityMedium')}</option>
+                    <option value="high">{t('contentDetector.creativityHigh')}</option>
                   </select>
                 </div>
                 
@@ -275,7 +275,7 @@ export default function ContentDetectorInterface() {
                     })}
                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="preserveMeaning" className="text-sm text-blue-700 dark:text-blue-300">
+                  <label htmlFor="preserveMeaning" className="text-sm text-blue-700 dark:text-blue-300 mobile-friendly-text">
                     {t('contentDetector.preserveMeaning')}
                   </label>
                 </div>
@@ -290,10 +290,11 @@ export default function ContentDetectorInterface() {
           placeholder={t('contentDetector.placeholder')}
           className="w-full h-48 p-4 glass-input rounded-xl resize-none mb-4"
           disabled={isDetecting || isHumanizing}
+          dir="auto"
         />
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
             <span>{inputText.length} {t('common.characters')}</span>
             <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} {t('common.words')}</span>
             {inputText.trim().split(' ').filter(word => word.length > 0).length < 50 && (
@@ -304,12 +305,12 @@ export default function ContentDetectorInterface() {
             )}
           </div>
 
-          <div className="flex space-x-3">
+          <div className="flex flex-wrap gap-3">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleReset}
-              className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2"
+              className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2 mobile-friendly-button"
               disabled={isDetecting || isHumanizing}
             >
               <RotateCcw className="w-4 h-4" />
@@ -321,7 +322,7 @@ export default function ContentDetectorInterface() {
               whileTap={{ scale: 0.95 }}
               onClick={handleDetectAI}
               disabled={isDetecting || isHumanizing || !inputText.trim()}
-              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
             >
               {isDetecting ? (
                 <>
@@ -331,7 +332,7 @@ export default function ContentDetectorInterface() {
               ) : (
                 <>
                   <Search className="w-5 h-5" />
-                  <span>Detect AI</span>
+                  <span>{t('contentDetector.detectAI')}</span>
                 </>
               )}
             </motion.button>
@@ -341,7 +342,7 @@ export default function ContentDetectorInterface() {
               whileTap={{ scale: 0.95 }}
               onClick={handleHumanizeText}
               disabled={isDetecting || isHumanizing || !inputText.trim()}
-              className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
             >
               {isHumanizing ? (
                 <>
@@ -374,7 +375,7 @@ export default function ContentDetectorInterface() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveTab('detection')}
-                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 mobile-friendly-button ${
                   activeTab === 'detection'
                     ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
@@ -382,7 +383,7 @@ export default function ContentDetectorInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <Search className="w-5 h-5" />
-                  <span>AI Detection Results</span>
+                  <span>{t('contentDetector.aiDetectionResults')}</span>
                   {detectionResult && (
                     <span className="text-xs px-2 py-1 bg-white/20 rounded-full">
                       {detectionResult.aiProbability}%
@@ -396,7 +397,7 @@ export default function ContentDetectorInterface() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setActiveTab('humanized')}
                 disabled={!humanizedResult}
-                className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button ${
                   activeTab === 'humanized'
                     ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg'
                     : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
@@ -407,12 +408,12 @@ export default function ContentDetectorInterface() {
                   <span>{t('contentDetector.humanizedVersion')}</span>
                   {humanizedResult && (
                     <span className="text-xs px-2 py-1 bg-white/20 rounded-full">
-                      {humanizedResult.humanScore}% Human
+                      {humanizedResult.humanScore}% {t('contentDetector.human')}
                     </span>
                   )}
                   {!humanizedResult && (
                     <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
-                      Click Humanize
+                      {t('contentDetector.clickHumanize')}
                     </span>
                   )}
                 </div>
@@ -431,9 +432,9 @@ export default function ContentDetectorInterface() {
                 className="space-y-6"
               >
                 {/* Main Detection Results */}
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                       {t('contentDetector.aiDetectionResults')}
                     </h3>
                     <motion.button
@@ -487,7 +488,7 @@ export default function ContentDetectorInterface() {
                           {getStatusLabel(detectionResult.status)}
                         </span>
                       </div>
-                      <div className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                      <div className="mt-2 text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
                         {t('contentDetector.confidence')}: {detectionResult.confidence}%
                       </div>
                     </div>
@@ -495,11 +496,11 @@ export default function ContentDetectorInterface() {
 
                   {/* Detailed Analysis */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="text-center p-4 glass-card rounded-xl">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1">
+                    <div className="text-center p-3 glass-card rounded-xl">
+                      <div className="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {detectionResult.analysis.writingStyle}%
                       </div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Writing Style</div>
+                      <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.writingStyle')}</div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
                         <div 
                           className="bg-blue-500 h-2 rounded-full transition-all duration-500"
@@ -508,11 +509,11 @@ export default function ContentDetectorInterface() {
                       </div>
                     </div>
                     
-                    <div className="text-center p-4 glass-card rounded-xl">
-                      <div className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-1">
+                    <div className="text-center p-3 glass-card rounded-xl">
+                      <div className="text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400">
                         {detectionResult.analysis.patternRecognition}%
                       </div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Pattern Recognition</div>
+                      <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.patternRecognition')}</div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
                         <div 
                           className="bg-purple-500 h-2 rounded-full transition-all duration-500"
@@ -521,11 +522,11 @@ export default function ContentDetectorInterface() {
                       </div>
                     </div>
                     
-                    <div className="text-center p-4 glass-card rounded-xl">
-                      <div className="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                    <div className="text-center p-3 glass-card rounded-xl">
+                      <div className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
                         {detectionResult.analysis.vocabularyDiversity}%
                       </div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Vocabulary Diversity</div>
+                      <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.vocabularyDiversity')}</div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
                         <div 
                           className="bg-green-500 h-2 rounded-full transition-all duration-500"
@@ -534,11 +535,11 @@ export default function ContentDetectorInterface() {
                       </div>
                     </div>
                     
-                    <div className="text-center p-4 glass-card rounded-xl">
-                      <div className="text-2xl font-bold text-orange-600 dark:text-orange-400 mb-1">
+                    <div className="text-center p-3 glass-card rounded-xl">
+                      <div className="text-xl md:text-2xl font-bold text-orange-600 dark:text-orange-400">
                         {detectionResult.analysis.sentenceStructure}%
                       </div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">Sentence Structure</div>
+                      <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.sentenceStructure')}</div>
                       <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
                         <div 
                           className="bg-orange-500 h-2 rounded-full transition-all duration-500"
@@ -550,10 +551,10 @@ export default function ContentDetectorInterface() {
                 </div>
 
                 {/* Text Highlighting */}
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                      Content Analysis with Highlighting
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
+                      {t('contentDetector.contentAnalysisHighlighting')}
                     </h3>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
@@ -578,21 +579,21 @@ export default function ContentDetectorInterface() {
                             ? 'bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-1 rounded'
                             : 'text-slate-700 dark:text-slate-300'
                         }`}
-                        title={segment.isAI ? `AI-generated (${segment.confidence}% confidence)` : 'Human-like'}
+                        title={segment.isAI ? `${t('contentDetector.aiGenerated')} (${segment.confidence}% ${t('contentDetector.confidence')})` : t('contentDetector.humanLike')}
                       >
                         {segment.text}{' '}
                       </span>
                     ))}
                   </div>
                   
-                  <div className="flex items-center space-x-4 text-sm">
+                  <div className="flex items-center space-x-4 text-sm mobile-friendly-text">
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 bg-red-200 dark:bg-red-900/40 rounded"></div>
-                      <span className="text-slate-600 dark:text-slate-400">AI-generated content</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('contentDetector.aiGeneratedContent')}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                      <span className="text-slate-600 dark:text-slate-400">Human-like content</span>
+                      <span className="text-slate-600 dark:text-slate-400">{t('contentDetector.humanLikeContent')}</span>
                     </div>
                   </div>
                 </div>
@@ -611,16 +612,16 @@ export default function ContentDetectorInterface() {
                 {humanizedResult ? (
                   <>
                     {/* Humanized Text */}
-                    <div className="glass-card p-6 rounded-2xl">
+                    <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                          Humanized Version (DeepSeek R1)
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
+                          {t('contentDetector.humanizedVersion')} (DeepSeek R1)
                         </h3>
                         <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 px-3 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                             <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                            <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                              {humanizedResult.humanScore}% Human-like
+                            <span className="text-sm font-medium text-green-700 dark:text-green-300 mobile-friendly-text">
+                              {humanizedResult.humanScore}% {t('contentDetector.humanLike')}
                             </span>
                           </div>
                           <motion.button
@@ -639,15 +640,15 @@ export default function ContentDetectorInterface() {
                       </div>
                       
                       <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border-l-4 border-green-400">
-                        <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
+                        <p className="text-slate-800 dark:text-slate-200 leading-relaxed mobile-friendly-text" dir="auto">
                           {humanizedResult.humanizedText}
                         </p>
                       </div>
                     </div>
 
                     {/* Improvements */}
-                    <div className="glass-card p-6 rounded-2xl">
-                      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+                    <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+                      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
                         {t('contentDetector.improvements')}
                       </h3>
                       <ul className="space-y-3">
@@ -662,7 +663,7 @@ export default function ContentDetectorInterface() {
                             <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                               <span className="text-white text-sm font-bold">{index + 1}</span>
                             </div>
-                            <span className="text-slate-700 dark:text-slate-300">{improvement}</span>
+                            <span className="text-slate-700 dark:text-slate-300 mobile-friendly-text">{improvement}</span>
                           </motion.li>
                         ))}
                       </ul>
@@ -670,8 +671,8 @@ export default function ContentDetectorInterface() {
 
                     {/* Key Changes */}
                     {humanizedResult.changes.length > 0 && (
-                      <div className="glass-card p-6 rounded-2xl">
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
+                      <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
                           {t('contentDetector.keyChanges')}
                         </h3>
                         <div className="space-y-4">
@@ -685,21 +686,21 @@ export default function ContentDetectorInterface() {
                             >
                               <div className="grid md:grid-cols-2 gap-4">
                                 <div>
-                                  <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">Original:</h4>
-                                  <p className="text-sm text-slate-700 dark:text-slate-300 bg-red-50 dark:bg-red-900/20 p-2 rounded">
+                                  <h4 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2 mobile-friendly-text">{t('contentDetector.original')}:</h4>
+                                  <p className="text-sm text-slate-700 dark:text-slate-300 bg-red-50 dark:bg-red-900/20 p-2 rounded mobile-friendly-text">
                                     "{change.original}"
                                   </p>
                                 </div>
                                 <div>
-                                  <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">Humanized:</h4>
-                                  <p className="text-sm text-slate-700 dark:text-slate-300 bg-green-50 dark:bg-green-900/20 p-2 rounded">
+                                  <h4 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2 mobile-friendly-text">{t('contentDetector.humanized')}:</h4>
+                                  <p className="text-sm text-slate-700 dark:text-slate-300 bg-green-50 dark:bg-green-900/20 p-2 rounded mobile-friendly-text">
                                     "{change.humanized}"
                                   </p>
                                 </div>
                               </div>
                               <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
-                                <p className="text-xs text-slate-600 dark:text-slate-400">
-                                  <span className="font-medium">Reason:</span> {change.reason}
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mobile-friendly-text">
+                                  <span className="font-medium">{t('contentDetector.reason')}:</span> {change.reason}
                                 </p>
                               </div>
                             </motion.div>
@@ -709,9 +710,9 @@ export default function ContentDetectorInterface() {
                     )}
 
                     {/* Comparison */}
-                    <div className="glass-card p-6 rounded-2xl">
-                      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">
-                        Before & After Comparison
+                    <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+                      <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-6 mobile-friendly-heading">
+                        {t('contentDetector.beforeAfterComparison')}
                       </h3>
 
                       <div className="grid lg:grid-cols-2 gap-6">
@@ -719,12 +720,12 @@ export default function ContentDetectorInterface() {
                         <div>
                           <div className="flex items-center space-x-2 mb-3">
                             <Bot className="w-5 h-5 text-red-500" />
-                            <h4 className="font-medium text-slate-700 dark:text-slate-300">
-                              Original {detectionResult && `(AI: ${detectionResult.aiProbability}%)`}
+                            <h4 className="font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
+                              {t('contentDetector.original')} {detectionResult && `(${t('contentDetector.ai')}: ${detectionResult.aiProbability}%)`}
                             </h4>
                           </div>
                           <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border-l-4 border-red-300 max-h-48 overflow-y-auto">
-                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm mobile-friendly-text" dir="auto">
                               {inputText}
                             </p>
                           </div>
@@ -734,12 +735,12 @@ export default function ContentDetectorInterface() {
                         <div>
                           <div className="flex items-center space-x-2 mb-3">
                             <User className="w-5 h-5 text-green-500" />
-                            <h4 className="font-medium text-slate-700 dark:text-slate-300">
-                              Humanized ({humanizedResult.humanScore}% Human-like)
+                            <h4 className="font-medium text-slate-700 dark:text-slate-300 mobile-friendly-text">
+                              {t('contentDetector.humanized')} ({humanizedResult.humanScore}% {t('contentDetector.humanLike')})
                             </h4>
                           </div>
                           <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border-l-4 border-green-300 max-h-48 overflow-y-auto">
-                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm">
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-sm mobile-friendly-text" dir="auto">
                               {humanizedResult.humanizedText}
                             </p>
                           </div>
@@ -749,42 +750,41 @@ export default function ContentDetectorInterface() {
                       {/* Statistics */}
                       <div className="mt-6 grid grid-cols-3 gap-4">
                         <div className="text-center p-3 glass-card rounded-xl">
-                          <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                          <div className="text-xl md:text-2xl font-bold text-red-600 dark:text-red-400">
                             {detectionResult?.aiProbability || 'N/A'}%
                           </div>
-                          <div className="text-sm text-slate-500 dark:text-slate-400">Original AI Score</div>
+                          <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('contentDetector.originalAiScore')}</div>
                         </div>
                         <div className="text-center p-3 glass-card rounded-xl">
-                          <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          <div className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
                             {humanizedResult.humanScore}%
                           </div>
-                          <div className="text-sm text-slate-500 dark:text-slate-400">Humanized Score</div>
+                          <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('contentDetector.humanizedScore')}</div>
                         </div>
                         <div className="text-center p-3 glass-card rounded-xl">
-                          <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                          <div className="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
                             {detectionResult ? Math.abs((detectionResult.aiProbability) - humanizedResult.humanScore) : humanizedResult.humanScore}%
                           </div>
-                          <div className="text-sm text-slate-500 dark:text-slate-400">Improvement</div>
+                          <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('contentDetector.improvement')}</div>
                         </div>
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="glass-card p-12 rounded-2xl text-center">
+                  <div className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card">
                     <Wand2 className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      Ready to Humanize with DeepSeek R1
+                    <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
+                      {t('contentDetector.readyToHumanize')}
                     </h3>
-                    <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                      Click the "Humanize with R1" button to transform your content into natural, 
-                      human-like text while preserving the original meaning using advanced AI.
+                    <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6 mobile-friendly-text">
+                      {t('contentDetector.humanizeDescription')}
                     </p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleHumanizeText}
                       disabled={isHumanizing || !inputText.trim()}
-                      className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mx-auto"
+                      className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mx-auto mobile-friendly-button"
                     >
                       {isHumanizing ? (
                         <>
@@ -812,21 +812,20 @@ export default function ContentDetectorInterface() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-12 rounded-2xl text-center"
+          className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card"
         >
           <div className="flex items-center justify-center space-x-4 mb-6">
             <Bot className="w-16 h-16 text-blue-400" />
             <Zap className="w-8 h-8 text-yellow-400" />
             <User className="w-16 h-16 text-green-400" />
           </div>
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            AI Content Analysis & Humanization
+          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
+            {t('contentDetector.emptyState')}
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4">
-            Enter your text above to detect AI-generated content and transform it into 
-            natural, human-like writing with DeepSeek R1 technology.
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-4 mobile-friendly-text">
+            {t('contentDetector.emptyStateDescription')}
           </p>
-          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+          <div className="text-sm text-blue-600 dark:text-blue-400 font-medium mobile-friendly-text">
             {t('contentDetector.poweredBy')}
           </div>
         </motion.div>

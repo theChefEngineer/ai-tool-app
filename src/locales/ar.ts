@@ -205,6 +205,19 @@ export const ar: TranslationKeys = {
     improvement: 'التحسن',
     readyToHumanize: 'جاهز للتنسين بـ DeepSeek R1',
     humanizeDescription: 'انقر على زر "تنسين بـ R1" لتحويل محتواك إلى نص طبيعي شبيه بالإنسان مع الحفاظ على المعنى الأصلي باستخدام الذكاء الاصطناعي المتقدم.',
+    detectAI: 'كشف الذكاء الاصطناعي',
+    humanWritten: 'كتابة بشرية',
+    mixedContent: 'محتوى مختلط',
+    aiGenerated: 'مُولد بالذكاء الاصطناعي',
+    unknown: 'غير معروف',
+    aiGeneratedContent: 'محتوى مُولد بالذكاء الاصطناعي',
+    humanLikeContent: 'محتوى شبيه بالإنسان',
+    original: 'الأصلي',
+    humanized: 'المُنسن',
+    reason: 'السبب',
+    human: 'إنساني',
+    humanLike: 'شبيه بالإنسان',
+    emptyStateDescription: 'أدخل نصك أعلاه لاكتشاف المحتوى المُولد بالذكاء الاصطناعي وتحويله إلى نص طبيعي شبيه بالإنسان باستخدام تقنية DeepSeek R1.'
   },
 
   plagiarism: {
@@ -227,6 +240,11 @@ export const ar: TranslationKeys = {
     potentialMatch: 'مطابقة محتملة مع المصدر',
     humanLike: 'شبيه بالإنسان',
     recommendationsImprovement: 'توصيات للتحسين',
+    placeholder: 'الصق نصك هنا للتحليل (100 كلمة على الأقل)...',
+    match: 'تطابق',
+    matchedText: 'النص المطابق',
+    contentAnalysisHighlighting: 'تحليل المحتوى مع التمييز',
+    emptyStateDescription: 'أدخل 100 كلمة على الأقل للحصول على تحليل شامل للانتحال مع مطابقة المصادر وتوصيات لتحسين الأصالة.'
   },
 
   grammar: {
@@ -539,6 +557,8 @@ export const ar: TranslationKeys = {
       grammarChecked: 'تم فحص القواعد بنجاح!',
       correctionsApplied: 'تم تطبيق التصحيحات بنجاح!',
       transcriptionComplete: 'تم نسخ المستند بنجاح بالذكاء الاصطناعي!',
+      analyzed: 'تم تحليل النص بنجاح!',
+      humanized: 'تم تنسين النص بنجاح!'
     },
   },
 

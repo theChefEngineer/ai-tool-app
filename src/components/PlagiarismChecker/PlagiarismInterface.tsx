@@ -46,7 +46,7 @@ export default function PlagiarismInterface() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const handleAnalyze = async () => {
     if (!inputText.trim()) {
@@ -91,7 +91,7 @@ export default function PlagiarismInterface() {
             matchedText: inputText.substring(100, 200) + '...'
           }
         ],
-        highlightedText: inputText.split(' ').map((word, index) => ({
+        highlightedSegments: inputText.split(' ').map((word, index) => ({
           text: word,
           isPlagiarized: Math.random() > 0.8,
           sourceId: Math.random() > 0.5 ? '1' : '2'
@@ -108,7 +108,7 @@ export default function PlagiarismInterface() {
       };
 
       setResult(mockResult);
-      toast.success('Plagiarism analysis completed!');
+      toast.success(t('messages.success.analyzed'));
     } catch (error: any) {
       toast.error(error.message || 'Failed to analyze text');
     } finally {
@@ -182,19 +182,18 @@ export default function PlagiarismInterface() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className={`max-w-6xl mx-auto space-y-8 ${isRTL ? 'rtl' : ''}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 bg-clip-text text-transparent mb-4">
-          AI Plagiarism Checker
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 dark:from-red-400 dark:to-orange-400 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
+          {t('plagiarism.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Detect potential plagiarism with advanced AI analysis. Get detailed source matching, 
-          similarity percentages, and actionable recommendations for improving content originality.
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
+          {t('plagiarism.subtitle')}
         </p>
       </motion.div>
 
@@ -203,25 +202,26 @@ export default function PlagiarismInterface() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="glass-card p-6 rounded-2xl"
+        className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center space-x-2 mb-4">
           <Search className="w-5 h-5 text-red-600 dark:text-red-400" />
-          <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-            Text Analysis
+          <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
+            {t('plagiarism.textAnalysis')}
           </h3>
         </div>
 
         <textarea
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Paste your text here (minimum 100 words)..."
+          placeholder={t('plagiarism.placeholder')}
           className="w-full h-48 p-4 glass-input rounded-xl resize-none mb-4"
           disabled={isAnalyzing}
+          dir="auto"
         />
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
             <span>{inputText.length} {t('common.characters')}</span>
             <span>{inputText.trim().split(' ').filter(word => word.length > 0).length} {t('common.words')}</span>
             {inputText.trim().split(' ').filter(word => word.length > 0).length < 100 && (
@@ -237,7 +237,7 @@ export default function PlagiarismInterface() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleReset}
-              className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2"
+              className="px-4 py-2 glass-button rounded-xl flex items-center space-x-2 mobile-friendly-button"
               disabled={isAnalyzing}
             >
               <RotateCcw className="w-4 h-4" />
@@ -249,17 +249,17 @@ export default function PlagiarismInterface() {
               whileTap={{ scale: 0.95 }}
               onClick={handleAnalyze}
               disabled={isAnalyzing || inputText.trim().split(' ').filter(word => word.length > 0).length < 100}
-              className="px-6 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-gradient-to-r from-red-500 to-orange-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
             >
               {isAnalyzing ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Analyzing...</span>
+                  <span>{t('plagiarism.analyzing')}</span>
                 </>
               ) : (
                 <>
                   <Shield className="w-5 h-5" />
-                  <span>Analyze</span>
+                  <span>{t('plagiarism.analyze')}</span>
                 </>
               )}
             </motion.button>
@@ -276,10 +276,10 @@ export default function PlagiarismInterface() {
           className="space-y-6"
         >
           {/* Overall Results */}
-          <div className="glass-card p-6 rounded-2xl">
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                Plagiarism Analysis Results
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
+                {t('plagiarism.plagiarismAnalysisResults')}
               </h3>
               <div className="flex items-center space-x-2">
                 <motion.button
@@ -350,38 +350,38 @@ export default function PlagiarismInterface() {
             </div>
 
             {/* Statistics */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-3 glass-card rounded-xl">
-                <div className="text-2xl font-bold text-slate-600 dark:text-slate-400">
+                <div className="text-xl md:text-2xl font-bold text-slate-600 dark:text-slate-400">
                   {result.sources.length}
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Sources Found</div>
+                <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.sourcesFound')}</div>
               </div>
               <div className="text-center p-3 glass-card rounded-xl">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                <div className="text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400">
                   {result.wordCount}
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">{t('history.totalWords')}</div>
+                <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.totalWords')}</div>
               </div>
               <div className="text-center p-3 glass-card rounded-xl">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <div className="text-xl md:text-2xl font-bold text-green-600 dark:text-green-400">
                   {result.uniqueWords}
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Unique Words</div>
+                <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.uniqueWords')}</div>
               </div>
               <div className="text-center p-3 glass-card rounded-xl">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                <div className="text-xl md:text-2xl font-bold text-purple-600 dark:text-purple-400">
                   {Math.round((result.uniqueWords / result.wordCount) * 100)}%
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">Originality</div>
+                <div className="text-xs md:text-sm text-slate-500 dark:text-slate-400">{t('plagiarism.originality')}</div>
               </div>
             </div>
           </div>
 
           {/* Sources Section */}
-          <div className="glass-card p-6 rounded-2xl">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-              Matched Sources
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
+              {t('plagiarism.matchedSources')}
             </h3>
             <div className="space-y-4">
               {result.sources.map((source, index) => (
@@ -400,17 +400,17 @@ export default function PlagiarismInterface() {
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h4 className="font-semibold text-slate-800 dark:text-white">
+                        <h4 className="font-semibold text-slate-800 dark:text-white mobile-friendly-text">
                           {source.title}
                         </h4>
                         <div className="flex items-center space-x-2 px-3 py-1 bg-red-100 dark:bg-red-900/30 rounded-full">
                           <TrendingUp className="w-4 h-4 text-red-600 dark:text-red-400" />
-                          <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                            {source.similarity}% match
+                          <span className="text-sm font-medium text-red-700 dark:text-red-300 mobile-friendly-text">
+                            {source.similarity}% {t('plagiarism.match')}
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 mb-3">
+                      <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 mb-3 mobile-friendly-text">
                         <ExternalLink className="w-4 h-4" />
                         <a 
                           href={source.url} 
@@ -430,8 +430,8 @@ export default function PlagiarismInterface() {
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg"
                           >
-                            <p className="text-sm text-slate-700 dark:text-slate-300">
-                              <span className="font-medium">Matched text:</span> {source.matchedText}
+                            <p className="text-sm text-slate-700 dark:text-slate-300 mobile-friendly-text">
+                              <span className="font-medium">{t('plagiarism.matchedText')}:</span> {source.matchedText}
                             </p>
                           </motion.div>
                         )}
@@ -451,12 +451,12 @@ export default function PlagiarismInterface() {
           </div>
 
           {/* Text Highlighting */}
-          <div className="glass-card p-6 rounded-2xl">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-              Text Analysis with Highlighting
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
+              {t('plagiarism.contentAnalysisHighlighting')}
             </h3>
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl leading-relaxed">
-              {result.highlightedText.map((segment, index) => (
+              {result.highlightedSegments.map((segment, index) => (
                 <span
                   key={index}
                   className={`${
@@ -464,28 +464,28 @@ export default function PlagiarismInterface() {
                       ? 'bg-red-200 dark:bg-red-900/40 text-red-800 dark:text-red-200 px-1 rounded'
                       : 'text-slate-700 dark:text-slate-300'
                   }`}
-                  title={segment.isPlagiarized ? `Potential match with source ${segment.sourceId}` : undefined}
+                  title={segment.isPlagiarized ? `${t('plagiarism.potentialMatch')} ${segment.sourceId}` : t('plagiarism.humanLike')}
                 >
                   {segment.text}{' '}
                 </span>
               ))}
             </div>
-            <div className="mt-4 flex items-center space-x-4 text-sm">
+            <div className="mt-4 flex items-center space-x-4 text-sm mobile-friendly-text">
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-red-200 dark:bg-red-900/40 rounded"></div>
-                <span className="text-slate-600 dark:text-slate-400">Potential plagiarism</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('plagiarism.potentialPlagiarism')}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-4 h-4 bg-slate-100 dark:bg-slate-700 rounded"></div>
-                <span className="text-slate-600 dark:text-slate-400">Original content</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('plagiarism.originalContent')}</span>
               </div>
             </div>
           </div>
 
           {/* Recommendations */}
-          <div className="glass-card p-6 rounded-2xl">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-              Recommendations for Improvement
+          <div className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 mobile-friendly-heading">
+              {t('plagiarism.recommendationsImprovement')}
             </h3>
             <ul className="space-y-3">
               {result.recommendations.map((recommendation, index) => (
@@ -499,7 +499,7 @@ export default function PlagiarismInterface() {
                   <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-white text-sm font-bold">{index + 1}</span>
                   </div>
-                  <span className="text-slate-700 dark:text-slate-300">{recommendation}</span>
+                  <span className="text-slate-700 dark:text-slate-300 mobile-friendly-text">{recommendation}</span>
                 </motion.li>
               ))}
             </ul>
@@ -513,15 +513,14 @@ export default function PlagiarismInterface() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-12 rounded-2xl text-center"
+          className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card"
         >
           <Shield className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Ready for Plagiarism Analysis
+          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
+            {t('plagiarism.emptyState')}
           </h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-            Enter at least 100 words above to get a comprehensive plagiarism analysis with 
-            source matching and originality recommendations.
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mobile-friendly-text">
+            {t('plagiarism.emptyStateDescription')}
           </p>
         </motion.div>
       )}

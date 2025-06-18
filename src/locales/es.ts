@@ -205,6 +205,19 @@ export const es: TranslationKeys = {
     improvement: 'Mejora',
     readyToHumanize: 'Listo para Humanizar con DeepSeek R1',
     humanizeDescription: 'Haz clic en el botón "Humanizar con R1" para transformar tu contenido en texto natural y humano mientras preservas el significado original usando IA avanzada.',
+    detectAI: 'Detectar IA',
+    humanWritten: 'Escrito por Humano',
+    mixedContent: 'Contenido Mixto',
+    aiGenerated: 'Generado por IA',
+    unknown: 'Desconocido',
+    aiGeneratedContent: 'Contenido generado por IA',
+    humanLikeContent: 'Contenido similar a humano',
+    original: 'Original',
+    humanized: 'Humanizado',
+    reason: 'Razón',
+    human: 'humano',
+    humanLike: 'Similar a humano',
+    emptyStateDescription: 'Ingresa tu texto arriba para detectar contenido generado por IA y transformarlo en texto natural similar a humano con tecnología DeepSeek R1.'
   },
 
   plagiarism: {
@@ -227,6 +240,11 @@ export const es: TranslationKeys = {
     potentialMatch: 'Coincidencia potencial con fuente',
     humanLike: 'Similar a humano',
     recommendationsImprovement: 'Recomendaciones para Mejora',
+    placeholder: 'Pega tu texto aquí para análisis (mínimo 100 palabras)...',
+    match: 'coincidencia',
+    matchedText: 'Texto coincidente',
+    contentAnalysisHighlighting: 'Análisis de Contenido con Resaltado',
+    emptyStateDescription: 'Ingresa al menos 100 palabras para obtener un análisis completo de plagio con coincidencia de fuentes y recomendaciones para mejorar la originalidad.'
   },
 
   grammar: {
@@ -520,6 +538,8 @@ export const es: TranslationKeys = {
       grammarChecked: '¡Revisión gramatical completada exitosamente!',
       correctionsApplied: '¡Correcciones aplicadas exitosamente!',
       transcriptionComplete: '¡Documento transcrito exitosamente con IA!',
+      analyzed: '¡Análisis completado exitosamente!',
+      humanized: '¡Texto humanizado exitosamente con DeepSeek R1!'
     },
   },
 
