@@ -349,11 +349,91 @@ body {
 
 /* Sidebar transition */
 .sidebar-transition {
-  transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Sidebar overlay */
 .sidebar-overlay {
   @apply fixed inset-0 bg-black/30 backdrop-blur-sm z-30;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Enhanced menu animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutToLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes slideOutToRight {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+.menu-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-fade-out {
+  animation: fadeOut 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-slide-in-left {
+  animation: slideInFromLeft 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-slide-in-right {
+  animation: slideInFromRight 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-slide-out-left {
+  animation: slideOutToLeft 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.menu-slide-out-right {
+  animation: slideOutToRight 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Menu item stagger animation */
+.menu-item {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.menu-item-visible {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.rtl .menu-item {
+  transform: translateX(10px);
+}
+
+/* Improved backdrop blur */
+.backdrop-blur-enhanced {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }

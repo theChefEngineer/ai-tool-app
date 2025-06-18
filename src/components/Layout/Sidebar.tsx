@@ -129,18 +129,93 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
 
   // Determine sidebar position and animation based on RTL setting
   const sidebarPosition = isRTL ? 'right-0' : 'left-0';
-  const initialX = isRTL ? 300 : -300;
+  const initialX = isRTL ? '100%' : '-100%';
+  const exitX = isRTL ? '100%' : '-100%';
+
+  // Animation variants for smoother transitions
+  const sidebarVariants = {
+    hidden: { 
+      x: initialX,
+      opacity: 0,
+      boxShadow: "0px 0px 0px rgba(0, 0, 0, 0)"
+    },
+    visible: { 
+      x: 0,
+      opacity: 1,
+      boxShadow: "0px 0px 20px rgba(0, 0, 0, 0.1)",
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30,
+        mass: 1,
+        when: "beforeChildren",
+        staggerChildren: 0.05
+      }
+    },
+    exit: { 
+      x: exitX,
+      opacity: 0,
+      boxShadow: "0px 0px 0px rgba(0, 0, 0, 0)",
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 40,
+        mass: 0.8,
+        when: "afterChildren",
+        staggerChildren: 0.02,
+        staggerDirection: -1
+      }
+    }
+  };
+
+  // Animation variants for menu items
+  const menuItemVariants = {
+    hidden: { 
+      x: isRTL ? 20 : -20, 
+      opacity: 0 
+    },
+    visible: { 
+      x: 0, 
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 400,
+        damping: 40
+      }
+    },
+    exit: { 
+      x: isRTL ? 10 : -10, 
+      opacity: 0,
+      transition: {
+        duration: 0.2
+      }
+    }
+  };
+
+  // Overlay animation variants
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { duration: 0.3 }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { duration: 0.2 }
+    }
+  };
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {visible && (
         <>
           {/* Mobile overlay */}
           {isMobile && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={overlayVariants}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
               onClick={onClose}
             />
@@ -148,16 +223,19 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
 
           <motion.aside
             id="sidebar"
-            initial={{ x: initialX }}
-            animate={{ x: 0 }}
-            exit={{ x: initialX }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={sidebarVariants}
             className={`fixed ${sidebarPosition} top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto`}
           >
             <div className="p-6">
               {/* Close button for mobile */}
               {isMobile && (
-                <div className="flex justify-end mb-4">
+                <motion.div 
+                  variants={menuItemVariants}
+                  className="flex justify-end mb-4"
+                >
                   <button
                     onClick={onClose}
                     className="p-2 glass-button rounded-full"
@@ -165,21 +243,22 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
                   >
                     <X className="w-5 h-5" />
                   </button>
-                </div>
+                </motion.div>
               )}
 
               {/* Usage Indicator */}
-              <div className="mb-6">
+              <motion.div 
+                variants={menuItemVariants}
+                className="mb-6"
+              >
                 <UsageIndicator />
-              </div>
+              </motion.div>
 
               <nav className="space-y-2">
-                {menuItems.map((item, index) => (
+                {menuItems.map((item) => (
                   <motion.button
                     key={item.label}
-                    initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    variants={menuItemVariants}
                     whileHover={{ scale: 1.02, x: isRTL ? -4 : 4 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleMenuItemClick(item.key)}

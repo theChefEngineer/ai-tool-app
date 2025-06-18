@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/authStore';
 import { useAppStore } from '../../store/appStore';
 import { Toaster } from 'react-hot-toast';
@@ -48,6 +48,28 @@ export default function Layout({ children }: LayoutProps) {
     setSidebarVisible(!sidebarVisible);
   };
 
+  // Main content animation variants
+  const mainContentVariants = {
+    expanded: { 
+      marginLeft: isRTL ? 0 : '16rem',
+      marginRight: isRTL ? '16rem' : 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }
+    },
+    collapsed: { 
+      marginLeft: 0,
+      marginRight: 0,
+      transition: {
+        type: "spring",
+        stiffness: 300,
+        damping: 30
+      }
+    }
+  };
+
   return (
     <div className={`min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900 transition-all duration-500 ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.015] pointer-events-none" />
@@ -63,7 +85,12 @@ export default function Layout({ children }: LayoutProps) {
           />
         )}
         
-        <main className={`flex-1 transition-all duration-300 ${user && !isMobile && sidebarVisible ? (isRTL ? 'mr-64' : 'ml-64') : ''}`}>
+        <motion.main
+          initial={false}
+          animate={user && !isMobile && sidebarVisible ? "expanded" : "collapsed"}
+          variants={mainContentVariants}
+          className="flex-1 transition-all"
+        >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,7 +99,7 @@ export default function Layout({ children }: LayoutProps) {
           >
             {children}
           </motion.div>
-        </main>
+        </motion.main>
       </div>
 
       {!user && <AuthModal />}
