@@ -244,7 +244,45 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Ensure proper spacing for Arabic text (but still LTR) */
+/* RTL Support */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl .glass-card,
+.rtl .glass-button,
+.rtl .glass-input {
+  direction: rtl;
+}
+
+/* RTL specific adjustments */
+.rtl .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.rtl .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.rtl .space-x-1 > :not([hidden]) ~ :not([hidden]),
+.rtl .space-x-2 > :not([hidden]) ~ :not([hidden]),
+.rtl .space-x-3 > :not([hidden]) ~ :not([hidden]),
+.rtl .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+.rtl .text-left {
+  text-align: right;
+}
+
+.rtl .text-right {
+  text-align: left;
+}
+
+/* Ensure proper spacing for Arabic text */
 .arabic-text {
   letter-spacing: 0.02em;
   word-spacing: 0.1em;

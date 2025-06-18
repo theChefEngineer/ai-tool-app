@@ -279,13 +279,6 @@ export const ar: TranslationKeys = {
     readingTime: 'دقيقة قراءة',
     fileName: 'اسم الملف',
     fileSize: 'حجم الملف',
-    aiProcessingTools: 'أدوات المعالجة بالذكاء الاصطناعي',
-    exportOptions: 'تصدير:',
-    transcribedWithAi: 'منسوخ بالذكاء الاصطناعي',
-    aiPoweredExtraction: 'استخراج مدعوم بالذكاء الاصطناعي',
-    readyForTranscription: 'جاهز للنسخ بالذكاء الاصطناعي',
-    clickHumanize: 'انقر تنسين',
-    processedOn: 'تمت المعالجة في',
     tools: {
       summarize: 'تلخيص',
       paraphrase: 'إعادة صياغة',
@@ -312,6 +305,13 @@ export const ar: TranslationKeys = {
     aiProcessedResults: 'النتائج المُعالجة بالذكاء الاصطناعي',
     noProcessingResults: 'لا توجد نتائج معالجة بالذكاء الاصطناعي بعد',
     useToolsAbove: 'استخدم أدوات المعالجة بالذكاء الاصطناعي أعلاه لتحسين محتواك المنسوخ بالتلخيص وإعادة الصياغة وفحص القواعد والمزيد.',
+    aiProcessingTools: 'أدوات المعالجة بالذكاء الاصطناعي',
+    exportOptions: 'تصدير:',
+    transcribedWithAi: 'منسوخ بالذكاء الاصطناعي',
+    aiPoweredExtraction: 'استخراج مدعوم بالذكاء الاصطناعي',
+    readyForTranscription: 'جاهز للنسخ بالذكاء الاصطناعي',
+    clickHumanize: 'انقر تنسين',
+    processedOn: 'تمت المعالجة في',
   },
 
   chat: {

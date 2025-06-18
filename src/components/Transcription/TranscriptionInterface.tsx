@@ -60,7 +60,7 @@ export default function TranscriptionInterface() {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const acceptedFileTypes = ['.pdf', '.doc', '.docx', '.txt'];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -113,19 +113,19 @@ export default function TranscriptionInterface() {
     }
 
     setIsProcessing(true);
-    setProcessingStep('Analyzing document...');
+    setProcessingStep(t('transcription.processing'));
     
     try {
       // Step 1: Extract text from document
-      setProcessingStep('Extracting text content...');
+      setProcessingStep(t('transcription.processing'));
       const extractionResult = await DocumentProcessor.extractText(file);
       
       // Step 2: Process and analyze the extracted text
-      setProcessingStep('Processing extracted content...');
+      setProcessingStep(t('transcription.processing'));
       await new Promise(resolve => setTimeout(resolve, 1000)); // Brief pause for UX
       
       // Step 3: Create transcription result
-      setProcessingStep('Finalizing transcription...');
+      setProcessingStep(t('transcription.processing'));
       const result: TranscriptionResult = {
         originalText: extractionResult.text,
         wordCount: extractionResult.metadata.wordCount,
@@ -142,7 +142,7 @@ export default function TranscriptionInterface() {
       toast.success(t('messages.success.transcriptionComplete'));
     } catch (error: any) {
       console.error('Transcription error:', error);
-      toast.error(error.message || 'Failed to transcribe document. Please try again.');
+      toast.error(error.message || t('transcription.errors.processingFailed'));
     } finally {
       setIsProcessing(false);
       setProcessingStep('');
@@ -173,7 +173,7 @@ export default function TranscriptionInterface() {
           });
           result = {
             type: 'summary',
-            title: 'Document Summary',
+            title: t('transcription.tools.summarize'),
             content: summaryResponse.summaryText,
             metadata: {
               compressionRatio: summaryResponse.compressionRatio,
@@ -191,7 +191,7 @@ export default function TranscriptionInterface() {
           });
           result = {
             type: 'paraphrase',
-            title: 'Paraphrased Document',
+            title: t('transcription.tools.paraphrase'),
             content: paraphraseResponse.paraphrasedText,
             metadata: {
               readabilityScore: paraphraseResponse.readabilityScore,
@@ -206,7 +206,7 @@ export default function TranscriptionInterface() {
           const grammarResponse = await deepseekService.checkGrammarAdvanced(transcriptionResult.originalText);
           result = {
             type: 'grammar',
-            title: 'Grammar Check Results',
+            title: t('transcription.tools.grammar'),
             content: grammarResponse.correctedText,
             metadata: {
               errors: grammarResponse.errors,
@@ -224,7 +224,7 @@ export default function TranscriptionInterface() {
           });
           result = {
             type: 'plagiarism',
-            title: 'Plagiarism Analysis',
+            title: t('transcription.tools.plagiarism'),
             content: `Plagiarism analysis completed with ${plagiarismResponse.confidence}% confidence.\n\nStatus: ${plagiarismResponse.status.toUpperCase()}\nAI Probability: ${plagiarismResponse.aiProbability}%\n\nAnalysis shows this content has a ${plagiarismResponse.status} risk level for plagiarism concerns.`,
             metadata: {
               aiProbability: plagiarismResponse.aiProbability,
@@ -246,7 +246,7 @@ export default function TranscriptionInterface() {
           });
           result = {
             type: 'translation',
-            title: `Translation (${transcriptionResult.language || 'auto'} → ${targetLang})`,
+            title: `${t('transcription.tools.translation')} (${transcriptionResult.language || 'auto'} → ${targetLang})`,
             content: translationResponse.translatedText,
             metadata: {
               sourceLanguage: translationResponse.sourceLanguage,
@@ -350,7 +350,7 @@ export default function TranscriptionInterface() {
   const tools = [
     { 
       id: 'summarize', 
-      label: 'Summarize', 
+      label: t('transcription.tools.summarize'), 
       icon: BookOpen, 
       color: 'from-emerald-500 to-teal-600', 
       description: 'Create comprehensive summary',
@@ -360,7 +360,7 @@ export default function TranscriptionInterface() {
     },
     { 
       id: 'paraphrase', 
-      label: 'Paraphrase', 
+      label: t('transcription.tools.paraphrase'), 
       icon: Wand2, 
       color: 'from-indigo-500 to-purple-600', 
       description: 'Rewrite while preserving meaning',
@@ -370,7 +370,7 @@ export default function TranscriptionInterface() {
     },
     { 
       id: 'grammar', 
-      label: 'Grammar Check', 
+      label: t('transcription.tools.grammar'), 
       icon: BookCheck, 
       color: 'from-green-500 to-emerald-600', 
       description: 'Fix grammar and style issues',
@@ -380,7 +380,7 @@ export default function TranscriptionInterface() {
     },
     { 
       id: 'plagiarism', 
-      label: 'AI Detection', 
+      label: t('transcription.tools.plagiarism'), 
       icon: Shield, 
       color: 'from-red-500 to-orange-600', 
       description: 'Analyze content originality',
@@ -390,7 +390,7 @@ export default function TranscriptionInterface() {
     },
     { 
       id: 'translation', 
-      label: 'Translate', 
+      label: t('transcription.tools.translation'), 
       icon: Languages, 
       color: 'from-blue-500 to-cyan-600', 
       description: 'Translate to other languages',
@@ -409,10 +409,10 @@ export default function TranscriptionInterface() {
         className="text-center"
       >
         <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400 bg-clip-text text-transparent mb-4">
-          AI Document Transcription
+          {t('transcription.title')}
         </h1>
         <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-          Upload PDF and document files for AI-powered text extraction and transcription, then enhance your content with powerful text processing tools.
+          {t('transcription.subtitle')}
         </p>
       </motion.div>
 
@@ -452,17 +452,17 @@ export default function TranscriptionInterface() {
               
               <div>
                 <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">
-                  {isDragOver ? 'Drop your document here' : 'Upload Document for AI Transcription'}
+                  {isDragOver ? t('transcription.dropDocument') : t('transcription.uploadDocument')}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-4">
-                  Drag and drop your file here, or click to browse
+                  {t('transcription.dragDropText')}
                 </p>
                 <div className="flex items-center justify-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
-                  <span>Supported: {acceptedFileTypes.join(', ')}</span>
+                  <span>{t('transcription.supportedFormats')}: {acceptedFileTypes.join(', ')}</span>
                   <span>•</span>
-                  <span>Max size: 10MB</span>
+                  <span>{t('transcription.maxFileSize')}: 10MB</span>
                   <span>•</span>
-                  <span>AI-powered extraction</span>
+                  <span>{t('transcription.aiPoweredExtraction')}</span>
                 </div>
               </div>
             </div>
@@ -477,7 +477,7 @@ export default function TranscriptionInterface() {
                   <Loader2 className="w-8 h-8 animate-spin text-purple-600 mx-auto mb-3" />
                   <p className="text-slate-700 dark:text-slate-300 font-medium">{processingStep}</p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    AI is extracting text from your document...
+                    {t('transcription.aiPoweredExtraction')}
                   </p>
                 </div>
               </motion.div>
@@ -495,7 +495,7 @@ export default function TranscriptionInterface() {
                 <div className="flex-1">
                   <p className="font-medium text-blue-800 dark:text-blue-200">{uploadedFile.name}</p>
                   <p className="text-sm text-blue-600 dark:text-blue-400">
-                    {DocumentProcessor.formatFileSize(uploadedFile.size)} • Ready for AI transcription
+                    {DocumentProcessor.formatFileSize(uploadedFile.size)} • {t('transcription.readyForTranscription')}
                   </p>
                 </div>
                 <CheckCircle className="w-5 h-5 text-green-500" />
@@ -524,11 +524,11 @@ export default function TranscriptionInterface() {
                   <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
                     <span>{transcriptionResult.fileSize}</span>
                     <span>•</span>
-                    <span>{transcriptionResult.wordCount} words</span>
+                    <span>{transcriptionResult.wordCount} {t('transcription.wordCount')}</span>
                     <span>•</span>
                     <div className="flex items-center space-x-1">
                       <Clock className="w-4 h-4" />
-                      <span>{transcriptionResult.readingTime} min read</span>
+                      <span>{transcriptionResult.readingTime} {t('transcription.readingTime')}</span>
                     </div>
                     {transcriptionResult.language && (
                       <>
@@ -544,7 +544,7 @@ export default function TranscriptionInterface() {
                         <span>•</span>
                         <div className="flex items-center space-x-1">
                           <Sparkles className="w-4 h-4" />
-                          <span>{transcriptionResult.confidence}% confidence</span>
+                          <span>{transcriptionResult.confidence}% {t('common.confidence')}</span>
                         </div>
                       </>
                     )}
@@ -558,7 +558,7 @@ export default function TranscriptionInterface() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleCopy(transcriptionResult.originalText)}
                   className="p-2 glass-button rounded-xl"
-                  title="Copy transcribed text"
+                  title={t('common.copy')}
                 >
                   {copied ? (
                     <Check className="w-4 h-4 text-green-500" />
@@ -571,7 +571,7 @@ export default function TranscriptionInterface() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleReset}
                   className="p-2 glass-button rounded-xl"
-                  title="Upload new document"
+                  title={t('common.reset')}
                 >
                   <RotateCcw className="w-4 h-4" />
                 </motion.button>
@@ -581,7 +581,7 @@ export default function TranscriptionInterface() {
             {/* AI Processing Tools */}
             <div className="mb-6">
               <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                AI Processing Tools
+                {t('transcription.aiProcessingTools')}
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                 {tools.map((tool) => (
@@ -616,7 +616,7 @@ export default function TranscriptionInterface() {
             {/* Export Options */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-slate-600 dark:text-slate-400">Export:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-400">{t('transcription.exportOptions')}</span>
                 {['txt', 'json', 'md'].map((format) => (
                   <motion.button
                     key={format}
@@ -632,7 +632,7 @@ export default function TranscriptionInterface() {
               </div>
 
               <div className="text-sm text-slate-500 dark:text-slate-400">
-                Transcribed with AI • {new Date().toLocaleDateString()}
+                {t('transcription.transcribedWithAi')} • {new Date().toLocaleDateString()}
               </div>
             </div>
           </div>
@@ -652,7 +652,7 @@ export default function TranscriptionInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <FileText className="w-5 h-5" />
-                  <span>Original Transcription</span>
+                  <span>{t('transcription.originalTranscription')}</span>
                 </div>
               </motion.button>
               
@@ -669,7 +669,7 @@ export default function TranscriptionInterface() {
               >
                 <div className="flex items-center justify-center space-x-2">
                   <Bot className="w-5 h-5" />
-                  <span>AI Processed Results ({processedResults.length})</span>
+                  <span>{t('transcription.processedResults')} ({processedResults.length})</span>
                 </div>
               </motion.button>
             </div>
@@ -687,11 +687,11 @@ export default function TranscriptionInterface() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                    AI-Extracted Text Content
+                    {t('transcription.aiExtractedContent')}
                   </h3>
                   <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
                     <Eye className="w-4 h-4" />
-                    <span>Original transcription</span>
+                    <span>{t('transcription.originalTranscription')}</span>
                   </div>
                 </div>
                 <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
@@ -706,25 +706,25 @@ export default function TranscriptionInterface() {
                     <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                       {transcriptionResult.wordCount}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">Words</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('transcription.wordCount')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
                     <div className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                       {transcriptionResult.metadata.characterCount}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">Characters</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('common.characters')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
                     <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {transcriptionResult.readingTime}
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">Min Read</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('transcription.readingTime')}</div>
                   </div>
                   <div className="text-center p-3 glass-card rounded-xl">
                     <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                       {transcriptionResult.confidence || 95}%
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">Confidence</div>
+                    <div className="text-sm text-slate-500 dark:text-slate-400">{t('common.confidence')}</div>
                   </div>
                 </div>
               </motion.div>
@@ -740,11 +740,10 @@ export default function TranscriptionInterface() {
                   <div className="glass-card p-12 rounded-2xl text-center">
                     <Bot className="w-16 h-16 text-slate-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                      No AI Processing Results Yet
+                      {t('transcription.noProcessingResults')}
                     </h3>
                     <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                      Use the AI processing tools above to enhance your transcribed content with summarization, 
-                      paraphrasing, grammar checking, and more.
+                      {t('transcription.useToolsAbove')}
                     </p>
                   </div>
                 ) : (
@@ -774,7 +773,7 @@ export default function TranscriptionInterface() {
                                 {result.title}
                               </h3>
                               <p className="text-sm text-slate-500 dark:text-slate-400">
-                                Processed on {result.timestamp.toLocaleString()}
+                                {t('transcription.processedOn')} {result.timestamp.toLocaleString()}
                               </p>
                             </div>
                           </div>

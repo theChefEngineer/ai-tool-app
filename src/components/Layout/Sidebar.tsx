@@ -7,7 +7,7 @@ import UsageIndicator from './UsageIndicator';
 
 export default function Sidebar() {
   const { currentView, setCurrentView } = useAppStore();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const menuItems = [
     { 
@@ -36,7 +36,7 @@ export default function Sidebar() {
     },
     { 
       icon: FileText, 
-      label: 'Transcription', 
+      label: t('nav.transcription'), 
       key: 'transcription' as const,
       active: currentView === 'transcription' 
     },
@@ -102,7 +102,7 @@ export default function Sidebar() {
     <motion.aside
       initial={{ x: -300 }}
       animate={{ x: 0 }}
-      className="fixed left-0 top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto"
+      className={`fixed ${isRTL ? 'right-0' : 'left-0'} top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto`}
     >
       <div className="p-6">
         {/* Usage Indicator */}
@@ -114,10 +114,10 @@ export default function Sidebar() {
           {menuItems.map((item, index) => (
             <motion.button
               key={item.label}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, x: 4 }}
+              whileHover={{ scale: 1.02, x: isRTL ? -4 : 4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => {
                 if (item.key === 'paraphrase' || item.key === 'summary' || item.key === 'translation' || item.key === 'grammar' || item.key === 'transcription' || item.key === 'settings' || item.key === 'history' || item.key === 'chat' || item.key === 'plagiarism' || item.key === 'content-detector') {
@@ -133,7 +133,7 @@ export default function Sidebar() {
                   }, 100);
                 }
               }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+              className={`w-full flex items-center ${isRTL ? 'flex-row-reverse' : ''} ${isRTL ? 'space-x-reverse' : ''} space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                 item.active
                   ? getActiveColors(item.key)
                   : 'hover:bg-white/5 text-slate-600 dark:text-slate-300'
