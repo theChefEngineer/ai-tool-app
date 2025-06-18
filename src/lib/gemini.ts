@@ -21,7 +21,7 @@ export class GeminiService {
 
   constructor() {
     this.apiKey = 'AIzaSyAx88sgBb8hI5a8BPI85alXqiYzHL37nxY';
-    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
+    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
   }
 
   private async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
