@@ -163,6 +163,14 @@ export const es: TranslationKeys = {
     alternatives: 'Traducciones Alternativas:',
     placeholder: 'Ingresa texto para traducir...',
     emptyState: 'Tu traducción aparecerá aquí',
+    translating: 'Traduciendo',
+    swapLanguages: 'Intercambiar idiomas',
+    comparisonTitle: 'Comparación de Traducción',
+    original: 'Original',
+    translated: 'Traducido',
+    sourceWords: 'Palabras de origen',
+    translatedWords: 'Palabras traducidas',
+    wordDifference: 'Diferencia de palabras',
   },
 
   contentDetector: {

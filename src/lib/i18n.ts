@@ -51,6 +51,13 @@ export interface TranslationKeys {
     search: string;
     refresh: string;
     filters: string;
+    status: string;
+    confidence: string;
+    processing: string;
+    analyzing: string;
+    connecting: string;
+    updating: string;
+    saving: string;
   };
 
   // Authentication
@@ -69,6 +76,25 @@ export interface TranslationKeys {
     dontHaveAccount: string;
     signInToContinue: string;
     joinParaTextPro: string;
+    authenticating: string;
+    authenticationFailed: string;
+    authenticationSuccess: string;
+    authenticationProcessing: string;
+    authenticationComplete: string;
+    authenticationError: string;
+    returnToSignIn: string;
+    googleSignInConfig: string;
+    googleOAuthConfiguring: string;
+    setupRequired: string;
+    passwordStrength: string;
+    passwordStrengthVeryWeak: string;
+    passwordStrengthWeak: string;
+    passwordStrengthFair: string;
+    passwordStrengthGood: string;
+    passwordStrengthStrong: string;
+    passwordsMatch: string;
+    passwordsDoNotMatch: string;
+    dataEncrypted: string;
   };
 
   // Paraphrase
@@ -145,6 +171,14 @@ export interface TranslationKeys {
     alternatives: string;
     placeholder: string;
     emptyState: string;
+    translating: string;
+    swapLanguages: string;
+    comparisonTitle: string;
+    original: string;
+    translated: string;
+    sourceWords: string;
+    translatedWords: string;
+    wordDifference: string;
   };
 
   // Content Detector
@@ -168,6 +202,18 @@ export interface TranslationKeys {
     placeholder: string;
     poweredBy: string;
     emptyState: string;
+    creativityLow: string;
+    creativityMedium: string;
+    creativityHigh: string;
+    contentAnalysisHighlighting: string;
+    potentialPlagiarism: string;
+    originalContent: string;
+    beforeAfterComparison: string;
+    originalAiScore: string;
+    humanizedScore: string;
+    improvement: string;
+    readyToHumanize: string;
+    humanizeDescription: string;
   };
 
   // Plagiarism
@@ -175,6 +221,22 @@ export interface TranslationKeys {
     title: string;
     subtitle: string;
     emptyState: string;
+    textAnalysis: string;
+    analyze: string;
+    analyzing: string;
+    plagiarismAnalysisResults: string;
+    sourcesFound: string;
+    totalWords: string;
+    uniqueWords: string;
+    originality: string;
+    matchedSources: string;
+    writingStyle: string;
+    patternRecognition: string;
+    vocabularyDiversity: string;
+    sentenceStructure: string;
+    potentialMatch: string;
+    humanLike: string;
+    recommendationsImprovement: string;
   };
 
   // Grammar
@@ -200,6 +262,24 @@ export interface TranslationKeys {
     styleImprovements: string;
     applyChanges: string;
     revertChanges: string;
+    grammarAnalysisResults: string;
+    grammarScore: string;
+    grammar: string;
+    spelling: string;
+    style: string;
+    original: string;
+    corrected: string;
+    improvementsMade: string;
+    grammarFixes: string;
+    spellingCorrections: string;
+    styleImprovements2: string;
+    accepted: string;
+    rejected: string;
+    passwordRequirements: string;
+    atLeast8Characters: string;
+    containsLowercase: string;
+    containsUppercase: string;
+    containsNumber: string;
   };
 
   // Transcription
@@ -224,6 +304,7 @@ export interface TranslationKeys {
       paraphrase: string;
       grammar: string;
       plagiarism: string;
+      translation: string;
       export: string;
     };
     exportFormats: {
@@ -239,6 +320,19 @@ export interface TranslationKeys {
     };
     emptyState: string;
     noResults: string;
+    dropDocument: string;
+    uploadForTranscription: string;
+    aiExtractedContent: string;
+    aiProcessedResults: string;
+    noProcessingResults: string;
+    useToolsAbove: string;
+    aiProcessingTools: string;
+    exportOptions: string;
+    transcribedWithAi: string;
+    aiPoweredExtraction: string;
+    readyForTranscription: string;
+    clickHumanize: string;
+    processedOn: string;
   };
 
   // Chat
@@ -253,6 +347,13 @@ export interface TranslationKeys {
     clearChat: string;
     exportChat: string;
     messages: string;
+    welcomeMessage: string;
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
+    chatCleared: string;
+    pressEnterToSend: string;
   };
 
   // History
@@ -278,6 +379,13 @@ export interface TranslationKeys {
     readability: string;
     compression: string;
     totalWords: string;
+    loadingHistory: string;
+    activities: string;
+    refresh: string;
+    activityExported: string;
+    noActivitiesFound: string;
+    tryAdjustingFilters: string;
+    startUsingApp: string;
   };
 
   // Settings
@@ -312,6 +420,11 @@ export interface TranslationKeys {
     language: string;
     selectLanguage: string;
     languageFeatures: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+    updating: string;
+    setupRequired2: string;
   };
 
   // Subscription
@@ -337,6 +450,33 @@ export interface TranslationKeys {
       renewsOn: string;
       cancelAtPeriodEnd: string;
     };
+    mostPopular: string;
+    renewsOn: string;
+    activeSubscription: string;
+    cancelCurrentPlan: string;
+    switchPlan: string;
+    securePayment: string;
+    paymentMethods: string;
+    currentSubscription: string;
+    billingPeriod: string;
+    paymentMethod: string;
+    planDetailsNotAvailable: string;
+    subscriptionWillCancel: string;
+    whatsIncluded: string;
+    coreFeatures: string;
+    premiumBenefits: string;
+    unlimitedParaphrasing: string;
+    advancedSummarization: string;
+    multiLanguageTranslation: string;
+    aiContentDetection: string;
+    textHumanization: string;
+    grammarSpellChecking: string;
+    priorityProcessingSpeed: string;
+    completeActivityHistory: string;
+    exportDownloadCapabilities: string;
+    advancedAnalyticsInsights: string;
+    premiumCustomerSupport: string;
+    earlyAccessFeatures: string;
   };
 
   // Usage
@@ -350,6 +490,20 @@ export interface TranslationKeys {
     premiumActive: string;
     minimumWords: string;
     recommendedWords: string;
+    unlimitedOperations: string;
+    operationsUsed: string;
+    dailyLimitReachedTitle: string;
+    reachedDailyLimit: string;
+    usageResetsAtMidnight: string;
+    premiumBenefitsTitle: string;
+    unlimitedDailyOperations: string;
+    priorityProcessingSpeed: string;
+    advancedAiModels: string;
+    exportCapabilities: string;
+    premiumSupport: string;
+    upgradeToPremiun: string;
+    continueWithFreePlan: string;
+    freeOperationsReset: string;
   };
 
   // Errors and Messages

@@ -41,7 +41,7 @@ export default function LanguageSelector({
   onTargetChange,
   onSwap,
 }: LanguageSelectorProps) {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const getLanguageName = (code: string) => {
     const lang = languages.find(l => l.code === code);
@@ -53,25 +53,25 @@ export default function LanguageSelector({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="glass-card p-6 rounded-2xl"
+      className="glass-card p-4 md:p-6 rounded-2xl mobile-friendly-card"
     >
       <div className="flex items-center space-x-2 mb-4">
         <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
+        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
           {t('translation.languageSelection')}
         </h3>
       </div>
       
-      <div className="flex items-center space-x-4">
+      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''} ${isRTL ? 'space-x-reverse' : ''} space-x-4`}>
         {/* Source Language */}
         <div className="flex-1">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
             {t('translation.from')}
           </label>
           <select
             value={sourceLanguage}
             onChange={(e) => onSourceChange(e.target.value)}
-            className="w-full p-3 glass-input rounded-xl appearance-none cursor-pointer"
+            className="w-full p-3 glass-input rounded-xl appearance-none cursor-pointer mobile-friendly-text"
           >
             {languages.map((lang) => (
               <option key={lang.code} value={lang.code}>
@@ -89,7 +89,8 @@ export default function LanguageSelector({
             onClick={onSwap}
             disabled={sourceLanguage === 'auto'}
             className="p-3 glass-button rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
-            title="Swap languages"
+            title={t('translation.swapLanguages')}
+            aria-label={t('translation.swapLanguages')}
           >
             <ArrowRightLeft className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </motion.button>
@@ -97,13 +98,13 @@ export default function LanguageSelector({
 
         {/* Target Language */}
         <div className="flex-1">
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
             {t('translation.to')}
           </label>
           <select
             value={targetLanguage}
             onChange={(e) => onTargetChange(e.target.value)}
-            className="w-full p-3 glass-input rounded-xl appearance-none cursor-pointer"
+            className="w-full p-3 glass-input rounded-xl appearance-none cursor-pointer mobile-friendly-text"
           >
             {languages.filter(lang => lang.code !== 'auto').map((lang) => (
               <option key={lang.code} value={lang.code}>
@@ -116,13 +117,13 @@ export default function LanguageSelector({
 
       {/* Language Info */}
       <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-sm mobile-friendly-text">
           <span className="text-blue-700 dark:text-blue-300">
-            Translating: {getLanguageName(sourceLanguage)} → {getLanguageName(targetLanguage)}
+            {t('translation.translating')}: {getLanguageName(sourceLanguage)} → {getLanguageName(targetLanguage)}
           </span>
           {sourceLanguage === 'auto' && (
             <span className="text-blue-600 dark:text-blue-400 font-medium">
-              {t('translation.autoDetect')} enabled
+              {t('translation.autoDetect')}
             </span>
           )}
         </div>

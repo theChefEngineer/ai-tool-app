@@ -163,6 +163,14 @@ export const ar: TranslationKeys = {
     alternatives: 'ترجمات بديلة:',
     placeholder: 'أدخل النص للترجمة...',
     emptyState: 'الترجمة ستظهر هنا',
+    translating: 'جاري الترجمة',
+    swapLanguages: 'تبديل اللغات',
+    comparisonTitle: 'مقارنة الترجمة',
+    original: 'الأصلي',
+    translated: 'المُترجم',
+    sourceWords: 'كلمات المصدر',
+    translatedWords: 'كلمات الترجمة',
+    wordDifference: 'فرق الكلمات',
   },
 
   contentDetector: {
@@ -284,6 +292,7 @@ export const ar: TranslationKeys = {
       paraphrase: 'إعادة صياغة',
       grammar: 'فحص القواعد',
       plagiarism: 'كشف الذكاء الاصطناعي',
+      translation: 'ترجمة',
       export: 'تصدير',
     },
     exportFormats: {
