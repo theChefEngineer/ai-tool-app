@@ -123,54 +123,11 @@ export default function GrammarInterface() {
     });
   };
 
-  const handleAcceptAll = () => {
-    if (!result) return;
-    
-    setResult(prev => ({
-      ...prev!,
-      errors: prev!.errors.map(error => ({ ...error, accepted: true, rejected: false }))
-    }));
-    setSelectedErrors(new Set(result.errors.map(e => e.id)));
-    
-    // Automatically apply all corrections when accepting all
-    applyCorrections(result.errors);
-  };
-
-  const handleRejectAll = () => {
-    if (!result) return;
-    
-    setResult(prev => ({
-      ...prev!,
-      errors: prev!.errors.map(error => ({ ...error, accepted: false, rejected: true }))
-    }));
-    setSelectedErrors(new Set());
-  };
-
-  const applyCorrections = (errorsToApply?: GrammarError[]) => {
+  const applyCorrections = () => {
     if (!result) return;
 
-    // Use provided errors or get accepted errors from current result
-    const acceptedErrors = errorsToApply || result.errors.filter(error => error.accepted);
-    
-    if (acceptedErrors.length === 0) {
-      toast('No corrections selected to apply');
-      return;
-    }
-
-    let correctedText = inputText;
-
-    // Apply corrections in reverse order to maintain indices
-    acceptedErrors
-      .sort((a, b) => b.startIndex - a.startIndex)
-      .forEach(error => {
-        correctedText = 
-          correctedText.slice(0, error.startIndex) + 
-          error.suggestion + 
-          correctedText.slice(error.endIndex);
-      });
-
-    // Update the input text with corrections
-    setInputText(correctedText);
+    // Use the corrected text directly
+    setInputText(result.correctedText);
     
     // Clear the result to show the corrected text in the input
     setResult(null);
@@ -377,29 +334,11 @@ export default function GrammarInterface() {
               </div>
 
               {result.errors.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mb-4">
+                <div className="flex items-center justify-end mb-4">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleAcceptAll}
-                    className="px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
-                  >
-                    <ThumbsUp className="w-4 h-4" />
-                    <span>{t('grammar.acceptAll')}</span>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleRejectAll}
-                    className="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
-                  >
-                    <ThumbsDown className="w-4 h-4" />
-                    <span>{t('grammar.rejectAll')}</span>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => applyCorrections()}
+                    onClick={applyCorrections}
                     className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-1 mobile-friendly-button"
                   >
                     <Sparkles className="w-4 h-4" />
