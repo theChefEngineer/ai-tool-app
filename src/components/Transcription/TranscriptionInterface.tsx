@@ -20,7 +20,8 @@ import {
   CheckCircle,
   Eye,
   Sparkles,
-  Globe
+  Globe,
+  Wand2
 } from 'lucide-react';
 import { deepseekService } from '../../lib/deepseek';
 import { DocumentProcessor, type DocumentProcessingResult } from '../../lib/documentProcessor';
@@ -347,11 +348,56 @@ export default function TranscriptionInterface() {
   };
 
   const tools = [
-    { id: 'summarize', label: 'Summarize', icon: BookOpen, color: 'from-emerald-500 to-teal-600', description: 'Create comprehensive summary' },
-    { id: 'paraphrase', label: 'Paraphrase', icon: FileText, color: 'from-indigo-500 to-purple-600', description: 'Rewrite while preserving meaning' },
-    { id: 'grammar', label: 'Grammar Check', icon: BookCheck, color: 'from-green-500 to-emerald-600', description: 'Fix grammar and style issues' },
-    { id: 'plagiarism', label: 'AI Detection', icon: Shield, color: 'from-red-500 to-orange-600', description: 'Analyze content originality' },
-    { id: 'translation', label: 'Translate', icon: Languages, color: 'from-blue-500 to-cyan-600', description: 'Translate to other languages' },
+    { 
+      id: 'summarize', 
+      label: 'Summarize', 
+      icon: BookOpen, 
+      color: 'from-emerald-500 to-teal-600', 
+      description: 'Create comprehensive summary',
+      bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
+      borderColor: 'border-emerald-200 dark:border-emerald-800/30',
+      textColor: 'text-emerald-700 dark:text-emerald-300'
+    },
+    { 
+      id: 'paraphrase', 
+      label: 'Paraphrase', 
+      icon: Wand2, 
+      color: 'from-indigo-500 to-purple-600', 
+      description: 'Rewrite while preserving meaning',
+      bgColor: 'bg-indigo-50 dark:bg-indigo-900/20',
+      borderColor: 'border-indigo-200 dark:border-indigo-800/30',
+      textColor: 'text-indigo-700 dark:text-indigo-300'
+    },
+    { 
+      id: 'grammar', 
+      label: 'Grammar Check', 
+      icon: BookCheck, 
+      color: 'from-green-500 to-emerald-600', 
+      description: 'Fix grammar and style issues',
+      bgColor: 'bg-green-50 dark:bg-green-900/20',
+      borderColor: 'border-green-200 dark:border-green-800/30',
+      textColor: 'text-green-700 dark:text-green-300'
+    },
+    { 
+      id: 'plagiarism', 
+      label: 'AI Detection', 
+      icon: Shield, 
+      color: 'from-red-500 to-orange-600', 
+      description: 'Analyze content originality',
+      bgColor: 'bg-red-50 dark:bg-red-900/20',
+      borderColor: 'border-red-200 dark:border-red-800/30',
+      textColor: 'text-red-700 dark:text-red-300'
+    },
+    { 
+      id: 'translation', 
+      label: 'Translate', 
+      icon: Languages, 
+      color: 'from-blue-500 to-cyan-600', 
+      description: 'Translate to other languages',
+      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
+      borderColor: 'border-blue-200 dark:border-blue-800/30',
+      textColor: 'text-blue-700 dark:text-blue-300'
+    },
   ];
 
   return (
@@ -545,22 +591,19 @@ export default function TranscriptionInterface() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleToolAction(tool.id)}
                     disabled={isProcessing}
-                    className={`p-4 rounded-xl font-medium text-left transition-all duration-200 ${
+                    className={`p-4 rounded-xl transition-all duration-200 ${
                       selectedTool === tool.id
-                        ? 'bg-gradient-to-r text-white shadow-lg'
-                        : 'glass-button hover:bg-white/20'
+                        ? `bg-gradient-to-r ${tool.color} text-white shadow-lg`
+                        : `${tool.bgColor} border ${tool.borderColor} ${tool.textColor} hover:shadow-md`
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
-                    style={{
-                      background: selectedTool === tool.id 
-                        ? `linear-gradient(to right, var(--tw-gradient-stops))` 
-                        : undefined
-                    }}
                   >
                     <div className="flex items-center space-x-2 mb-2">
                       {selectedTool === tool.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <Loader2 className="w-5 h-5 animate-spin text-white" />
                       ) : (
-                        <tool.icon className="w-5 h-5" />
+                        <div className={`p-2 rounded-lg bg-gradient-to-r ${tool.color}`}>
+                          <tool.icon className="w-4 h-4 text-white" />
+                        </div>
                       )}
                       <span className="font-semibold">{tool.label}</span>
                     </div>
@@ -705,97 +748,96 @@ export default function TranscriptionInterface() {
                     </p>
                   </div>
                 ) : (
-                  processedResults.map((result, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="glass-card p-6 rounded-2xl"
-                    >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${
-                            result.type === 'summary' ? 'from-emerald-500 to-teal-600' :
-                            result.type === 'paraphrase' ? 'from-indigo-500 to-purple-600' :
-                            result.type === 'grammar' ? 'from-green-500 to-emerald-600' :
-                            result.type === 'plagiarism' ? 'from-red-500 to-orange-600' :
-                            'from-blue-500 to-cyan-600'
-                          }`}>
-                            {result.type === 'summary' && <BookOpen className="w-5 h-5 text-white" />}
-                            {result.type === 'paraphrase' && <FileText className="w-5 h-5 text-white" />}
-                            {result.type === 'grammar' && <BookCheck className="w-5 h-5 text-white" />}
-                            {result.type === 'plagiarism' && <Shield className="w-5 h-5 text-white" />}
-                            {result.type === 'translation' && <Languages className="w-5 h-5 text-white" />}
+                  processedResults.map((result, index) => {
+                    // Get the tool configuration for this result type
+                    const toolConfig = tools.find(t => t.id === result.type);
+                    
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={`glass-card p-6 rounded-2xl ${toolConfig?.bgColor ? toolConfig.bgColor + ' border ' + toolConfig.borderColor : ''}`}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-2 rounded-lg bg-gradient-to-r ${toolConfig?.color || 'from-slate-500 to-slate-600'}`}>
+                              {result.type === 'summary' && <BookOpen className="w-5 h-5 text-white" />}
+                              {result.type === 'paraphrase' && <Wand2 className="w-5 h-5 text-white" />}
+                              {result.type === 'grammar' && <BookCheck className="w-5 h-5 text-white" />}
+                              {result.type === 'plagiarism' && <Shield className="w-5 h-5 text-white" />}
+                              {result.type === 'translation' && <Languages className="w-5 h-5 text-white" />}
+                            </div>
+                            <div>
+                              <h3 className={`text-lg font-semibold ${toolConfig?.textColor || 'text-slate-800 dark:text-white'}`}>
+                                {result.title}
+                              </h3>
+                              <p className="text-sm text-slate-500 dark:text-slate-400">
+                                Processed on {result.timestamp.toLocaleString()}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-slate-800 dark:text-white">
-                              {result.title}
-                            </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                              Processed on {result.timestamp.toLocaleString()}
-                            </p>
-                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleCopy(result.content)}
+                            className="p-2 glass-button rounded-xl"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </motion.button>
                         </div>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleCopy(result.content)}
-                          className="p-2 glass-button rounded-xl"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                      
-                      <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                          {result.content}
-                        </p>
-                      </div>
+                        
+                        <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
+                          <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                            {result.content}
+                          </p>
+                        </div>
 
-                      {result.metadata && (
-                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                          <div className="text-sm text-blue-700 dark:text-blue-300">
-                            {result.type === 'summary' && (
-                              <div className="flex items-center space-x-4">
-                                <span>Compression: {result.metadata.compressionRatio}%</span>
-                                <span>Key Points: {result.metadata.keyPoints?.length || 0}</span>
-                                <span>Mode: {result.metadata.mode}</span>
-                              </div>
-                            )}
-                            {result.type === 'paraphrase' && (
-                              <div className="flex items-center space-x-4">
-                                <span>Readability: {result.metadata.readabilityScore}/10</span>
-                                <span>Improvements: {result.metadata.improvements?.length || 0}</span>
-                                <span>Mode: {result.metadata.mode}</span>
-                              </div>
-                            )}
-                            {result.type === 'grammar' && (
-                              <div className="flex items-center space-x-4">
-                                <span>Score: {result.metadata.overallScore}%</span>
-                                <span>Errors Fixed: {result.metadata.errors?.length || 0}</span>
-                                <span>Improvements: {result.metadata.improvements?.length || 0}</span>
-                              </div>
-                            )}
-                            {result.type === 'plagiarism' && (
-                              <div className="flex items-center space-x-4">
-                                <span>AI Probability: {result.metadata.aiProbability}%</span>
-                                <span>Confidence: {result.metadata.confidence}%</span>
-                                <span>Status: {result.metadata.status}</span>
-                              </div>
-                            )}
-                            {result.type === 'translation' && (
-                              <div className="flex items-center space-x-4">
-                                <span>From: {result.metadata.sourceLanguage}</span>
-                                <span>To: {result.metadata.targetLanguage}</span>
-                                <span>Confidence: {result.metadata.confidence}%</span>
-                              </div>
-                            )}
+                        {result.metadata && (
+                          <div className={`mt-4 p-3 ${toolConfig?.bgColor || 'bg-blue-50 dark:bg-blue-900/20'} rounded-xl`}>
+                            <div className={`text-sm ${toolConfig?.textColor || 'text-blue-700 dark:text-blue-300'}`}>
+                              {result.type === 'summary' && (
+                                <div className="flex items-center space-x-4">
+                                  <span>Compression: {result.metadata.compressionRatio}%</span>
+                                  <span>Key Points: {result.metadata.keyPoints?.length || 0}</span>
+                                  <span>Mode: {result.metadata.mode}</span>
+                                </div>
+                              )}
+                              {result.type === 'paraphrase' && (
+                                <div className="flex items-center space-x-4">
+                                  <span>Readability: {result.metadata.readabilityScore}/10</span>
+                                  <span>Improvements: {result.metadata.improvements?.length || 0}</span>
+                                  <span>Mode: {result.metadata.mode}</span>
+                                </div>
+                              )}
+                              {result.type === 'grammar' && (
+                                <div className="flex items-center space-x-4">
+                                  <span>Score: {result.metadata.overallScore}%</span>
+                                  <span>Errors Fixed: {result.metadata.errors?.length || 0}</span>
+                                  <span>Improvements: {result.metadata.improvements?.length || 0}</span>
+                                </div>
+                              )}
+                              {result.type === 'plagiarism' && (
+                                <div className="flex items-center space-x-4">
+                                  <span>AI Probability: {result.metadata.aiProbability}%</span>
+                                  <span>Confidence: {result.metadata.confidence}%</span>
+                                  <span>Status: {result.metadata.status}</span>
+                                </div>
+                              )}
+                              {result.type === 'translation' && (
+                                <div className="flex items-center space-x-4">
+                                  <span>From: {result.metadata.sourceLanguage}</span>
+                                  <span>To: {result.metadata.targetLanguage}</span>
+                                  <span>Confidence: {result.metadata.confidence}%</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))
+                        )}
+                      </motion.div>
+                    );
+                  })
                 )}
               </motion.div>
             )}
