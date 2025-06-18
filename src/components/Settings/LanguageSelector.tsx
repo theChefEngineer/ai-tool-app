@@ -8,8 +8,9 @@ import toast from 'react-hot-toast';
 const languages = [
   { code: 'en' as Language, name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'ar' as Language, name: 'Arabic', nativeName: 'العربية', flag: '🇸🇦' },
-  { code: 'fr' as Language, name: 'French', nativeName: 'Français', flag: '🇫🇷' },
-  { code: 'es' as Language, name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
+  // French and Spanish are temporarily hidden
+  // { code: 'fr' as Language, name: 'French', nativeName: 'Français', flag: '🇫🇷' },
+  // { code: 'es' as Language, name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
 ];
 
 export default function LanguageSelector() {
@@ -82,7 +83,7 @@ export default function LanguageSelector() {
         {/* Language Features */}
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
           <h4 className="font-medium text-blue-800 dark:text-blue-200 mb-2">
-            Language Features
+            {t('settings.languageFeatures')}
           </h4>
           <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
             <li>• Complete interface translation</li>
