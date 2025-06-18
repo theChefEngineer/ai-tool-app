@@ -29,7 +29,10 @@ export class UsageChecker {
       // Show warning when approaching limit
       const remainingAfter = getRemainingOperations();
       if (remainingAfter <= 5 && remainingAfter > 0) {
-        toast.warning(`${remainingAfter} operations remaining today. Consider upgrading to Premium.`);
+        toast(`${remainingAfter} operations remaining today. Consider upgrading to Premium.`, {
+          icon: '⚠️',
+          duration: 4000,
+        });
       }
 
       return true;
