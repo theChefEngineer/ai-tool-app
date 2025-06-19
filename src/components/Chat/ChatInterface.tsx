@@ -948,44 +948,6 @@ Please analyze this document and provide a helpful response. Consider:
                 <Paperclip className="w-5 h-5 text-slate-600 dark:text-slate-300" />
               </motion.button>
 
-              {/* Web Browse Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setShowWebInput(!showWebInput);
-                  if (showWebSearch) setShowWebSearch(false);
-                }}
-                disabled={isTyping || isProcessingFile || isProcessingWeb}
-                className={`p-4 rounded-xl flex items-center justify-center disabled:opacity-50 ${
-                  showWebInput 
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' 
-                    : 'glass-button'
-                }`}
-                title="Browse web"
-              >
-                <Globe className="w-5 h-5" />
-              </motion.button>
-
-              {/* Web Search Button */}
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setShowWebSearch(!showWebSearch);
-                  if (showWebInput) setShowWebInput(false);
-                }}
-                disabled={isTyping || isProcessingFile || isProcessingWeb}
-                className={`p-4 rounded-xl flex items-center justify-center disabled:opacity-50 ${
-                  showWebSearch 
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' 
-                    : 'glass-button'
-                }`}
-                title="Search web"
-              >
-                <Search className="w-5 h-5" />
-              </motion.button>
-
               {/* Send Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
