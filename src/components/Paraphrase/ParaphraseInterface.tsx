@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, Loader2, Copy, Check, RotateCcw, Wand2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, Loader2, Copy, Check, RotateCcw, Wand2, Download, FileText, FileIcon } from 'lucide-react';
 import { useAppStore, type ParaphraseMode } from '../../store/appStore';
 import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
@@ -9,12 +9,14 @@ import toast from 'react-hot-toast';
 import ModeSelector from './ModeSelector';
 import TextComparison from './TextComparison';
 import UsageLimitModal from '../Layout/UsageLimitModal';
+import ExportMenu from './ExportMenu';
 
 export default function ParaphraseInterface() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   
   const { currentMode, isProcessing, setProcessing, addToHistory } = useAppStore();
   const { t, isRTL } = useTranslation();
@@ -61,6 +63,10 @@ export default function ParaphraseInterface() {
   const handleReset = () => {
     setInputText('');
     setResult(null);
+  };
+
+  const toggleExportMenu = () => {
+    setShowExportMenu(!showExportMenu);
   };
 
   return (
@@ -165,18 +171,38 @@ export default function ParaphraseInterface() {
                       {t('paraphrase.readabilityScore')}: {result.readabilityScore}/10
                     </span>
                   </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCopy}
-                    className="p-2 glass-button rounded-xl"
-                  >
-                    {copied ? (
-                      <Check className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <Copy className="w-4 h-4" />
-                    )}
-                  </motion.button>
+                  <div className="flex space-x-2">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={toggleExportMenu}
+                      className="p-2 glass-button rounded-xl relative"
+                    >
+                      <Download className="w-4 h-4" />
+                      <AnimatePresence>
+                        {showExportMenu && (
+                          <ExportMenu 
+                            onClose={() => setShowExportMenu(false)}
+                            text={result.paraphrasedText}
+                            title="Paraphrased Text"
+                            originalText={inputText}
+                          />
+                        )}
+                      </AnimatePresence>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleCopy}
+                      className="p-2 glass-button rounded-xl"
+                    >
+                      {copied ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </motion.button>
+                  </div>
                 </div>
               </div>
 
