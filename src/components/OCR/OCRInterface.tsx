@@ -25,7 +25,6 @@ import {
   Search,
   ZoomIn
 } from 'lucide-react';
-import { createWorker } from 'tesseract.js';
 import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -69,33 +68,6 @@ export default function OCRInterface() {
   const { t, isRTL } = useTranslation();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const workerRef = useRef<any>(null);
-
-  // Initialize Tesseract worker
-  useEffect(() => {
-    const initWorker = async () => {
-      if (!workerRef.current) {
-        workerRef.current = await createWorker({
-          logger: progress => {
-            if (progress.status === "recognizing text") {
-              setProcessingProgress(Math.round(progress.progress * 100));
-            }
-          }
-        });
-        await workerRef.current.loadLanguage('eng');
-        await workerRef.current.initialize('eng');
-      }
-    };
-
-    initWorker();
-
-    // Cleanup worker on component unmount
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
-  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -118,10 +90,10 @@ export default function OCRInterface() {
   }, []);
 
   const handleFileSelection = (file: File) => {
-    const acceptedFileTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/bmp'];
-    const maxFileSize = 10 * 1024 * 1024; // 10MB
-    
-    if (!acceptedFileTypes.includes(file.type)) {
+    const acceptedFileTypes = ['.png', '.jpg', '.jpeg', '.bmp'];
+    const maxFileSize = 10 * 1024 * 1024;
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (!fileExtension || !acceptedFileTypes.includes(`.${fileExtension}`)) {
       toast.error(t('ocr.errors.unsupportedFile'));
       return;
     }
@@ -168,30 +140,26 @@ export default function OCRInterface() {
     setProcessingStep(t('ocr.extractingText'));
     setProcessingProgress(0);
 
-    try {
-      if (!workerRef.current) {
-        workerRef.current = await createWorker({
-          logger: progress => {
-            if (progress.status === "recognizing text") {
-              setProcessingProgress(Math.round(progress.progress * 100));
-            }
-          }
-        });
-        await workerRef.current.loadLanguage('eng');
-        await workerRef.current.initialize('eng');
-      }
+    const progressInterval = setInterval(() => {
+      setProcessingProgress(prev => Math.min(prev + 5, 90));
+    }, 200);
 
-      const { data } = await workerRef.current.recognize(file);
-      
+    try {
+      // @ts-ignore - Assuming aiService has performOCR method
+      const { text, confidence } = await aiService.performOCR(file);
+
+      clearInterval(progressInterval);
+      setProcessingProgress(100);
+
       const result: OCRResult = {
-        originalText: data.text,
-        wordCount: data.text.split(/\s+/).filter(Boolean).length,
-        characterCount: data.text.length,
-        readingTime: Math.ceil(data.text.split(/\s+/).filter(Boolean).length / 200),
+        originalText: text,
+        wordCount: text.split(/\s+/).filter(Boolean).length,
+        characterCount: text.length,
+        readingTime: Math.ceil(text.split(/\s+/).filter(Boolean).length / 200),
         fileName: file.name,
         fileSize: formatFileSize(file.size),
-        language: 'eng',
-        confidence: data.confidence,
+        language: 'en',
+        confidence: confidence,
         imagePreview: imagePreview || undefined
       };
 
@@ -199,11 +167,13 @@ export default function OCRInterface() {
       setActiveView('original');
       toast.success(t('messages.success.ocrComplete'));
     } catch (error: any) {
+      clearInterval(progressInterval);
       console.error('OCR processing error:', error);
       toast.error(error.message || t('ocr.errors.processingFailed'));
     } finally {
       setIsProcessing(false);
       setProcessingStep('');
+      setProcessingProgress(0);
     }
   };
 
@@ -289,15 +259,15 @@ export default function OCRInterface() {
           };
           break;
         case 'translation':
-          const targetLang = ocrResult.language === 'eng' ? 'es' : 'en';
+          const targetLang = ocrResult.language === 'en' ? 'es' : 'en';
           const translationResponse = await aiService.translate({
             text: ocrResult.originalText,
-            sourceLanguage: ocrResult.language === 'eng' ? 'en' : ocrResult.language || 'auto',
+            sourceLanguage: ocrResult.language || 'auto',
             targetLanguage: targetLang
           });
           result = {
             type: 'translation',
-            title: `${t('ocr.tools.translation')} (${ocrResult.language === 'eng' ? 'en' : ocrResult.language || 'auto'} → ${targetLang})`,
+            title: `${t('ocr.tools.translation')} (${ocrResult.language || 'auto'} → ${targetLang})`,
             content: translationResponse.translatedText,
             metadata: {
               sourceLanguage: translationResponse.sourceLanguage,
@@ -403,6 +373,7 @@ export default function OCRInterface() {
     }
   };
 
+
   const tools = [
     {
       id: 'summarize',
@@ -490,7 +461,7 @@ export default function OCRInterface() {
           >
             <input
               type="file"
-              accept="image/png,image/jpeg,image/jpg,image/bmp"
+              accept=".png,.jpg,.jpeg,.bmp"
               onChange={handleFileInputChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               disabled={isProcessing}
@@ -606,15 +577,6 @@ export default function OCRInterface() {
                       <Clock className="w-4 h-4" />
                       <span>{ocrResult.readingTime} {t('ocr.readingTime')}</span>
                     </div>
-                    {ocrResult.confidence && (
-                      <>
-                        <span className="hidden md:inline">•</span>
-                        <div className="flex items-center space-x-1">
-                          <Sparkles className="w-4 h-4" />
-                          <span>{Math.round(ocrResult.confidence)}% {t('common.confidence')}</span>
-                        </div>
-                      </>
-                    )}
                   </div>
                 </div>
               </div>
@@ -683,236 +645,7 @@ export default function OCRInterface() {
                 </div>
               </div>
             </div>
-
-            {/* AI Processing Tools */}
-            <div className="mt-6">
-              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 mobile-friendly-text">
-                {t('ocr.processingTools')}
-              </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                {tools.map((tool) => (
-                  <motion.button
-                    key={tool.id}
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleToolAction(tool.id)}
-                    disabled={isProcessing}
-                    className={`p-3 md:p-4 rounded-xl transition-all duration-200 ${
-                      selectedTool === tool.id
-                        ? `bg-gradient-to-r ${tool.color} text-white shadow-lg`
-                        : `${tool.bgColor} border ${tool.borderColor} ${tool.textColor} hover:shadow-md`
-                    } disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-card`}
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      {selectedTool === tool.id ? (
-                        <Loader2 className="w-5 h-5 animate-spin text-white" />
-                      ) : (
-                        <div className={`p-2 rounded-lg bg-gradient-to-r ${tool.color}`}>
-                          <tool.icon className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-                      <span className="font-semibold text-sm md:text-base">{tool.label}</span>
-                    </div>
-                    <p className="text-xs opacity-80 hidden md:block">{tool.description}</p>
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Export Options */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mt-6">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">{t('ocr.export')}:</span>
-                {['txt', 'json', 'md'].map((format) => (
-                  <motion.button
-                    key={format}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleExport(format)}
-                    className="px-3 py-1 glass-button rounded-lg text-sm flex items-center space-x-1 mobile-friendly-button"
-                  >
-                    <Download className="w-3 h-3" />
-                    <span>{format.toUpperCase()}</span>
-                  </motion.button>
-                ))}
-              </div>
-
-              <div className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
-                {t('ocr.extractedWithAI')} • {new Date().toLocaleDateString()}
-              </div>
-            </div>
           </div>
-
-          {/* View Toggle for Processed Results */}
-          {processedResults.length > 0 && (
-            <div className="glass-card p-2 rounded-2xl">
-              <div className="flex space-x-2">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveView('original')}
-                  className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 mobile-friendly-button ${
-                    activeView === 'original'
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
-                    <FileText className="w-5 h-5" />
-                    <span className="text-sm md:text-base">{t('ocr.originalExtraction')}</span>
-                  </div>
-                </motion.button>
-                
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveView('processed')}
-                  className={`flex-1 px-4 md:px-6 py-3 rounded-xl font-semibold transition-all duration-200 mobile-friendly-button ${
-                    activeView === 'processed'
-                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg'
-                      : 'text-slate-600 dark:text-slate-400 hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex items-center justify-center space-x-2">
-                    <Bot className="w-5 h-5" />
-                    <span className="text-sm md:text-base">{t('ocr.processedResults')} ({processedResults.length})</span>
-                  </div>
-                </motion.button>
-              </div>
-            </div>
-          )}
-
-          {/* Processed Results */}
-          {activeView === 'processed' && (
-            <motion.div
-              key="processed"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
-            >
-              {processedResults.length === 0 ? (
-                <div className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card">
-                  <Bot className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
-                    {t('ocr.noProcessingResults')}
-                  </h3>
-                  <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mobile-friendly-text">
-                    {t('ocr.useToolsAbove')}
-                  </p>
-                </div>
-              ) : (
-                processedResults.map((result, index) => {
-                  // Get the tool configuration for this result type
-                  const toolConfig = tools.find(t => t.id === result.type);
-                  
-                  return (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className={`glass-card p-4 md:p-6 rounded-2xl ${toolConfig?.bgColor ? toolConfig.bgColor + ' border ' + toolConfig.borderColor : ''} mobile-friendly-card`}
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                        <div className="flex items-center space-x-3">
-                          <div className={`p-2 rounded-lg bg-gradient-to-r ${toolConfig?.color || 'from-slate-500 to-slate-600'}`}>
-                            {result.type === 'summary' && <BookOpen className="w-5 h-5 text-white" />}
-                            {result.type === 'paraphrase' && <Wand2 className="w-5 h-5 text-white" />}
-                            {result.type === 'grammar' && <BookCheck className="w-5 h-5 text-white" />}
-                            {result.type === 'ai-detection' && <Shield className="w-5 h-5 text-white" />}
-                            {result.type === 'translation' && <Languages className="w-5 h-5 text-white" />}
-                          </div>
-                          <div>
-                            <h3 className={`text-lg font-semibold ${toolConfig?.textColor || 'text-slate-800 dark:text-white'} mobile-friendly-heading`}>
-                              {result.title}
-                            </h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
-                              {t('ocr.processedOn')} {result.timestamp.toLocaleString()}
-                            </p>
-                          </div>
-                        </div>
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => handleCopy(result.content)}
-                          className="p-2 glass-button rounded-xl"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </motion.button>
-                      </div>
-                      
-                      <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl max-h-96 overflow-y-auto">
-                        <p className="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mobile-friendly-text" dir="auto">
-                          {result.content}
-                        </p>
-                      </div>
-
-                      {result.metadata && (
-                        <div className={`mt-4 p-3 ${toolConfig?.bgColor || 'bg-blue-50 dark:bg-blue-900/20'} rounded-xl`}>
-                          <div className={`text-xs md:text-sm ${toolConfig?.textColor || 'text-blue-700 dark:text-blue-300'} mobile-friendly-text`}>
-                            {result.type === 'summary' && (
-                              <div className="flex flex-wrap items-center gap-4">
-                                <span>{t('ocr.compression')}: {result.metadata.compressionRatio}%</span>
-                                <span>{t('ocr.keyPoints')}: {result.metadata.keyPoints?.length || 0}</span>
-                                <span>{t('ocr.mode')}: {result.metadata.mode}</span>
-                              </div>
-                            )}
-                            {result.type === 'paraphrase' && (
-                              <div className="flex flex-wrap items-center gap-4">
-                                <span>{t('ocr.readability')}: {result.metadata.readabilityScore}/10</span>
-                                <span>{t('ocr.improvements')}: {result.metadata.improvements?.length || 0}</span>
-                                <span>{t('ocr.mode')}: {result.metadata.mode}</span>
-                              </div>
-                            )}
-                            {result.type === 'grammar' && (
-                              <div className="flex flex-wrap items-center gap-4">
-                                <span>{t('ocr.score')}: {result.metadata.overallScore}%</span>
-                                <span>{t('ocr.errorsFixed')}: {result.metadata.errors?.length || 0}</span>
-                                <span>{t('ocr.improvements')}: {result.metadata.improvements?.length || 0}</span>
-                              </div>
-                            )}
-                            {result.type === 'ai-detection' && (
-                              <div className="flex flex-wrap items-center gap-4">
-                                <span>{t('ocr.aiProbability')}: {result.metadata.aiProbability}%</span>
-                                <span>{t('ocr.confidence')}: {result.metadata.confidence}%</span>
-                                <span>{t('ocr.status')}: {result.metadata.status}</span>
-                              </div>
-                            )}
-                            {result.type === 'translation' && (
-                              <div className="flex flex-wrap items-center gap-4">
-                                <span>{t('ocr.from')}: {result.metadata.sourceLanguage}</span>
-                                <span>{t('ocr.to')}: {result.metadata.targetLanguage}</span>
-                                <span>{t('ocr.confidence')}: {result.metadata.confidence}%</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </motion.div>
-                  );
-                })
-              )}
-            </motion.div>
-          )}
-        </motion.div>
-      )}
-
-      {/* Empty State */}
-      {!ocrResult && !isProcessing && !uploadedImage && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card p-6 md:p-12 rounded-2xl text-center mobile-friendly-card"
-        >
-          <Image className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-heading">
-            {t('ocr.emptyState')}
-          </h3>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mobile-friendly-text">
-            {t('ocr.dragDropText')}
-          </p>
         </motion.div>
       )}
 
@@ -922,7 +655,7 @@ export default function OCRInterface() {
         onUpgrade={() => setShowUsageLimitModal(false)}
       />
 
-      <AnimatePresence>
+       <AnimatePresence>
         {showImagePreview && imagePreview && (
           <motion.div
             initial={{ opacity: 0 }}
