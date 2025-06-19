@@ -74,11 +74,17 @@ export default function OCRInterface() {
   // Initialize Tesseract worker
   useEffect(() => {
     const initWorker = async () => {
-      if (!workerRef.current) {
-        workerRef.current = createWorker();
-        await workerRef.current.load();
-        await workerRef.current.loadLanguage('eng');
-        await workerRef.current.initialize('eng');
+      try {
+        if (!workerRef.current) {
+          workerRef.current = await createWorker();
+          await workerRef.current.load();
+          await workerRef.current.loadLanguage('eng');
+          await workerRef.current.initialize('eng');
+        }
+      } catch (error) {
+        console.error('Failed to initialize Tesseract worker:', error);
+        // Worker initialization failed, will fall back to AI service
+        workerRef.current = null;
       }
     };
 
