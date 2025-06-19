@@ -41,16 +41,7 @@ export default function TextComparison({ originalText, paraphrasedText }: TextCo
         </div>
 
         {/* Arrow */}
-        <div className="hidden lg:flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.5 }}
-            className="p-3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"
-          >
-            <ArrowRight className="w-6 h-6 text-white" />
-          </motion.div>
-        </div>
+      
 
         {/* Paraphrased Text */}
         <div className="space-y-4">
