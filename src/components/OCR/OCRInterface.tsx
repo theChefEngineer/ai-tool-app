@@ -70,6 +70,16 @@ export default function OCRInterface() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const workerRef = useRef<any>(null);
+  
+  // Create refs for state setters to make them accessible in the worker logger
+  const setProcessingProgressRef = useRef(setProcessingProgress);
+  const setProcessingStepRef = useRef(setProcessingStep);
+
+  // Update refs when state setters change
+  React.useEffect(() => {
+    setProcessingProgressRef.current = setProcessingProgress;
+    setProcessingStepRef.current = setProcessingStep;
+  }, [setProcessingProgress, setProcessingStep]);
 
   const acceptedFileTypes = ['.png', '.jpg', '.jpeg', '.bmp'];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
@@ -79,11 +89,11 @@ export default function OCRInterface() {
     if (!workerRef.current) {
       try {
         const worker = await createWorker({
-          logger: progress => {
+          logger: (progress) => {
             if (progress.status === 'recognizing text') {
-              setProcessingProgress(progress.progress * 100);
+              setProcessingProgressRef.current(progress.progress * 100);
             }
-            setProcessingStep(progress.status);
+            setProcessingStepRef.current(progress.status);
           }
         });
         
