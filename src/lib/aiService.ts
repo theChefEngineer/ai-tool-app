@@ -18,8 +18,13 @@ export class AIService {
     return this.provider;
   }
 
+  async performOCR(file: File) {
+    // For OCR, we will directly use the Gemini service.
+    return geminiService.performOCR(file);
+  }
+
   async paraphrase(request: any) {
-    return this.provider === 'gemini' 
+    return this.provider === 'gemini'
       ? geminiService.paraphrase(request)
       : deepseekService.paraphrase(request);
   }
