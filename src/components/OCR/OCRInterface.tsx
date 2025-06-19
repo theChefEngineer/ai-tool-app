@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Upload, 
@@ -22,8 +22,10 @@ import {
   Sparkles,
   Globe,
   Wand2,
-  Search
+  Search,
+  ZoomIn
 } from 'lucide-react';
+import { createWorker } from 'tesseract.js';
 import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -55,6 +57,7 @@ export default function OCRInterface() {
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState<string>('');
+  const [processingProgress, setProcessingProgress] = useState(0);
   const [ocrResult, setOcrResult] = useState<OCRResult | null>(null);
   const [processedResults, setProcessedResults] = useState<ProcessedResult[]>([]);
   const [activeView, setActiveView] = useState<'original' | 'processed'>('original');
@@ -62,10 +65,50 @@ export default function OCRInterface() {
   const [copied, setCopied] = useState(false);
   const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showImagePreview, setShowImagePreview] = useState(false);
   const { t, isRTL } = useTranslation();
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const workerRef = useRef<any>(null);
 
   const acceptedFileTypes = ['.png', '.jpg', '.jpeg', '.bmp'];
   const maxFileSize = 10 * 1024 * 1024; // 10MB
+
+  // Initialize Tesseract worker
+  const initWorker = async () => {
+    if (!workerRef.current) {
+      try {
+        const worker = await createWorker({
+          logger: progress => {
+            if (progress.status === 'recognizing text') {
+              setProcessingProgress(progress.progress * 100);
+            }
+            setProcessingStep(progress.status);
+          }
+        });
+        
+        // Initialize worker with English language
+        await worker.loadLanguage('eng');
+        await worker.initialize('eng');
+        workerRef.current = worker;
+        return worker;
+      } catch (error) {
+        console.error('Failed to initialize Tesseract worker:', error);
+        toast.error('Failed to initialize OCR engine. Please try again.');
+        throw error;
+      }
+    }
+    return workerRef.current;
+  };
+
+  // Clean up worker on component unmount
+  React.useEffect(() => {
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -131,14 +174,24 @@ export default function OCRInterface() {
 
     setIsProcessing(true);
     setProcessingStep(t('ocr.extractingText'));
+    setProcessingProgress(0);
     
     try {
-      // Simulate OCR processing with a delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Initialize Tesseract worker
+      const worker = await initWorker();
       
-      // In a real implementation, we would use Tesseract.js or a similar OCR library
-      // For now, we'll extract text from the image name and create a simulated result
-      const extractedText = await extractTextFromImage(file);
+      // Create a URL for the image file
+      const imageUrl = URL.createObjectURL(file);
+      
+      // Recognize text in the image
+      const { data } = await worker.recognize(imageUrl);
+      
+      // Extract text and metadata
+      const extractedText = data.text;
+      const confidence = data.confidence;
+      
+      // Revoke the object URL to free up memory
+      URL.revokeObjectURL(imageUrl);
       
       // Create OCR result
       const result: OCRResult = {
@@ -149,7 +202,7 @@ export default function OCRInterface() {
         fileName: file.name,
         fileSize: formatFileSize(file.size),
         language: 'en',
-        confidence: 95,
+        confidence: Math.round(confidence),
         imagePreview: imagePreview || undefined
       };
 
@@ -162,176 +215,7 @@ export default function OCRInterface() {
     } finally {
       setIsProcessing(false);
       setProcessingStep('');
-    }
-  };
-
-  // Simulated OCR text extraction
-  const extractTextFromImage = async (file: File): Promise<string> => {
-    // In a real implementation, this would use Tesseract.js or a similar OCR library
-    
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // For demo purposes, extract text based on the image name
-    const fileName = file.name.toLowerCase();
-    
-    if (fileName.includes('receipt')) {
-      return `RECEIPT
-Store: Grocery Market
-Date: ${new Date().toLocaleDateString()}
-Time: ${new Date().toLocaleTimeString()}
-
-Items:
-1. Apples x3 - $4.50
-2. Milk 1L - $2.99
-3. Bread - $3.25
-4. Eggs (dozen) - $4.75
-5. Cheese - $5.99
-
-Subtotal: $21.48
-Tax (8%): $1.72
-Total: $23.20
-
-Thank you for shopping with us!`;
-    } else if (fileName.includes('invoice')) {
-      return `INVOICE #INV-${Math.floor(1000 + Math.random() * 9000)}
-
-Billed To:
-John Smith
-123 Main Street
-Anytown, CA 12345
-
-Date: ${new Date().toLocaleDateString()}
-Due Date: ${new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString()}
-
-Description                     Qty    Rate    Amount
-Website Development             1      $1,500  $1,500
-Logo Design                     1      $500    $500
-SEO Optimization                5      $100    $500
-
-Subtotal: $2,500
-Tax (7%): $175
-Total Due: $2,675
-
-Payment Terms: Net 30`;
-    } else if (fileName.includes('business') || fileName.includes('card')) {
-      return `BUSINESS CARD
-
-John Smith
-Senior Software Engineer
-
-Email: john.smith@example.com
-Phone: (555) 123-4567
-Website: www.example.com
-
-123 Tech Plaza
-San Francisco, CA 94105`;
-    } else if (fileName.includes('document') || fileName.includes('letter')) {
-      return `Dear Sir/Madam,
-
-I am writing to express my interest in the position of Software Developer that was advertised on your company website.
-
-With over five years of experience in full-stack development and a strong background in JavaScript frameworks including React and Node.js, I believe I would be a valuable addition to your team.
-
-Throughout my career, I have demonstrated the ability to create efficient, scalable, and maintainable code while working in agile environments. My experience includes developing responsive web applications, RESTful APIs, and implementing CI/CD pipelines.
-
-I would welcome the opportunity to discuss how my skills and experience align with your requirements. Please find my resume attached for your consideration.
-
-Thank you for your time and consideration.
-
-Sincerely,
-John Smith`;
-    } else if (fileName.includes('menu')) {
-      return `CAFE MENU
-
-BREAKFAST
-Avocado Toast - $8.99
-Eggs Benedict - $12.50
-Pancake Stack - $9.75
-Breakfast Burrito - $10.25
-Fresh Fruit Bowl - $7.50
-
-LUNCH
-Chicken Caesar Salad - $13.99
-Turkey Club Sandwich - $11.50
-Veggie Burger - $12.75
-Soup of the Day - $6.50
-Grilled Salmon - $16.99
-
-BEVERAGES
-Coffee - $3.50
-Tea - $3.25
-Fresh Juice - $4.99
-Smoothie - $5.75
-Sparkling Water - $2.50
-
-All prices include tax. 18% gratuity added for parties of 6 or more.`;
-    } else if (fileName.includes('code') || fileName.includes('snippet')) {
-      return `function calculateTotal(items) {
-  return items.reduce((total, item) => {
-    return total + (item.price * item.quantity);
-  }, 0);
-}
-
-const shoppingCart = [
-  { id: 1, name: 'Laptop', price: 999.99, quantity: 1 },
-  { id: 2, name: 'Mouse', price: 29.99, quantity: 1 },
-  { id: 3, name: 'Keyboard', price: 59.99, quantity: 1 },
-  { id: 4, name: 'Monitor', price: 249.99, quantity: 2 }
-];
-
-const total = calculateTotal(shoppingCart);
-console.log(\`Total: $\${total.toFixed(2)}\`);
-
-// Output: Total: $1589.95`;
-    } else if (fileName.includes('table') || fileName.includes('data')) {
-      return `QUARTERLY SALES REPORT
-
-Region | Q1 Sales | Q2 Sales | Q3 Sales | Q4 Sales | Total
--------|----------|----------|----------|----------|------
-North  | $245,000 | $273,500 | $301,200 | $352,800 | $1,172,500
-South  | $312,400 | $295,700 | $265,900 | $304,600 | $1,178,600
-East   | $198,300 | $217,600 | $223,400 | $240,900 | $880,200
-West   | $327,800 | $349,200 | $368,500 | $391,700 | $1,437,200
-Total  | $1,083,500 | $1,136,000 | $1,159,000 | $1,290,000 | $4,668,500
-
-Year-over-Year Growth: 12.3%
-Top Performing Region: West
-Fastest Growing Region: North (18.2% YoY)`;
-    } else {
-      // Extract text from the image name itself
-      const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
-      const words = nameWithoutExtension.split(/[_\-\s.]+/).filter(word => word.length > 0);
-      
-      if (words.length > 0) {
-        // Create a more meaningful text from the filename
-        return `${words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-
-This text was extracted from the image "${file.name}" using OCR technology.
-
-The image appears to contain text content that has been successfully digitized. The OCR process has identified and converted all visible text elements from the image into editable text format.
-
-Based on the content analysis, this appears to be a ${words.includes('document') ? 'document' : 'text'} containing approximately ${Math.floor(Math.random() * 500) + 100} words across ${Math.floor(Math.random() * 5) + 1} sections or paragraphs.
-
-The OCR confidence level for this extraction is 95%, indicating high accuracy in the text recognition process. Some formatting elements like tables, bullet points, or special characters may have been simplified during the conversion.
-
-This extracted text can now be edited, copied, or processed further using our AI-powered tools for summarization, paraphrasing, translation, or other text processing needs.`;
-      } else {
-        // Generic text for unrecognized images
-        return `Text extracted from image "${file.name}"
-
-The OCR system has processed this image and extracted all visible text content. The extraction quality depends on the image resolution, clarity, and text formatting.
-
-The content appears to include:
-• Text paragraphs with standard formatting
-• Possible headings and subheadings
-• Some numerical data or figures
-• Potential special characters or symbols
-
-The OCR confidence level is approximately 95%, indicating good quality text extraction with minimal errors or uncertainty.
-
-This extracted text can now be edited, copied, or processed further using our AI-powered tools for summarization, paraphrasing, translation, or other text processing needs.`;
-      }
+      setProcessingProgress(0);
     }
   };
 
@@ -530,6 +414,12 @@ This extracted text can now be edited, copied, or processed further using our AI
     setActiveView('original');
     setSelectedTool(null);
     setProcessingStep('');
+    setProcessingProgress(0);
+    
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -633,6 +523,7 @@ This extracted text can now be edited, copied, or processed further using our AI
               onChange={handleFileInputChange}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               disabled={isProcessing}
+              ref={fileInputRef}
             />
             
             <div className="space-y-4">
@@ -664,14 +555,25 @@ This extracted text can now be edited, copied, or processed further using our AI
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="absolute inset-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl flex items-center justify-center"
+                className="absolute inset-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center"
               >
-                <div className="text-center">
+                <div className="text-center mb-4">
                   <Loader2 className="w-8 h-8 animate-spin text-amber-600 mx-auto mb-3" />
-                  <p className="text-slate-700 dark:text-slate-300 font-medium">{processingStep}</p>
+                  <p className="text-slate-700 dark:text-slate-300 font-medium capitalize">{processingStep}</p>
                   <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                     {t('ocr.extractingText')}
                   </p>
+                </div>
+                
+                {/* Progress bar */}
+                <div className="w-3/4 max-w-md bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 mb-2">
+                  <div 
+                    className="bg-gradient-to-r from-amber-500 to-orange-600 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${processingProgress}%` }}
+                  ></div>
+                </div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">
+                  {Math.round(processingProgress)}%
                 </div>
               </motion.div>
             )}
@@ -710,7 +612,10 @@ This extracted text can now be edited, copied, or processed further using our AI
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center space-x-3">
                 {imagePreview ? (
-                  <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                  <div 
+                    className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer"
+                    onClick={() => setShowImagePreview(true)}
+                  >
                     <img 
                       src={imagePreview} 
                       alt="Uploaded" 
@@ -783,19 +688,28 @@ This extracted text can now be edited, copied, or processed further using our AI
               </div>
             </div>
 
-            {/* Image Preview */}
+            {/* Image Preview Thumbnail */}
             {imagePreview && (
               <div className="mb-6">
-                <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+                <div 
+                  className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 cursor-pointer"
+                  onClick={() => setShowImagePreview(true)}
+                >
                   <img 
                     src={imagePreview} 
                     alt="OCR Source" 
                     className="w-full max-h-64 object-contain bg-slate-100 dark:bg-slate-800"
                   />
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                    <div className="flex items-center space-x-2">
-                      <Image className="w-4 h-4 text-white" />
-                      <span className="text-sm text-white">{t('ocr.sourceImage')}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <Image className="w-4 h-4 text-white" />
+                        <span className="text-sm text-white">{t('ocr.sourceImage')}</span>
+                      </div>
+                      <div className="flex items-center space-x-1 bg-black/30 rounded-full px-2 py-1">
+                        <ZoomIn className="w-3 h-3 text-white" />
+                        <span className="text-xs text-white">Click to enlarge</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1067,6 +981,41 @@ This extracted text can now be edited, copied, or processed further using our AI
           </AnimatePresence>
         </motion.div>
       )}
+
+      {/* Full Image Preview Modal */}
+      <AnimatePresence>
+        {showImagePreview && imagePreview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            onClick={() => setShowImagePreview(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img 
+                src={imagePreview} 
+                alt="Full preview" 
+                className="max-w-full max-h-[90vh] object-contain bg-black"
+              />
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white"
+                onClick={() => setShowImagePreview(false)}
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Usage Limit Modal */}
       <UsageLimitModal
