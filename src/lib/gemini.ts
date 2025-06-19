@@ -18,10 +18,14 @@ export interface GeminiResponse {
 export class GeminiService {
   private apiKey: string;
   private apiEndpoint: string;
+  private textApiEndpoint: string;
 
   constructor() {
     this.apiKey = 'AIzaSyAx88sgBb8hI5a8BPI85alXqiYzHL37nxY';
-    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent';
+    // Use the latest multimodal model for vision tasks
+    this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    // Use a separate endpoint for text-only tasks for clarity
+    this.textApiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
   }
 
   private async fileToBase64(file: File): Promise<string> {
@@ -84,7 +88,7 @@ export class GeminiService {
 
   async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`;
+      const url = `${this.textApiEndpoint}?key=${this.apiKey}`;
 
       const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
 
