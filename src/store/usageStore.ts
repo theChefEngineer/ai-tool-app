@@ -23,17 +23,17 @@ interface UsageState {
   getUsageStats: (operation?: string) => { current: number; limit: number };
 }
 
-const DAILY_LIMIT = 20;
+const DAILY_LIMIT = 10;
 const OPERATION_LIMITS: Record<string, number> = {
-  paraphrase: 20,
-  summary: 20,
-  translation: 20,
-  grammar: 20,
-  transcription: 20,
-  ocr: 20,
-  'content-detector': 20,
-  'ai-detection': 20,
-  default: 20
+  paraphrase: 10,
+  summary: 10,
+  translation: 10,
+  grammar: 10,
+  transcription: 10,
+  ocr: 10,
+  'content-detector': 10,
+  'ai-detection': 10,
+  default: 10
 };
 
 export const useUsageStore = create<UsageState>()(

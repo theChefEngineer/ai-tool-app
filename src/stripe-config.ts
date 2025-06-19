@@ -16,7 +16,7 @@ export const stripeProducts: StripeProduct[] = [
     name: 'ParaText Pro',
     description: 'Unlimited AI-powered writing tools with premium features',
     mode: 'subscription',
-    price: 500, // 5.00 EUR in cents
+    price: 899, // 8.99 EUR in cents
     currency: 'EUR',
     interval: 'month',
   },

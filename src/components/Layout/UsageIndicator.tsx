@@ -62,8 +62,8 @@ export default function UsageIndicator() {
   }
 
   const remaining = getRemainingOperations();
-  const usagePercentage = (dailyOperations / 20) * 100;
-  const isLowUsage = remaining <= 5;
+  const usagePercentage = (dailyOperations / 10) * 100;
+  const isLowUsage = remaining <= 3;
   const isNoUsage = remaining === 0;
 
   return (
@@ -110,7 +110,7 @@ export default function UsageIndicator() {
                 ? 'text-orange-600 dark:text-orange-400'
                 : 'text-blue-600 dark:text-blue-400'
             }`}>
-              {dailyOperations} / 20
+              {dailyOperations} / 10
             </span>
           </div>
           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2 mt-2">
@@ -145,7 +145,7 @@ export default function UsageIndicator() {
               </span>
             </div>
             <p className="text-xs text-red-600 dark:text-red-400 mb-2">
-              You've used all 20 operations for today. Upgrade to Premium for unlimited access.
+              You've used all 10 operations for today. Upgrade to Premium for unlimited access.
             </p>
             <motion.button
               whileHover={{ scale: 1.02 }}

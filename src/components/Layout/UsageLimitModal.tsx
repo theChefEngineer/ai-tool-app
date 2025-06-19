@@ -65,13 +65,13 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
                 <div className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
                   <Zap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                   <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
-                    20 / 20 operations used
+                    10 / 10 operations used
                   </span>
                 </div>
               </div>
               
               <p className="text-slate-600 dark:text-slate-300 mb-6">
-                You've reached your daily limit of 20 operations. Upgrade to Premium for unlimited access 
+                You've reached your daily limit of 10 operations. Upgrade to Premium for unlimited access 
                 to all AI-powered writing tools.
               </p>
 
@@ -116,7 +116,7 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
                 className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2"
               >
                 <Crown className="w-5 h-5" />
-                <span>Upgrade to Premium - €5.00/month</span>
+                <span>Upgrade to Premium - €8.99/month</span>
               </motion.button>
               
               <motion.button
