@@ -19,6 +19,8 @@ import {
 import { aiService } from '../../lib/aiService';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
+import { UsageChecker } from '../../lib/usageChecker';
+import UsageLimitModal from '../Layout/UsageLimitModal';
 
 interface PlagiarismResult {
   overallPercentage: number;
@@ -46,6 +48,7 @@ export default function PlagiarismInterface() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   const { t, isRTL } = useTranslation();
 
   const handleAnalyze = async () => {
@@ -59,49 +62,40 @@ export default function PlagiarismInterface() {
       return;
     }
 
+    // Check usage limit before processing
+    const canProceed = await UsageChecker.checkAndIncrementUsage('plagiarism');
+    if (!canProceed) {
+      setShowUsageLimitModal(true);
+      return;
+    }
+
     setIsAnalyzing(true);
+    setResult(null);
+
     try {
-      // Simulate plagiarism analysis with AI
-      const response = await aiService.checkGrammar(inputText); // Using existing service as base
+      const plagiarismData = await aiService.checkPlagiarism(inputText);
       
-      // Mock plagiarism result for demonstration
       const mockResult: PlagiarismResult = {
-        overallPercentage: Math.floor(Math.random() * 60) + 10,
-        status: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
-        sources: [
-          {
-            id: '1',
-            url: 'https://example.com/article1',
-            title: 'Academic Research on Similar Topics',
-            similarity: 23,
-            matchedText: inputText.substring(0, 100) + '...'
-          },
-          {
-            id: '2',
-            url: 'https://example.com/article2',
-            title: 'Published Paper in Journal',
-            similarity: 18,
-            matchedText: inputText.substring(50, 150) + '...'
-          },
-          {
-            id: '3',
-            url: 'https://example.com/article3',
-            title: 'Online Educational Resource',
-            similarity: 12,
-            matchedText: inputText.substring(100, 200) + '...'
-          }
-        ],
-        highlightedSegments: inputText.split(' ').map((word, index) => ({
+        overallPercentage: plagiarismData.overallPercentage || 0,
+        status: plagiarismData.overallPercentage > 50 ? 'high' : plagiarismData.overallPercentage > 20 ? 'medium' : 'low',
+        sources: plagiarismData.sources.map((source: any, index: number) => ({
+          id: `source-${index}`,
+          url: source.url,
+          title: source.title,
+          similarity: source.similarity,
+          matchedText: source.matchedText
+        })) || [],
+        highlightedText: inputText.split(' ').map((word) => ({
           text: word,
-          isPlagiarized: Math.random() > 0.8,
-          sourceId: Math.random() > 0.5 ? '1' : '2'
+          isPlagiarized: (plagiarismData.sources || []).some((s:any) => s.matchedText.includes(word)),
+          sourceId: (plagiarismData.sources || []).find((s:any) => s.matchedText.includes(word))?.url,
         })),
         recommendations: [
-          'Paraphrase highlighted sections using your own words',
-          'Add proper citations for referenced material',
-          'Include more original analysis and insights',
-          'Use quotation marks for direct quotes',
-          'Expand on unique perspectives and conclusions'
+          'Review the matched sources and add proper citations.',
+          'Paraphrase sections with high similarity to ensure originality.',
+          'Use quotation marks for any text taken directly from a source.',
+          'Add your own analysis and insights to build upon the source material.',
+          'Consider using a different structure or organization for your content.'
         ],
         wordCount: inputText.split(' ').length,
         uniqueWords: new Set(inputText.toLowerCase().split(' ')).size
@@ -110,7 +104,7 @@ export default function PlagiarismInterface() {
       setResult(mockResult);
       toast.success(t('messages.success.analyzed'));
     } catch (error: any) {
-      toast.error(error.message || 'Failed to analyze text');
+      toast.error(error.message || 'Failed to analyze text for plagiarism.');
     } finally {
       setIsAnalyzing(false);
     }
@@ -456,7 +450,7 @@ export default function PlagiarismInterface() {
               {t('plagiarism.contentAnalysisHighlighting')}
             </h3>
             <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl leading-relaxed">
-              {result.highlightedSegments.map((segment, index) => (
+              {result.highlightedText.map((segment, index) => (
                 <span
                   key={index}
                   className={`${
@@ -524,6 +518,13 @@ export default function PlagiarismInterface() {
           </p>
         </motion.div>
       )}
+
+      {/* Usage Limit Modal */}
+      <UsageLimitModal
+        isOpen={showUsageLimitModal}
+        onClose={() => setShowUsageLimitModal(false)}
+        onUpgrade={() => setShowUsageLimitModal(false)}
+      />
     </div>
   );
 }
