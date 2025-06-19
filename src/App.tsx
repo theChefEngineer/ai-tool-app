@@ -5,6 +5,7 @@ import SummaryInterface from './components/Summary/SummaryInterface';
 import TranslationInterface from './components/Translation/TranslationInterface';
 import GrammarInterface from './components/Grammar/GrammarInterface';
 import TranscriptionInterface from './components/Transcription/TranscriptionInterface';
+import OCRInterface from './components/OCR/OCRInterface';
 import SettingsInterface from './components/Settings/SettingsInterface';
 import HistoryInterface from './components/History/HistoryInterface';
 import ChatInterface from './components/Chat/ChatInterface';
@@ -67,6 +68,8 @@ function App() {
         return <GrammarInterface />;
       case 'transcription':
         return <TranscriptionInterface />;
+      case 'ocr':
+        return <OCRInterface />;
       case 'settings':
         return <SettingsInterface />;
       case 'history':

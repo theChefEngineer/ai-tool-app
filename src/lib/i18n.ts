@@ -16,6 +16,7 @@ export interface TranslationKeys {
     upgrade: string;
     grammar: string;
     transcription: string;
+    ocr: string;
   };
   
   // Common
@@ -214,6 +215,19 @@ export interface TranslationKeys {
     improvement: string;
     readyToHumanize: string;
     humanizeDescription: string;
+    detectAI: string;
+    humanWritten: string;
+    mixedContent: string;
+    aiGenerated: string;
+    unknown: string;
+    aiGeneratedContent: string;
+    humanLikeContent: string;
+    original: string;
+    humanized: string;
+    reason: string;
+    human: string;
+    humanLike: string;
+    emptyStateDescription: string;
   };
 
   // Plagiarism
@@ -237,6 +251,11 @@ export interface TranslationKeys {
     potentialMatch: string;
     humanLike: string;
     recommendationsImprovement: string;
+    placeholder: string;
+    match: string;
+    matchedText: string;
+    contentAnalysisHighlighting: string;
+    emptyStateDescription: string;
   };
 
   // Grammar
@@ -332,6 +351,72 @@ export interface TranslationKeys {
     aiPoweredExtraction: string;
     readyForTranscription: string;
     clickHumanize: string;
+    processedOn: string;
+  };
+
+  // OCR
+  ocr: {
+    title: string;
+    subtitle: string;
+    uploadImage: string;
+    dragDropText: string;
+    browseFiles: string;
+    supportedFormats: string;
+    maxFileSize: string;
+    processing: string;
+    extractingText: string;
+    extractionComplete: string;
+    extractedText: string;
+    processedResults: string;
+    words: string;
+    readingTime: string;
+    fileName: string;
+    fileSize: string;
+    tools: {
+      summarize: string;
+      paraphrase: string;
+      grammar: string;
+      aiDetection: string;
+      translation: string;
+    };
+    toolDescriptions: {
+      summarize: string;
+      paraphrase: string;
+      grammar: string;
+      aiDetection: string;
+      translation: string;
+    };
+    errors: {
+      unsupportedFile: string;
+      fileTooLarge: string;
+      uploadFailed: string;
+      processingFailed: string;
+      lowQualityImage: string;
+    };
+    emptyState: string;
+    noResults: string;
+    dropImage: string;
+    readyForExtraction: string;
+    extractedWithAI: string;
+    aiPoweredExtraction: string;
+    processingTools: string;
+    export: string;
+    sourceImage: string;
+    originalExtraction: string;
+    noProcessingResults: string;
+    useToolsAbove: string;
+    compression: string;
+    keyPoints: string;
+    mode: string;
+    readability: string;
+    improvements: string;
+    score: string;
+    errorsFixed: string;
+    aiProbability: string;
+    confidence: string;
+    status: string;
+    from: string;
+    to: string;
     processedOn: string;
   };
 
@@ -506,6 +591,26 @@ export interface TranslationKeys {
     freeOperationsReset: string;
   };
 
+  // Success
+  success: {
+    paymentSuccessful: string;
+    welcomeToParaTextPro: string;
+    processingSubscription: string;
+    youNowHaveAccess: string;
+    unlimitedParaphrasing: string;
+    advancedAiSummarization: string;
+    multiLanguageTranslation: string;
+    aiContentDetection: string;
+    textHumanization: string;
+    priorityProcessing: string;
+    exportCapabilities: string;
+    premiumSupport: string;
+    startUsingProFeatures: string;
+    goToDashboard: string;
+    needHelp: string;
+    supportEmail: string;
+  };
+
   // Errors and Messages
   messages: {
     error: {
@@ -538,6 +643,9 @@ export interface TranslationKeys {
       grammarChecked: string;
       correctionsApplied: string;
       transcriptionComplete: string;
+      analyzed: string;
+      humanized: string;
+      ocrComplete: string;
     };
   };
 

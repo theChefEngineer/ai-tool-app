@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot, BookCheck, FileText, X } from 'lucide-react';
+import { Home, History, Settings, BookOpen, Zap, Languages, MessageCircle, Shield, Bot, BookCheck, FileText, Image } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
 import { useTranslation } from '../../hooks/useTranslation';
 import UsageIndicator from './UsageIndicator';
@@ -47,6 +47,12 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
       active: currentView === 'transcription' 
     },
     { 
+      icon: Image, 
+      label: t('nav.ocr'), 
+      key: 'ocr' as const,
+      active: currentView === 'ocr' 
+    },
+    { 
       icon: Shield, 
       label: t('nav.plagiarism'), 
       key: 'plagiarism' as const,
@@ -89,6 +95,8 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
         return 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 dark:text-green-400 shadow-lg';
       case 'transcription':
         return 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-600 dark:text-purple-400 shadow-lg';
+      case 'ocr':
+        return 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-600 dark:text-amber-400 shadow-lg';
       case 'plagiarism':
         return 'bg-gradient-to-r from-red-500/20 to-orange-500/20 text-red-600 dark:text-red-400 shadow-lg';
       case 'content-detector':
@@ -106,7 +114,7 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
 
   const handleMenuItemClick = (key: string) => {
     if (key === 'paraphrase' || key === 'summary' || key === 'translation' || key === 'grammar' || 
-        key === 'transcription' || key === 'settings' || key === 'history' || key === 'chat' || 
+        key === 'transcription' || key === 'ocr' || key === 'settings' || key === 'history' || key === 'chat' || 
         key === 'plagiarism' || key === 'content-detector') {
       setCurrentView(key as any);
       if (isMobile) {
@@ -230,22 +238,6 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
             className={`fixed ${sidebarPosition} top-16 h-[calc(100vh-4rem)] w-64 glass-card border-r border-white/10 z-40 overflow-y-auto`}
           >
             <div className="p-6">
-              {/* Close button for mobile */}
-              {isMobile && (
-                <motion.div 
-                  variants={menuItemVariants}
-                  className="flex justify-end mb-4"
-                >
-                  <button
-                    onClick={onClose}
-                    className="p-2 glass-button rounded-full"
-                    aria-label="Close sidebar"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </motion.div>
-              )}
-
               {/* Usage Indicator */}
               <motion.div 
                 variants={menuItemVariants}

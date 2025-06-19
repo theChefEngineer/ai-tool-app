@@ -14,14 +14,27 @@ interface UsageState {
   dailyOperations: number;
   lastResetDate: string;
   isLoading: boolean;
-  canPerformOperation: () => boolean;
-  incrementUsage: () => Promise<boolean>;
+  operationCounts: Record<string, number>;
+  canPerformOperation: (operation?: string) => boolean;
+  incrementUsage: (operation?: string) => Promise<boolean>;
   resetDailyUsage: () => void;
   loadUsage: () => Promise<void>;
   getRemainingOperations: () => number;
+  getUsageStats: (operation?: string) => { current: number; limit: number };
 }
 
 const DAILY_LIMIT = 20;
+const OPERATION_LIMITS: Record<string, number> = {
+  paraphrase: 20,
+  summary: 20,
+  translation: 20,
+  grammar: 20,
+  transcription: 20,
+  ocr: 20,
+  'content-detector': 20,
+  'ai-detection': 20,
+  default: 20
+};
 
 export const useUsageStore = create<UsageState>()(
   persist(
@@ -29,9 +42,10 @@ export const useUsageStore = create<UsageState>()(
       dailyOperations: 0,
       lastResetDate: new Date().toISOString().split('T')[0],
       isLoading: false,
+      operationCounts: {},
 
-      canPerformOperation: () => {
-        const { dailyOperations, lastResetDate } = get();
+      canPerformOperation: (operation = 'default') => {
+        const { dailyOperations, lastResetDate, operationCounts } = get();
         const today = new Date().toISOString().split('T')[0];
         
         // Reset if it's a new day
@@ -40,10 +54,19 @@ export const useUsageStore = create<UsageState>()(
           return true;
         }
         
-        return dailyOperations < DAILY_LIMIT;
+        // Check overall limit
+        if (dailyOperations >= DAILY_LIMIT) {
+          return false;
+        }
+        
+        // Check operation-specific limit
+        const operationCount = operationCounts[operation] || 0;
+        const operationLimit = OPERATION_LIMITS[operation] || OPERATION_LIMITS.default;
+        
+        return operationCount < operationLimit;
       },
 
-      incrementUsage: async () => {
+      incrementUsage: async (operation = 'default') => {
         const { user } = useAuthStore.getState();
         if (!user) return false;
 
@@ -62,7 +85,7 @@ export const useUsageStore = create<UsageState>()(
           console.error('Error checking subscription:', error);
         }
 
-        const { canPerformOperation, dailyOperations, lastResetDate } = get();
+        const { canPerformOperation, dailyOperations, lastResetDate, operationCounts } = get();
         const today = new Date().toISOString().split('T')[0];
 
         // Reset if it's a new day
@@ -70,15 +93,20 @@ export const useUsageStore = create<UsageState>()(
           get().resetDailyUsage();
         }
 
-        if (!canPerformOperation()) {
+        if (!canPerformOperation(operation)) {
           return false;
         }
 
-        const newCount = dailyOperations + 1;
+        const newDailyCount = dailyOperations + 1;
+        const newOperationCount = (operationCounts[operation] || 0) + 1;
         
         set({
-          dailyOperations: newCount,
+          dailyOperations: newDailyCount,
           lastResetDate: today,
+          operationCounts: {
+            ...operationCounts,
+            [operation]: newOperationCount
+          }
         });
 
         // Save to database for persistence across devices
@@ -88,7 +116,7 @@ export const useUsageStore = create<UsageState>()(
             .upsert({
               user_id: user.id,
               date: today,
-              operations: newCount,
+              operations: newDailyCount,
               updated_at: new Date().toISOString(),
             }, {
               onConflict: 'user_id,date'
@@ -105,6 +133,7 @@ export const useUsageStore = create<UsageState>()(
         set({
           dailyOperations: 0,
           lastResetDate: today,
+          operationCounts: {}
         });
       },
 
@@ -155,12 +184,28 @@ export const useUsageStore = create<UsageState>()(
         
         return Math.max(0, DAILY_LIMIT - dailyOperations);
       },
+
+      getUsageStats: (operation = 'default') => {
+        const { operationCounts, lastResetDate } = get();
+        const today = new Date().toISOString().split('T')[0];
+        
+        // If it's a new day, return zero usage
+        if (lastResetDate !== today) {
+          return { current: 0, limit: OPERATION_LIMITS[operation] || OPERATION_LIMITS.default };
+        }
+        
+        const current = operationCounts[operation] || 0;
+        const limit = OPERATION_LIMITS[operation] || OPERATION_LIMITS.default;
+        
+        return { current, limit };
+      }
     }),
     {
       name: 'usage-storage',
       partialize: (state) => ({
         dailyOperations: state.dailyOperations,
         lastResetDate: state.lastResetDate,
+        operationCounts: state.operationCounts
       }),
     }
   )
