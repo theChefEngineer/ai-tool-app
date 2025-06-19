@@ -181,7 +181,7 @@ export const en: TranslationKeys = {
     humanizedVersion: 'Humanized Version',
     analyzing: 'Analyzing...',
     humanizing: 'Humanizing...',
-    humanizeButton: 'Humanize with R1',
+    humanizeButton: 'Humanize',
     aiDetectionResults: 'AI Detection Results',
     humanizationSettings: 'Humanization Settings',
     creativityLevel: 'Creativity Level',
