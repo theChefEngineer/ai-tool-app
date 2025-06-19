@@ -1,8 +1,8 @@
-// 1. Update your .env file (create if it doesn't exist)
-// .env
-VITE_GEMINI_API_KEY=AIzaSyCZVBP0Bj6ws2wn84GGaEpzZrcxeWv5kHQ
+export interface GeminiResponse {
+  result: string;
+  metadata?: any;
+}
 
-// 2. Updated gemini.ts with the API key
 export class GeminiService {
   private apiKey: string;
   private apiEndpoint: string;
@@ -97,7 +97,6 @@ export class GeminiService {
     }
   }
 
-  // Rest of your existing methods...
   async performOCR(file: File): Promise<{ text: string, confidence: number }> {
     if (!this.apiKey) {
       throw new Error('Gemini API key is not configured.');
@@ -162,7 +161,6 @@ export class GeminiService {
   }
 }
 
-// 3. Optional: Add API key validation service
 export class APIKeyValidator {
   static async validateGeminiKey(apiKey: string): Promise<boolean> {
     try {
