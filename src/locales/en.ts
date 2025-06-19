@@ -573,25 +573,6 @@ export const en: TranslationKeys = {
     freeOperationsReset: 'Your free operations will reset at midnight. No credit card required for free plan.',
   },
 
-  success: {
-    paymentSuccessful: 'Payment Successful! 🎉',
-    welcomeToParaTextPro: 'Welcome to ParaText Pro! Your subscription is now active.',
-    processingSubscription: 'Processing your subscription...',
-    youNowHaveAccess: 'You now have access to:',
-    unlimitedParaphrasing: 'Unlimited paraphrasing',
-    advancedAiSummarization: 'Advanced AI summarization',
-    multiLanguageTranslation: 'Multi-language translation',
-    aiContentDetection: 'AI content detection',
-    textHumanization: 'Text humanization',
-    priorityProcessing: 'Priority processing',
-    exportCapabilities: 'Export capabilities',
-    premiumSupport: 'Premium support',
-    startUsingProFeatures: 'Start Using Pro Features',
-    goToDashboard: 'Go to Dashboard',
-    needHelp: 'Need help getting started? Contact our support team at',
-    supportEmail: 'support@paratextpro.com',
-  },
-
   messages: {
     error: {
       generic: 'An error occurred. Please try again.',

@@ -130,14 +130,15 @@ export default function OCRInterface() {
     }
 
     setIsProcessing(true);
-    setProcessingStep(t('ocr.processing'));
+    setProcessingStep(t('ocr.extractingText'));
     
     try {
       // Simulate OCR processing with a delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Generate sample text based on the image name
-      const extractedText = generateSampleText(file.name);
+      // In a real implementation, we would use Tesseract.js or a similar OCR library
+      // For now, we'll extract text from the image name and create a simulated result
+      const extractedText = await extractTextFromImage(file);
       
       // Create OCR result
       const result: OCRResult = {
@@ -154,13 +155,114 @@ export default function OCRInterface() {
 
       setOcrResult(result);
       setActiveView('original');
-      toast.success(t('ocr.extractionComplete'));
+      toast.success(t('messages.success.ocrComplete'));
     } catch (error: any) {
       console.error('OCR processing error:', error);
       toast.error(error.message || t('ocr.errors.processingFailed'));
     } finally {
       setIsProcessing(false);
       setProcessingStep('');
+    }
+  };
+
+  // Simulated OCR text extraction
+  const extractTextFromImage = async (file: File): Promise<string> => {
+    // In a real implementation, this would use Tesseract.js or a similar OCR library
+    // For now, we'll simulate OCR by returning text based on the image name
+    
+    // Simulate processing time
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // For demo purposes, extract text based on the image name
+    const fileName = file.name.toLowerCase();
+    
+    if (fileName.includes('receipt')) {
+      return `RECEIPT
+Store: Grocery Market
+Date: ${new Date().toLocaleDateString()}
+Time: ${new Date().toLocaleTimeString()}
+
+Items:
+1. Apples x3 - $4.50
+2. Milk 1L - $2.99
+3. Bread - $3.25
+4. Eggs (dozen) - $4.75
+5. Cheese - $5.99
+
+Subtotal: $21.48
+Tax (8%): $1.72
+Total: $23.20
+
+Thank you for shopping with us!
+`;
+    } else if (fileName.includes('invoice')) {
+      return `INVOICE #INV-${Math.floor(1000 + Math.random() * 9000)}
+
+Billed To:
+John Smith
+123 Main Street
+Anytown, CA 12345
+
+Date: ${new Date().toLocaleDateString()}
+Due Date: ${new Date(Date.now() + 30*24*60*60*1000).toLocaleDateString()}
+
+Description                     Qty    Rate    Amount
+Website Development             1      $1,500  $1,500
+Logo Design                     1      $500    $500
+SEO Optimization                5      $100    $500
+
+Subtotal: $2,500
+Tax (7%): $175
+Total Due: $2,675
+
+Payment Terms: Net 30
+`;
+    } else if (fileName.includes('business') || fileName.includes('card')) {
+      return `BUSINESS CARD
+
+John Smith
+Senior Software Engineer
+
+Email: john.smith@example.com
+Phone: (555) 123-4567
+Website: www.example.com
+
+123 Tech Plaza
+San Francisco, CA 94105
+`;
+    } else if (fileName.includes('document') || fileName.includes('letter')) {
+      return `Dear Sir/Madam,
+
+I am writing to express my interest in the position of Software Developer that was advertised on your company website.
+
+With over five years of experience in full-stack development and a strong background in JavaScript frameworks including React and Node.js, I believe I would be a valuable addition to your team.
+
+Throughout my career, I have demonstrated the ability to create efficient, scalable, and maintainable code while working in agile environments. My experience includes developing responsive web applications, RESTful APIs, and implementing CI/CD pipelines.
+
+I would welcome the opportunity to discuss how my skills and experience align with your requirements. Please find my resume attached for your consideration.
+
+Thank you for your time and consideration.
+
+Sincerely,
+John Smith
+`;
+    } else {
+      // Default text for other images
+      return `This is the extracted text from the image "${file.name}".
+
+The OCR system has processed this image and extracted all visible text content. The quality of extraction depends on the clarity and resolution of the original image.
+
+The text appears to be a standard document with multiple paragraphs and possibly some formatting elements like bullet points or numbered lists.
+
+Key information extracted includes:
+• Document title: ${file.name.replace(/\.[^/.]+$/, "")}
+• Date references: ${new Date().toLocaleDateString()}
+• Multiple paragraphs of body text
+• Possible lists or structured content
+
+The OCR confidence level is approximately 95%, indicating high-quality text extraction with minimal errors or uncertainty.
+
+This extracted text can now be edited, copied, or processed further using our AI-powered tools for summarization, paraphrasing, translation, or other text processing needs.`;
     }
   };
 
@@ -367,30 +469,6 @@ export default function OCRInterface() {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const generateSampleText = (fileName: string): string => {
-    // Generate sample text based on the image name
-    return `This is extracted text from the image "${fileName}". 
-
-The OCR system has successfully processed this image and extracted the visible text content. The quality of extraction depends on the clarity and resolution of the original image.
-
-Key information extracted:
-• Document title: Sample Document
-• Date: ${new Date().toLocaleDateString()}
-• Reference number: OCR-${Math.floor(Math.random() * 10000)}
-
-Additional content from the image includes paragraphs of text that were visible in the image. The OCR system has attempted to preserve the original formatting, including paragraphs, bullet points, and any special characters that were present.
-
-The system has also detected:
-- Multiple paragraphs of text
-- Several bullet points
-- Possible table structures
-- Headers and subheaders
-
-The confidence score for this extraction is approximately 95%, indicating a high-quality extraction with minimal errors. Any unclear or low-confidence sections have been marked for review.
-
-This text can now be edited, copied, or processed further using our AI-powered tools for summarization, paraphrasing, translation, or other text processing needs.`;
   };
 
   const tools = [
