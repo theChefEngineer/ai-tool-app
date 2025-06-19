@@ -25,7 +25,6 @@ import {
   Search,
   ZoomIn
 } from 'lucide-react';
-import { createWorker, Worker } from 'tesseract.js';
 import { aiService } from '../../lib/aiService';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -69,23 +68,6 @@ export default function OCRInterface() {
   const { t, isRTL } = useTranslation();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const workerRef = useRef<Worker | null>(null);
-
-  const initWorker = async () => {
-    if (workerRef.current === null) {
-      const worker = await createWorker();
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      workerRef.current = worker;
-    }
-    return workerRef.current;
-  };
-
-  useEffect(() => {
-    return () => {
-      workerRef.current?.terminate();
-    };
-  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -158,32 +140,26 @@ export default function OCRInterface() {
     setProcessingStep(t('ocr.extractingText'));
     setProcessingProgress(0);
 
+    const progressInterval = setInterval(() => {
+      setProcessingProgress(prev => Math.min(prev + 5, 90));
+    }, 200);
+
     try {
-      const worker = await initWorker();
-      const imageUrl = URL.createObjectURL(file);
+      // @ts-ignore - Assuming aiService has performOCR method
+      const { text, confidence } = await aiService.performOCR(file);
 
-      const { data } = await worker.recognize(imageUrl, {
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setProcessingProgress(m.progress * 100);
-          }
-          setProcessingStep(m.status);
-        },
-      });
-
-      const extractedText = data.text;
-      const confidence = data.confidence;
-      URL.revokeObjectURL(imageUrl);
+      clearInterval(progressInterval);
+      setProcessingProgress(100);
 
       const result: OCRResult = {
-        originalText: extractedText,
-        wordCount: extractedText.split(/\s+/).filter(word => word.length > 0).length,
-        characterCount: extractedText.length,
-        readingTime: Math.ceil(extractedText.split(/\s+/).length / 200),
+        originalText: text,
+        wordCount: text.split(/\s+/).filter(Boolean).length,
+        characterCount: text.length,
+        readingTime: Math.ceil(text.split(/\s+/).filter(Boolean).length / 200),
         fileName: file.name,
         fileSize: formatFileSize(file.size),
         language: 'en',
-        confidence: Math.round(confidence),
+        confidence: confidence,
         imagePreview: imagePreview || undefined
       };
 
@@ -191,6 +167,7 @@ export default function OCRInterface() {
       setActiveView('original');
       toast.success(t('messages.success.ocrComplete'));
     } catch (error: any) {
+      clearInterval(progressInterval);
       console.error('OCR processing error:', error);
       toast.error(error.message || t('ocr.errors.processingFailed'));
     } finally {
@@ -233,7 +210,6 @@ export default function OCRInterface() {
             timestamp: new Date()
           };
           break;
-
         case 'paraphrase':
           const paraphraseResponse = await aiService.paraphrase({
             text: ocrResult.originalText,
@@ -251,7 +227,6 @@ export default function OCRInterface() {
             timestamp: new Date()
           };
           break;
-
         case 'grammar':
           const grammarResponse = await aiService.checkGrammarAdvanced(ocrResult.originalText);
           result = {
@@ -266,7 +241,6 @@ export default function OCRInterface() {
             timestamp: new Date()
           };
           break;
-
         case 'ai-detection':
           const aiDetectionResponse = await aiService.detectAI({
             text: ocrResult.originalText
@@ -284,7 +258,6 @@ export default function OCRInterface() {
             timestamp: new Date()
           };
           break;
-
         case 'translation':
           const targetLang = ocrResult.language === 'en' ? 'es' : 'en';
           const translationResponse = await aiService.translate({
@@ -305,7 +278,6 @@ export default function OCRInterface() {
             timestamp: new Date()
           };
           break;
-
         default:
           throw new Error('Unknown tool');
       }
