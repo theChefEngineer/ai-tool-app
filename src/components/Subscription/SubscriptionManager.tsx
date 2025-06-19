@@ -4,10 +4,12 @@ import { Crown, CreditCard, Calendar, AlertCircle, CheckCircle, Loader2 } from '
 import { StripeService, type SubscriptionData } from '../../lib/stripe';
 import { stripeProducts } from '../../stripe-config';
 import SubscriptionCard from './SubscriptionCard';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function SubscriptionManager() {
   const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     loadSubscription();
@@ -60,7 +62,7 @@ export default function SubscriptionManager() {
       <div className="flex items-center justify-center py-12">
         <div className="flex items-center space-x-3">
           <Loader2 className="w-6 h-6 animate-spin text-indigo-600 dark:text-indigo-400" />
-          <span className="text-lg text-slate-600 dark:text-slate-300">Loading subscription...</span>
+          <span className="text-lg text-slate-600 dark:text-slate-300">{t('common.loading')}...</span>
         </div>
       </div>
     );
@@ -78,7 +80,7 @@ export default function SubscriptionManager() {
           <div className="flex items-center space-x-2 mb-4">
             <Crown className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
-              Current Subscription
+              {t('subscription.currentSubscription')}
             </h2>
           </div>
 
@@ -90,7 +92,7 @@ export default function SubscriptionManager() {
                   className: `w-5 h-5 ${getStatusColor(subscription.subscription_status)}`
                 })}
                 <div>
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Status:</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400">{t('common.status')}:</span>
                   <span className={`ml-2 font-semibold capitalize ${getStatusColor(subscription.subscription_status)}`}>
                     {subscription.subscription_status.replace('_', ' ')}
                   </span>
@@ -101,7 +103,7 @@ export default function SubscriptionManager() {
                 <div className="flex items-center space-x-3">
                   <Calendar className="w-5 h-5 text-slate-500" />
                   <div>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Billing Period:</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400">{t('subscription.billing.nextBilling')}:</span>
                     <div className="text-sm text-slate-800 dark:text-white">
                       {StripeService.formatDate(subscription.current_period_start)} - {StripeService.formatDate(subscription.current_period_end)}
                     </div>
@@ -113,7 +115,7 @@ export default function SubscriptionManager() {
                 <div className="flex items-center space-x-3">
                   <CreditCard className="w-5 h-5 text-slate-500" />
                   <div>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">Payment Method:</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400">{t('subscription.paymentMethod')}:</span>
                     <span className="ml-2 text-sm text-slate-800 dark:text-white capitalize">
                       {subscription.payment_method_brand} •••• {subscription.payment_method_last4}
                     </span>
@@ -143,7 +145,7 @@ export default function SubscriptionManager() {
                       </div>
                     ) : (
                       <div className="text-sm text-slate-600 dark:text-slate-400">
-                        Plan details not available
+                        {t('subscription.planDetailsNotAvailable')}
                       </div>
                     );
                   })()}
@@ -155,7 +157,7 @@ export default function SubscriptionManager() {
                   <div className="flex items-center space-x-2">
                     <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                     <span className="text-sm text-orange-700 dark:text-orange-300 font-medium">
-                      Subscription will cancel at period end
+                      {t('subscription.subscriptionWillCancel')}
                     </span>
                   </div>
                 </div>
@@ -173,19 +175,19 @@ export default function SubscriptionManager() {
       >
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-slate-800 dark:text-white mb-4">
-            Choose Your Plan
+            {t('subscription.chooseYourPlan')}
           </h2>
           <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-            Unlock the full potential of AI-powered writing tools with our premium subscription
+            Unlock the full potential of AI-powered writing tools with our premium subscriptions
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-1 gap-8 max-w-md mx-auto">
+        <div className="grid md:grid-cols-3 gap-8">
           {stripeProducts.map((product, index) => (
             <SubscriptionCard
               key={product.id}
               product={product}
-              isPopular={index === 0}
+              isPopular={product.popular || false}
             />
           ))}
         </div>
@@ -199,13 +201,13 @@ export default function SubscriptionManager() {
         className="glass-card p-8 rounded-2xl"
       >
         <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-6 text-center">
-          What's Included
+          {t('subscription.whatsIncluded')}
         </h3>
 
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h4 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-              Core Features
+              {t('subscription.coreFeatures')}
             </h4>
             <ul className="space-y-3">
               {[
@@ -213,7 +215,7 @@ export default function SubscriptionManager() {
                 'Advanced AI summarization',
                 'Multi-language translation',
                 'AI content detection',
-                'Text humanization with DeepSeek R1',
+                'Text humanization with Gemini 2.5',
                 'Grammar and spell checking',
               ].map((feature, index) => (
                 <li key={index} className="flex items-center space-x-3">
@@ -226,7 +228,7 @@ export default function SubscriptionManager() {
 
           <div>
             <h4 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">
-              Premium Benefits
+              {t('subscription.premiumBenefits')}
             </h4>
             <ul className="space-y-3">
               {[

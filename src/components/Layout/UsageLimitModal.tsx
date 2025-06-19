@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Crown, X, Clock, Zap } from 'lucide-react';
 import { useAppStore } from '../../store/appStore';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface UsageLimitModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface UsageLimitModalProps {
 
 export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLimitModalProps) {
   const { setCurrentView } = useAppStore();
+  const { t } = useTranslation();
 
   const handleUpgrade = () => {
     onClose();
@@ -48,7 +50,7 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
                   <AlertTriangle className="w-6 h-6 text-white" />
                 </div>
                 <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                  Daily Limit Reached
+                  {t('usage.dailyLimitReachedTitle')}
                 </h2>
               </div>
               <button
@@ -65,21 +67,20 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
                 <div className="inline-flex items-center space-x-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
                   <Zap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                   <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
-                    10 / 10 operations used
+                    10 / 10 {t('usage.operationsUsed')}
                   </span>
                 </div>
               </div>
               
               <p className="text-slate-600 dark:text-slate-300 mb-6">
-                You've reached your daily limit of 10 operations. Upgrade to Premium for unlimited access 
-                to all AI-powered writing tools.
+                {t('usage.reachedDailyLimit').replace('20', '10')}
               </p>
 
               {/* Reset Time */}
               <div className="flex items-center justify-center space-x-2 mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
                 <Clock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <span className="text-sm text-blue-700 dark:text-blue-300">
-                  Your usage resets at midnight
+                  {t('usage.usageResetsAtMidnight')}
                 </span>
               </div>
             </div>
@@ -87,15 +88,15 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
             {/* Premium Benefits */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-4 text-center">
-                Premium Benefits
+                {t('usage.premiumBenefitsTitle')}
               </h3>
               <ul className="space-y-3">
                 {[
-                  'Unlimited daily operations',
-                  'Priority processing speed',
-                  'Advanced AI models',
-                  'Export capabilities',
-                  'Premium support',
+                  t('usage.unlimitedDailyOperations'),
+                  t('usage.priorityProcessingSpeed'),
+                  t('usage.advancedAiModels'),
+                  t('usage.exportCapabilities'),
+                  t('usage.premiumSupport'),
                 ].map((benefit, index) => (
                   <li key={index} className="flex items-center space-x-3">
                     <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
@@ -125,14 +126,14 @@ export default function UsageLimitModal({ isOpen, onClose, onUpgrade }: UsageLim
                 onClick={onClose}
                 className="w-full px-6 py-3 glass-button rounded-xl font-semibold"
               >
-                Continue with Free Plan
+                {t('usage.continueWithFreePlan')}
               </motion.button>
             </div>
 
             {/* Footer */}
             <div className="mt-6 text-center">
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Your free operations will reset at midnight. No credit card required for free plan.
+                {t('usage.freeOperationsReset')}
               </p>
             </div>
           </motion.div>

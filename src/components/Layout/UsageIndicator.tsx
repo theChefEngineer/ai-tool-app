@@ -4,12 +4,14 @@ import { Zap, Crown, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useUsageStore } from '../../store/usageStore';
 import { StripeService } from '../../lib/stripe';
 import { useAuthStore } from '../../store/authStore';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function UsageIndicator() {
   const { user } = useAuthStore();
   const { dailyOperations, getRemainingOperations, loadUsage } = useUsageStore();
   const [isPremium, setIsPremium] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (user) {
@@ -48,12 +50,12 @@ export default function UsageIndicator() {
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-sm font-semibold text-indigo-700 dark:text-indigo-300">
-                Premium Active
+                {t('usage.premiumActive')}
               </span>
               <CheckCircle className="w-4 h-4 text-green-500" />
             </div>
             <p className="text-xs text-indigo-600 dark:text-indigo-400">
-              Unlimited operations
+              {t('usage.unlimitedOperations')}
             </p>
           </div>
         </div>
@@ -101,7 +103,7 @@ export default function UsageIndicator() {
                 ? 'text-orange-700 dark:text-orange-300'
                 : 'text-blue-700 dark:text-blue-300'
             }`}>
-              Daily Usage
+              {t('usage.dailyUsage')}
             </span>
             <span className={`text-sm font-bold ${
               isNoUsage 
@@ -141,11 +143,11 @@ export default function UsageIndicator() {
             <div className="flex items-center space-x-2 mb-2">
               <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
               <span className="text-sm font-medium text-red-700 dark:text-red-300">
-                Daily limit reached
+                {t('usage.dailyLimit')}
               </span>
             </div>
             <p className="text-xs text-red-600 dark:text-red-400 mb-2">
-              You've used all 10 operations for today. Upgrade to Premium for unlimited access.
+              {t('usage.dailyLimitReached').replace('20', '10')}
             </p>
             <motion.button
               whileHover={{ scale: 1.02 }}
@@ -163,7 +165,7 @@ export default function UsageIndicator() {
               className="w-full px-3 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg text-xs font-semibold flex items-center justify-center space-x-1"
             >
               <Crown className="w-3 h-3" />
-              <span>Upgrade to Premium</span>
+              <span>Upgrade to Premium - €8.99/month</span>
             </motion.button>
           </motion.div>
         )}
@@ -178,11 +180,11 @@ export default function UsageIndicator() {
             <div className="flex items-center space-x-2 mb-1">
               <AlertTriangle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               <span className="text-sm font-medium text-orange-700 dark:text-orange-300">
-                {remaining} operations remaining
+                {remaining} {t('usage.operationsRemaining')}
               </span>
             </div>
             <p className="text-xs text-orange-600 dark:text-orange-400">
-              Consider upgrading to Premium for unlimited access.
+              {t('usage.upgradeForUnlimited')}
             </p>
           </motion.div>
         )}
@@ -195,7 +197,7 @@ export default function UsageIndicator() {
           ? 'text-orange-500 dark:text-orange-400'
           : 'text-blue-500 dark:text-blue-400'
       }`}>
-        Resets daily at midnight
+        {t('usage.resetsAtMidnight')}
       </p>
     </motion.div>
   );

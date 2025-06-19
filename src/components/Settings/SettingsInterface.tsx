@@ -32,6 +32,7 @@ import { DatabaseService, type UserProfile } from '../../lib/database';
 import { StripeService, type SubscriptionData } from '../../lib/stripe';
 import { stripeProducts } from '../../stripe-config';
 import SubscriptionManager from '../Subscription/SubscriptionManager';
+import PricingTiers from '../Subscription/PricingTiers';
 import LanguageSelector from './LanguageSelector';
 import toast from 'react-hot-toast';
 
@@ -70,6 +71,9 @@ export default function SettingsInterface() {
   });
   const [passwordErrors, setPasswordErrors] = useState<{[key: string]: string}>({});
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  // Show pricing tiers
+  const [showPricingTiers, setShowPricingTiers] = useState(false);
 
   // Load user profile and subscription on component mount
   useEffect(() => {
@@ -274,7 +278,7 @@ export default function SettingsInterface() {
 
   const getCurrentPlan = () => {
     if (!subscription || subscription.subscription_status !== 'active' || !subscription.price_id) {
-      return { name: t('subscription.freePlan'), description: '20 operations per day' };
+      return { name: t('subscription.freePlan'), description: '10 operations per day' };
     }
 
     const product = stripeProducts.find(p => p.priceId === subscription.price_id);
@@ -322,10 +326,10 @@ export default function SettingsInterface() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-600 to-slate-800 dark:from-slate-300 dark:to-slate-100 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-600 to-slate-800 dark:from-slate-300 dark:to-slate-100 bg-clip-text text-transparent mb-4 mobile-friendly-heading">
           {t('settings.title')}
         </h1>
-        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto mobile-friendly-text">
           {t('settings.subtitle')}
         </p>
       </motion.div>
@@ -338,11 +342,11 @@ export default function SettingsInterface() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="glass-card p-8 rounded-2xl"
+        className="glass-card p-8 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center space-x-2 mb-6">
           <User className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mobile-friendly-heading">
             {t('settings.profileInformation')}
           </h2>
         </div>
@@ -370,19 +374,19 @@ export default function SettingsInterface() {
               <div className="space-y-4">
                 {/* First Name */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
                     {t('settings.firstName')} *
                   </label>
                   <input
                     type="text"
                     value={profileData.firstName}
                     onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
-                    className={`w-full p-3 glass-input rounded-xl ${profileErrors.firstName ? 'border-red-500' : ''}`}
+                    className={`w-full p-3 glass-input rounded-xl mobile-friendly-text ${profileErrors.firstName ? 'border-red-500' : ''}`}
                     placeholder="Enter your first name"
                     disabled={isSavingProfile}
                   />
                   {profileErrors.firstName && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{profileErrors.firstName}</span>
                     </p>
@@ -391,19 +395,19 @@ export default function SettingsInterface() {
 
                 {/* Last Name */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
                     {t('settings.lastName')} *
                   </label>
                   <input
                     type="text"
                     value={profileData.lastName}
                     onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
-                    className={`w-full p-3 glass-input rounded-xl ${profileErrors.lastName ? 'border-red-500' : ''}`}
+                    className={`w-full p-3 glass-input rounded-xl mobile-friendly-text ${profileErrors.lastName ? 'border-red-500' : ''}`}
                     placeholder="Enter your last name"
                     disabled={isSavingProfile}
                   />
                   {profileErrors.lastName && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{profileErrors.lastName}</span>
                     </p>
@@ -412,19 +416,19 @@ export default function SettingsInterface() {
 
                 {/* Email */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
                     {t('settings.emailAddress')} *
                   </label>
                   <input
                     type="email"
                     value={profileData.email}
                     onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
-                    className={`w-full p-3 glass-input rounded-xl ${profileErrors.email ? 'border-red-500' : ''}`}
+                    className={`w-full p-3 glass-input rounded-xl mobile-friendly-text ${profileErrors.email ? 'border-red-500' : ''}`}
                     placeholder="Enter your email address"
                     disabled={isSavingProfile}
                   />
                   {profileErrors.email && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{profileErrors.email}</span>
                     </p>
@@ -438,7 +442,7 @@ export default function SettingsInterface() {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSaveProfile}
                     disabled={isSavingProfile}
-                    className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50"
+                    className="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 mobile-friendly-button"
                   >
                     {isSavingProfile ? (
                       <>
@@ -457,7 +461,7 @@ export default function SettingsInterface() {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleCancelProfileEdit}
                     disabled={isSavingProfile}
-                    className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50"
+                    className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50 mobile-friendly-button"
                   >
                     <X className="w-4 h-4" />
                     <span>{t('common.cancel')}</span>
@@ -467,14 +471,14 @@ export default function SettingsInterface() {
             ) : (
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-xl font-semibold text-slate-800 dark:text-white">
+                  <h3 className="text-xl font-semibold text-slate-800 dark:text-white mobile-friendly-heading">
                     {userProfile?.full_name || 'No name set'}
                   </h3>
-                  <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 mt-1">
+                  <div className="flex items-center space-x-2 text-slate-600 dark:text-slate-400 mt-1 mobile-friendly-text">
                     <Mail className="w-4 h-4" />
                     <span>{userProfile?.email || 'No email set'}</span>
                   </div>
-                  <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center space-x-4 mt-2 text-sm text-slate-500 dark:text-slate-400 mobile-friendly-text">
                     <span>{t('settings.firstName')}: {userProfile?.first_name || 'Not set'}</span>
                     <span>{t('settings.lastName')}: {userProfile?.last_name || 'Not set'}</span>
                   </div>
@@ -483,7 +487,7 @@ export default function SettingsInterface() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsEditingProfile(true)}
-                  className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2"
+                  className="px-6 py-2 glass-button rounded-xl flex items-center space-x-2 mobile-friendly-button"
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>{t('settings.editProfile')}</span>
@@ -499,11 +503,11 @@ export default function SettingsInterface() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="glass-card p-8 rounded-2xl"
+        className="glass-card p-8 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center space-x-2 mb-6">
           <Crown className="w-6 h-6 text-yellow-500" />
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mobile-friendly-heading">
             {t('settings.subscription')}
           </h2>
         </div>
@@ -522,17 +526,17 @@ export default function SettingsInterface() {
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mobile-friendly-heading">
                       {getCurrentPlan().name}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
                       {getCurrentPlan().description}
                     </p>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center justify-between text-sm mobile-friendly-text">
                     <span className="text-slate-600 dark:text-slate-400">{t('common.status')}</span>
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${
@@ -548,13 +552,13 @@ export default function SettingsInterface() {
                     </div>
                   </div>
                   {subscription?.subscription_status !== 'active' && (
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm mobile-friendly-text">
                       <span className="text-slate-600 dark:text-slate-400">Usage Today</span>
-                      <span className="text-slate-800 dark:text-white font-medium">15 / 20</span>
+                      <span className="text-slate-800 dark:text-white font-medium">5 / 10</span>
                     </div>
                   )}
                   {subscription?.current_period_end && subscription.subscription_status === 'active' && (
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm mobile-friendly-text">
                       <span className="text-slate-600 dark:text-slate-400">{t('subscription.billing.nextBilling')}</span>
                       <span className="text-slate-800 dark:text-white font-medium">
                         {StripeService.formatDate(subscription.current_period_end)}
@@ -564,23 +568,15 @@ export default function SettingsInterface() {
                 </div>
               </div>
 
-              {subscription?.subscription_status !== 'active' && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    // Scroll to subscription manager
-                    const element = document.getElementById('subscription-manager');
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2"
-                >
-                  <Crown className="w-5 h-5" />
-                  <span>{t('settings.upgradeToPro')}</span>
-                </motion.button>
-              )}
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowPricingTiers(!showPricingTiers)}
+                className="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 mobile-friendly-button"
+              >
+                <Crown className="w-5 h-5" />
+                <span>{showPricingTiers ? 'Hide Pricing Details' : 'View Pricing Details'}</span>
+              </motion.button>
             </div>
 
             {/* Pro Plan Preview */}
@@ -591,39 +587,47 @@ export default function SettingsInterface() {
                     <Crown className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">
-                      {t('subscription.proPlan')}
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white mobile-friendly-heading">
+                      {subscription?.subscription_status === 'active' ? 'Pro Plus Plan' : 'Pro Plan'}
                     </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      €5.00/month
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
+                      {subscription?.subscription_status === 'active' ? '€15.00/month' : '€8.99/month'}
                     </p>
                   </div>
                 </div>
                 
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.unlimitedOperations')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.priorityProcessing')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.advancedModels')}</span>
-                  </li>
-                  <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
-                    <span className="text-slate-700 dark:text-slate-300">{t('subscription.features.exportHistory')}</span>
-                  </li>
+                <ul className="space-y-2 text-sm mobile-friendly-text">
+                  {(subscription?.subscription_status === 'active' ? [
+                    t('subscription.features.unlimitedOperations'),
+                    'AI Content Humanizer',
+                    'Advanced OCR capabilities',
+                    'Highest quality AI models',
+                    'API access'
+                  ] : [
+                    t('subscription.features.unlimitedOperations'),
+                    t('subscription.features.priorityProcessing'),
+                    t('subscription.features.advancedModels'),
+                    t('subscription.features.exportHistory'),
+                    t('subscription.features.premiumSupport')
+                  ]).map((feature, index) => (
+                    <li key={index} className="flex items-center space-x-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-slate-700 dark:text-slate-300">{feature}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full px-6 py-2 glass-button rounded-xl flex items-center justify-center space-x-2"
+                className="w-full px-6 py-2 glass-button rounded-xl flex items-center justify-center space-x-2 mobile-friendly-button"
+                onClick={() => {
+                  const element = document.getElementById('subscription-manager');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
               >
                 <CreditCard className="w-4 h-4" />
                 <span>{t('settings.manageBilling')}</span>
@@ -633,16 +637,30 @@ export default function SettingsInterface() {
         )}
       </motion.div>
 
+      {/* Pricing Tiers Section (Collapsible) */}
+      <AnimatePresence>
+        {showPricingTiers && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            animate={{ opacity: 1, height: 'auto', overflow: 'visible' }}
+            exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+            transition={{ duration: 0.3 }}
+          >
+            <PricingTiers />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Appearance Settings */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="glass-card p-8 rounded-2xl"
+        className="glass-card p-8 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center space-x-2 mb-6">
           <Palette className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mobile-friendly-heading">
             {t('settings.appearance')}
           </h2>
         </div>
@@ -651,10 +669,10 @@ export default function SettingsInterface() {
           {/* Theme Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-1">
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-1 mobile-friendly-heading">
                 {t('settings.themePreference')}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
+              <p className="text-sm text-slate-600 dark:text-slate-400 mobile-friendly-text">
                 {t('settings.chooseTheme')}
               </p>
             </div>
@@ -692,7 +710,7 @@ export default function SettingsInterface() {
             }`}>
               <div className="flex items-center space-x-2 mb-3">
                 <Sun className="w-5 h-5 text-orange-500" />
-                <span className="font-medium text-slate-800">{t('settings.lightMode')}</span>
+                <span className="font-medium text-slate-800 mobile-friendly-text">{t('settings.lightMode')}</span>
               </div>
               <div className="space-y-2">
                 <div className="h-2 bg-slate-200 rounded"></div>
@@ -708,7 +726,7 @@ export default function SettingsInterface() {
             }`}>
               <div className="flex items-center space-x-2 mb-3">
                 <Moon className="w-5 h-5 text-indigo-400" />
-                <span className="font-medium text-white">{t('settings.darkMode')}</span>
+                <span className="font-medium text-white mobile-friendly-text">{t('settings.darkMode')}</span>
               </div>
               <div className="space-y-2">
                 <div className="h-2 bg-slate-600 rounded"></div>
@@ -725,11 +743,11 @@ export default function SettingsInterface() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="glass-card p-8 rounded-2xl"
+        className="glass-card p-8 rounded-2xl mobile-friendly-card"
       >
         <div className="flex items-center space-x-2 mb-6">
           <SettingsIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white mobile-friendly-heading">
             {t('settings.additionalSettings')}
           </h2>
         </div>
@@ -737,7 +755,7 @@ export default function SettingsInterface() {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Privacy & Security */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2 mobile-friendly-heading">
               <Shield className="w-5 h-5" />
               <span>{t('settings.privacySecurity')}</span>
             </h3>
@@ -747,11 +765,11 @@ export default function SettingsInterface() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsChangingPassword(true)}
-                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between"
+                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between mobile-friendly-button"
               >
                 <div className="flex items-center space-x-2">
                   <Lock className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">{t('settings.changePassword')}</span>
+                  <span className="text-slate-700 dark:text-slate-300 mobile-friendly-text">{t('settings.changePassword')}</span>
                 </div>
                 <Edit3 className="w-4 h-4 text-slate-500" />
               </motion.button>
@@ -759,13 +777,13 @@ export default function SettingsInterface() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between"
+                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between mobile-friendly-button"
               >
                 <div className="flex items-center space-x-2">
                   <Shield className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">{t('settings.twoFactorAuth')}</span>
+                  <span className="text-slate-700 dark:text-slate-300 mobile-friendly-text">{t('settings.twoFactorAuth')}</span>
                 </div>
-                <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+                <span className="text-xs px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full mobile-friendly-text">
                   {t('settings.comingSoon')}
                 </span>
               </motion.button>
@@ -774,7 +792,7 @@ export default function SettingsInterface() {
 
           {/* Data Management */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2">
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center space-x-2 mobile-friendly-heading">
               <Download className="w-5 h-5" />
               <span>{t('settings.dataManagement')}</span>
             </h3>
@@ -783,25 +801,25 @@ export default function SettingsInterface() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleExportData}
-                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between"
+                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between mobile-friendly-button"
               >
                 <div className="flex items-center space-x-2">
                   <Download className="w-4 h-4 text-slate-500" />
-                  <span className="text-slate-700 dark:text-slate-300">{t('settings.exportAllData')}</span>
+                  <span className="text-slate-700 dark:text-slate-300 mobile-friendly-text">{t('settings.exportAllData')}</span>
                 </div>
-                <span className="text-xs text-slate-500">JSON</span>
+                <span className="text-xs text-slate-500 mobile-friendly-text">JSON</span>
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleClearAllData}
-                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between text-red-600 dark:text-red-400"
+                className="w-full p-3 glass-button rounded-xl text-left flex items-center justify-between text-red-600 dark:text-red-400 mobile-friendly-button"
               >
                 <div className="flex items-center space-x-2">
                   <Trash2 className="w-4 h-4" />
-                  <span>{t('settings.clearAllData')}</span>
+                  <span className="mobile-friendly-text">{t('settings.clearAllData')}</span>
                 </div>
-                <span className="text-xs">{t('settings.permanent')}</span>
+                <span className="text-xs mobile-friendly-text">{t('settings.permanent')}</span>
               </motion.button>
             </div>
           </div>
@@ -837,7 +855,7 @@ export default function SettingsInterface() {
             >
               <div className="flex items-center space-x-2 mb-6">
                 <Lock className="w-6 h-6 text-slate-600 dark:text-slate-300" />
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                <h2 className="text-2xl font-bold text-slate-800 dark:text-white mobile-friendly-heading">
                   {t('settings.changePassword')}
                 </h2>
               </div>
@@ -845,15 +863,15 @@ export default function SettingsInterface() {
               <div className="space-y-4">
                 {/* Current Password */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Current Password *
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
+                    {t('settings.currentPassword')} *
                   </label>
                   <div className="relative">
                     <input
                       type={showPasswords.current ? 'text' : 'password'}
                       value={passwordData.currentPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                      className={`w-full p-3 pr-12 glass-input rounded-xl ${passwordErrors.currentPassword ? 'border-red-500' : ''}`}
+                      className={`w-full p-3 pr-12 glass-input rounded-xl mobile-friendly-text ${passwordErrors.currentPassword ? 'border-red-500' : ''}`}
                       placeholder="Enter your current password"
                       disabled={isUpdatingPassword}
                     />
@@ -866,7 +884,7 @@ export default function SettingsInterface() {
                     </button>
                   </div>
                   {passwordErrors.currentPassword && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{passwordErrors.currentPassword}</span>
                     </p>
@@ -875,15 +893,15 @@ export default function SettingsInterface() {
 
                 {/* New Password */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    New Password *
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
+                    {t('settings.newPassword')} *
                   </label>
                   <div className="relative">
                     <input
                       type={showPasswords.new ? 'text' : 'password'}
                       value={passwordData.newPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                      className={`w-full p-3 pr-12 glass-input rounded-xl ${passwordErrors.newPassword ? 'border-red-500' : ''}`}
+                      className={`w-full p-3 pr-12 glass-input rounded-xl mobile-friendly-text ${passwordErrors.newPassword ? 'border-red-500' : ''}`}
                       placeholder="Enter your new password"
                       disabled={isUpdatingPassword}
                     />
@@ -899,8 +917,8 @@ export default function SettingsInterface() {
                   {/* Password Strength Indicator */}
                   {passwordData.newPassword && (
                     <div className="mt-2">
-                      <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="text-slate-600 dark:text-slate-400">Password Strength</span>
+                      <div className="flex items-center justify-between text-xs mb-1 mobile-friendly-text">
+                        <span className="text-slate-600 dark:text-slate-400">{t('auth.passwordStrength')}</span>
                         <span className={`font-medium ${
                           getPasswordStrength(passwordData.newPassword) >= 4 ? 'text-green-600' : 
                           getPasswordStrength(passwordData.newPassword) >= 3 ? 'text-yellow-600' : 'text-red-600'
@@ -920,7 +938,7 @@ export default function SettingsInterface() {
                   )}
                   
                   {passwordErrors.newPassword && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{passwordErrors.newPassword}</span>
                     </p>
@@ -929,15 +947,15 @@ export default function SettingsInterface() {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                    Confirm New Password *
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2 mobile-friendly-text">
+                    {t('settings.confirmNewPassword')} *
                   </label>
                   <div className="relative">
                     <input
                       type={showPasswords.confirm ? 'text' : 'password'}
                       value={passwordData.confirmPassword}
                       onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                      className={`w-full p-3 pr-12 glass-input rounded-xl ${passwordErrors.confirmPassword ? 'border-red-500' : ''}`}
+                      className={`w-full p-3 pr-12 glass-input rounded-xl mobile-friendly-text ${passwordErrors.confirmPassword ? 'border-red-500' : ''}`}
                       placeholder="Confirm your new password"
                       disabled={isUpdatingPassword}
                     />
@@ -950,7 +968,7 @@ export default function SettingsInterface() {
                     </button>
                   </div>
                   {passwordErrors.confirmPassword && (
-                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1">
+                    <p className="mt-1 text-sm text-red-500 flex items-center space-x-1 mobile-friendly-text">
                       <AlertCircle className="w-4 h-4" />
                       <span>{passwordErrors.confirmPassword}</span>
                     </p>
@@ -960,25 +978,25 @@ export default function SettingsInterface() {
 
               {/* Password Requirements */}
               <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
-                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
-                  Password Requirements:
+                <h4 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 mobile-friendly-text">
+                  {t('grammar.passwordRequirements')}
                 </h4>
-                <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+                <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1 mobile-friendly-text">
                   <li className="flex items-center space-x-2">
                     <div className={`w-1.5 h-1.5 rounded-full ${passwordData.newPassword.length >= 8 ? 'bg-green-500' : 'bg-slate-400'}`}></div>
-                    <span>At least 8 characters long</span>
+                    <span>{t('grammar.atLeast8Characters')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(passwordData.newPassword) ? 'bg-green-500' : 'bg-slate-400'}`}></div>
-                    <span>Contains lowercase letter</span>
+                    <span>{t('grammar.containsLowercase')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(passwordData.newPassword) ? 'bg-green-500' : 'bg-slate-400'}`}></div>
-                    <span>Contains uppercase letter</span>
+                    <span>{t('grammar.containsUppercase')}</span>
                   </li>
                   <li className="flex items-center space-x-2">
                     <div className={`w-1.5 h-1.5 rounded-full ${/\d/.test(passwordData.newPassword) ? 'bg-green-500' : 'bg-slate-400'}`}></div>
-                    <span>Contains number</span>
+                    <span>{t('grammar.containsNumber')}</span>
                   </li>
                 </ul>
               </div>
@@ -990,7 +1008,7 @@ export default function SettingsInterface() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleCancelPasswordChange}
                   disabled={isUpdatingPassword}
-                  className="px-6 py-3 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50"
+                  className="px-6 py-3 glass-button rounded-xl flex items-center space-x-2 disabled:opacity-50 mobile-friendly-button"
                 >
                   <X className="w-4 h-4" />
                   <span>{t('common.cancel')}</span>
@@ -1000,7 +1018,7 @@ export default function SettingsInterface() {
                   whileTap={{ scale: 0.95 }}
                   onClick={handleChangePassword}
                   disabled={isUpdatingPassword}
-                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed mobile-friendly-button"
                 >
                   {isUpdatingPassword ? (
                     <>
@@ -1010,7 +1028,7 @@ export default function SettingsInterface() {
                       >
                         <Lock className="w-4 h-4" />
                       </motion.div>
-                      <span>Updating...</span>
+                      <span>{t('settings.updating')}</span>
                     </>
                   ) : (
                     <>
