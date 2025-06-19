@@ -69,7 +69,7 @@ export class GeminiService {
 
       const data = await response.json();
 
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
         throw new Error('Invalid response format from Gemini OCR API');
       }
 
@@ -119,7 +119,7 @@ export class GeminiService {
 
       const data = await response.json();
 
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
         throw new Error('Invalid response format from Gemini API');
       }
 
@@ -368,7 +368,7 @@ Respond with a JSON object containing:
 
       const data = await response.json();
 
-      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
         throw new Error('Invalid response format from Gemini API');
       }
 
