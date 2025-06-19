@@ -70,9 +70,8 @@ export default function TranslationComparison({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5 }}
-            className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full"
           >
-            <ArrowRight className="w-6 h-6 text-white" />
+            <ArrowRight className="w-6 h-6 text-blue-500" />
           </motion.div>
         </div>
 
