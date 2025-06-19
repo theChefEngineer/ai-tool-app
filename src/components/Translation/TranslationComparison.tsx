@@ -64,17 +64,7 @@ export default function TranslationComparison({
           </div>
         </div>
 
-        {/* Arrow */}
-        <div className="hidden lg:flex items-center justify-center">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.5 }}
-          >
-            <ArrowRight className="w-6 h-6 text-blue-500" />
-          </motion.div>
-        </div>
-
+       
         {/* Translated Text */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
