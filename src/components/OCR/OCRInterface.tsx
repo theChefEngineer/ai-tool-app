@@ -73,14 +73,7 @@ export default function OCRInterface() {
 
   const initWorker = async () => {
     if (workerRef.current === null) {
-      const worker = await createWorker({
-        logger: (m) => {
-          if (m.status === 'recognizing text') {
-            setProcessingProgress(m.progress * 100);
-          }
-          setProcessingStep(m.status);
-        },
-      });
+      const worker = await createWorker();
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
       workerRef.current = worker;
@@ -169,7 +162,14 @@ export default function OCRInterface() {
       const worker = await initWorker();
       const imageUrl = URL.createObjectURL(file);
 
-      const { data } = await worker.recognize(imageUrl);
+      const { data } = await worker.recognize(imageUrl, {
+        logger: (m) => {
+          if (m.status === 'recognizing text') {
+            setProcessingProgress(m.progress * 100);
+          }
+          setProcessingStep(m.status);
+        },
+      });
 
       const extractedText = data.text;
       const confidence = data.confidence;
