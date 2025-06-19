@@ -286,7 +286,7 @@ export class DeepseekService {
     - translatedText: the translated text
     - detectedLanguage: the detected source language (if auto-detect was used)
     - confidence: translation confidence score from 1-100
-    - alternatives: array of 2-3 alternative translations (if applicable)
+    - alternatives: array of 2-3 alternative translations as simple strings (not objects)
     
     Ensure the translation is accurate, natural, and culturally appropriate.`;
 
@@ -327,6 +327,22 @@ export class DeepseekService {
         throw new Error('Failed to parse JSON response from Deepseek API');
       }
 
+      // Normalize alternatives to ensure they are strings
+      let alternatives = result.alternatives || [];
+      if (Array.isArray(alternatives)) {
+        alternatives = alternatives.map((alt: any) => {
+          if (typeof alt === 'string') {
+            return alt;
+          } else if (typeof alt === 'object' && alt !== null) {
+            // Extract translation text from object
+            return alt.translation || alt.text || alt.value || String(alt);
+          }
+          return String(alt);
+        });
+      } else {
+        alternatives = [];
+      }
+
       return {
         originalText: request.text,
         translatedText: result.translatedText || 'No translation generated',
@@ -334,7 +350,7 @@ export class DeepseekService {
         targetLanguage: request.targetLanguage,
         detectedLanguage: result.detectedLanguage,
         confidence: result.confidence || 95,
-        alternatives: result.alternatives || [],
+        alternatives: alternatives,
       };
     } catch (error) {
       console.error('Error calling Deepseek API:', error);
