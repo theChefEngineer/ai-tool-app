@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Upload,
@@ -26,11 +26,11 @@ import {
   ZoomIn
 } from 'lucide-react';
 import { aiService } from '../../lib/aiService';
+import { geminiService } from '../../lib/gemini';
 import { UsageChecker } from '../../lib/usageChecker';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import UsageLimitModal from '../Layout/UsageLimitModal';
-import { createWorker } from 'tesseract.js';
 
 interface OCRResult {
   originalText: string;
@@ -69,34 +69,6 @@ export default function OCRInterface() {
   const { t, isRTL } = useTranslation();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const workerRef = useRef<any>(null);
-
-  // Initialize Tesseract worker
-  useEffect(() => {
-    const initWorker = async () => {
-      try {
-        if (!workerRef.current) {
-          workerRef.current = await createWorker();
-          await workerRef.current.load();
-          await workerRef.current.loadLanguage('eng');
-          await workerRef.current.initialize('eng');
-        }
-      } catch (error) {
-        console.error('Failed to initialize Tesseract worker:', error);
-        // Worker initialization failed, will fall back to AI service
-        workerRef.current = null;
-      }
-    };
-
-    initWorker();
-
-    // Cleanup worker on component unmount
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
-  }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -174,37 +146,25 @@ export default function OCRInterface() {
     }, 200);
 
     try {
-      let text = '';
-      let confidence = 0;
-
-      if (workerRef.current) {
-        // Use Tesseract.js for OCR
-        const result = await workerRef.current.recognize(file);
-        text = result.data.text;
-        confidence = result.data.confidence;
-      } else {
-        // Fallback to AI service if Tesseract worker isn't available
-        const result = await aiService.performOCR(file);
-        text = result.text;
-        confidence = result.confidence;
-      }
-
+      // Use Gemini API for OCR
+      const result = await geminiService.performOCR(file);
+      
       clearInterval(progressInterval);
       setProcessingProgress(100);
 
-      const result: OCRResult = {
-        originalText: text,
-        wordCount: text.split(/\s+/).filter(Boolean).length,
-        characterCount: text.length,
-        readingTime: Math.ceil(text.split(/\s+/).filter(Boolean).length / 200),
+      const extractedResult: OCRResult = {
+        originalText: result.text,
+        wordCount: result.text.split(/\s+/).filter(Boolean).length,
+        characterCount: result.text.length,
+        readingTime: Math.ceil(result.text.split(/\s+/).filter(Boolean).length / 200),
         fileName: file.name,
         fileSize: formatFileSize(file.size),
-        language: 'en',
-        confidence: confidence,
+        language: 'en', // Default to English
+        confidence: result.confidence,
         imagePreview: imagePreview || undefined
       };
 
-      setOcrResult(result);
+      setOcrResult(extractedResult);
       setActiveView('original');
       toast.success(t('messages.success.ocrComplete'));
     } catch (error: any) {
