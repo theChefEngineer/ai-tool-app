@@ -148,7 +148,17 @@ export default function GrammarComparison({
           </div>
         </div>
 
-         
+        {/* Arrow */}
+        <div className="hidden lg:flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.5 }}
+            className={`p-3 bg-gradient-to-r ${getScoreBg(overallScore)} rounded-full`}
+          >
+            <ArrowRight className="w-6 h-6 text-white" />
+          </motion.div>
+        </div>
 
         {/* Corrected Text */}
         <div className="space-y-4">

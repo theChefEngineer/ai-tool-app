@@ -443,49 +443,6 @@ Respond with a JSON object containing:
       improvements: result.improvements || [],
     };
   }
-
-  async analyzePlagiarism(submittedText: string, sourceText: string): Promise<any> {
-    const systemPrompt = `
-You are an expert academic integrity analyst. Your task is to compare a "Submitted Text" against a "Source Text" found on the web and identify potential plagiarism.
-
-**Instructions:**
-1.  Carefully read both the "Submitted Text" and the "Source Text".
-2.  Identify all sentences or phrases in the "Submitted Text" that are identical or highly similar to passages in the "Source Text".
-3.  For each match you find, calculate a "similarityScore" from 0 to 100, where 100 is a direct copy.
-4.  Provide a brief "explanation" for why the text was flagged (e.g., "Direct Match", "Minor Word Changes", "Similar Sentence Structure").
-5.  Based on all the matches, provide an "overallSimilarity" score for the entire document against this specific source.
-6.  Return the final analysis as a single, valid JSON object. Do not include any text or markdown formatting before or after the JSON.
-
-**Input:**
-
-**Submitted Text:**
-"""
-${submittedText}
-"""
-
-**Source Text:**
-"""
-${sourceText}
-"""
-
-**JSON Output Format:**
-{
-  "overallSimilarity": <number>,
-  "matchedSegments": [
-    {
-      "submittedTextSegment": "<The exact text from the user's document>",
-      "sourceTextSegment": "<The corresponding text from the source document>",
-      "similarityScore": <number>,
-      "explanation": "<Your explanation>"
-    }
-  ]
-}
-    `;
-
-    // Note: We pass an empty string for the main prompt as the system prompt contains all context.
-    const response = await this.callGeminiAPI("", systemPrompt);
-    return response.metadata; // Expecting a parsed JSON object
-  }
 }
 
 export const geminiService = new GeminiService();
