@@ -107,7 +107,7 @@ export class DeepseekService {
   private apiEndpoint: string;
 
   constructor() {
-    this.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || '';
+    this.apiKey = import.meta.env.VITE_DEEPSEEK_API_KEY || 'sk-76c5a8d2b4e74c9591e8553f9618f6cc';
     if (!this.apiKey) {
       console.warn('Deepseek API key not found in environment variables');
     }
