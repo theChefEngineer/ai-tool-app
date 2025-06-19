@@ -21,7 +21,10 @@ export class GeminiService {
   private textApiEndpoint: string;
 
   constructor() {
-    this.apiKey = 'AIzaSyAx88sgBb8hI5a8BPI85alXqiYzHL37nxY';
+    this.apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (!this.apiKey) {
+      console.warn('Gemini API key not found in environment variables');
+    }
     // Use the latest multimodal model for vision tasks
     this.apiEndpoint = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
     // Use a separate endpoint for text-only tasks for clarity
@@ -38,6 +41,10 @@ export class GeminiService {
   }
 
   async performOCR(file: File): Promise<{ text: string, confidence: number }> {
+    if (!this.apiKey) {
+      throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
+    }
+
     try {
       const base64Image = await this.fileToBase64(file);
       const url = `${this.apiEndpoint}?key=${this.apiKey}`;
@@ -87,6 +94,10 @@ export class GeminiService {
   }
 
   async callGeminiAPI(prompt: string, systemPrompt?: string): Promise<GeminiResponse> {
+    if (!this.apiKey) {
+      throw new Error('Gemini API key is not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
+    }
+
     try {
       const url = `${this.textApiEndpoint}?key=${this.apiKey}`;
 

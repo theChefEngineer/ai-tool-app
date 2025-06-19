@@ -3,11 +3,11 @@ import { geminiService } from './gemini';
 
 // This service acts as a facade to switch between different AI providers
 export class AIService {
-  private provider: 'deepseek' | 'gemini' = 'gemini'; // Default to Gemini
+  private provider: 'deepseek' | 'gemini' = 'deepseek'; // Default to Deepseek
 
   constructor() {
-    // Initialize with Gemini as the default provider
-    this.setProvider('gemini');
+    // Initialize with Deepseek as the default provider to avoid Gemini overload issues
+    this.setProvider('deepseek');
   }
 
   setProvider(provider: 'deepseek' | 'gemini') {
