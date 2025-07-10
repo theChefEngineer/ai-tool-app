@@ -19,19 +19,20 @@ export default function AuthModal() {
   const { signIn, signUp } = useAuthStore();
   const { t, isRTL } = useTranslation();
 
+  /**
+   * MODIFIED: This validation function is now less strict.
+   * It no longer checks for a specific email format or password length.
+   * It only ensures that the fields are not empty.
+   */
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
 
     if (!email.trim()) {
       newErrors.email = t('messages.error.required');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = t('messages.error.invalidEmail');
     }
 
     if (!password) {
       newErrors.password = t('messages.error.required');
-    } else if (password.length < 8) {
-      newErrors.password = t('messages.error.passwordTooShort');
     }
 
     if (!isLogin) {
@@ -67,7 +68,6 @@ export default function AuthModal() {
       const errorMessage = error.message || t('messages.error.authentication');
       toast.error(errorMessage);
       
-      // Set specific field errors based on error message
       if (errorMessage.includes('email')) {
         setErrors({ email: errorMessage });
       } else if (errorMessage.includes('password')) {
@@ -110,7 +110,6 @@ export default function AuthModal() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={`glass-card max-w-md w-full p-8 rounded-2xl ${isRTL ? 'rtl' : ''}`}
       >
-        {/* Header */}
         <div className="text-center mb-8">
           <motion.div
             initial={{ scale: 0 }}
@@ -130,21 +129,17 @@ export default function AuthModal() {
           </p>
         </div>
 
-        {/* Google Sign In */}
         <div className="mb-6">
           <GoogleAuthButton variant={isLogin ? 'signin' : 'signup'} />
         </div>
 
-        {/* Divider */}
         <div className="flex items-center my-6">
           <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
           <span className="px-4 text-sm text-slate-500 dark:text-slate-400">or</span>
           <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email Field */}
           <div className="relative">
             <Mail className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
             <input
@@ -173,7 +168,6 @@ export default function AuthModal() {
             )}
           </div>
 
-          {/* Password Field */}
           <div className="relative">
             <Lock className={`absolute ${isRTL ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400`} />
             <input
@@ -198,7 +192,6 @@ export default function AuthModal() {
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
             
-            {/* Password Strength Indicator */}
             {!isLogin && password && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
@@ -235,7 +228,6 @@ export default function AuthModal() {
             )}
           </div>
 
-          {/* Confirm Password Field (Sign Up Only) */}
           <AnimatePresence>
             {!isLogin && (
               <motion.div
@@ -267,7 +259,6 @@ export default function AuthModal() {
                   {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
                 
-                {/* Password Match Indicator */}
                 {confirmPassword && (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -302,7 +293,6 @@ export default function AuthModal() {
             )}
           </AnimatePresence>
 
-          {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -326,7 +316,6 @@ export default function AuthModal() {
           </motion.button>
         </form>
 
-        {/* Toggle */}
         <div className="text-center mt-6">
           <button
             onClick={() => {
@@ -344,7 +333,6 @@ export default function AuthModal() {
           </button>
         </div>
 
-        {/* Security Notice */}
         <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800/30">
           <div className="flex items-center space-x-2">
             <Lock className="w-4 h-4 text-blue-600 dark:text-blue-400" />
