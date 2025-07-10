@@ -19,18 +19,11 @@ import { useLanguageStore } from './store/languageStore';
 function App() {
   const { theme, currentView } = useAppStore();
   const { currentLanguage, isRTL } = useLanguageStore();
-  // Force user to be logged in by default
-  const { initialize } = useAuthStore();
 
   useEffect(() => {
     // Initialize theme on app load
     document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
-
-  useEffect(() => {
-    // Skip authentication
-    initialize(true);
-  }, [initialize]);
 
   useEffect(() => {
     // Apply language and RTL settings

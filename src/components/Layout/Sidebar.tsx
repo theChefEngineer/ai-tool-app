@@ -18,25 +18,25 @@ export default function Sidebar({ visible, isMobile, onClose }: SidebarProps) {
   const menuItems = [
     { 
       icon: Home, 
-     label: 'Paraphrase', 
+      label: t('nav.paraphrase'), 
       key: 'paraphrase' as const,
       active: currentView === 'paraphrase' 
     },
     { 
       icon: BookOpen, 
-     label: 'Summary', 
+      label: t('nav.summary'), 
       key: 'summary' as const,
       active: currentView === 'summary' 
     },
     { 
       icon: Languages, 
-     label: 'Translation', 
+      label: t('nav.translation'), 
       key: 'translation' as const,
       active: currentView === 'translation' 
     },
     { 
       icon: BookCheck, 
-     label: 'Grammar', 
+      label: t('nav.grammar'), 
       key: 'grammar' as const,
       active: currentView === 'grammar' 
     },
