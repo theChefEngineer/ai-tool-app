@@ -70,61 +70,7 @@ export const useUsageStore = create<UsageState>()(
         const { user } = useAuthStore.getState();
         if (!user) return false;
 
-        // Check if user has premium subscription
-        try {
-          const { data: subscription } = await supabase
-            .from('stripe_user_subscriptions')
-            .select('subscription_status')
-            .maybeSingle();
-
-          // If user has active subscription, allow unlimited usage
-          if (subscription?.subscription_status === 'active') {
-            return true;
-          }
-        } catch (error) {
-          console.error('Error checking subscription:', error);
-        }
-
-        const { canPerformOperation, dailyOperations, lastResetDate, operationCounts } = get();
-        const today = new Date().toISOString().split('T')[0];
-
-        // Reset if it's a new day
-        if (lastResetDate !== today) {
-          get().resetDailyUsage();
-        }
-
-        if (!canPerformOperation(operation)) {
-          return false;
-        }
-
-        const newDailyCount = dailyOperations + 1;
-        const newOperationCount = (operationCounts[operation] || 0) + 1;
-        
-        set({
-          dailyOperations: newDailyCount,
-          lastResetDate: today,
-          operationCounts: {
-            ...operationCounts,
-            [operation]: newOperationCount
-          }
-        });
-
-        // Save to database for persistence across devices
-        try {
-          await supabase
-            .from('user_usage')
-            .upsert({
-              user_id: user.id,
-              date: today,
-              operations: newDailyCount,
-              updated_at: new Date().toISOString(),
-            }, {
-              onConflict: 'user_id,date'
-            });
-        } catch (error) {
-          console.error('Error saving usage to database:', error);
-        }
-
+        // Unlimited usage for any user since authentication is bypassed.
         return true;
       },
 
