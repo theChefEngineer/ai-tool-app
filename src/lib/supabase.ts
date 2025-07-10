@@ -20,6 +20,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: true,
     flowType: 'pkce',
+    debug: import.meta.env.DEV,
     storage: {
       getItem: (key: string) => {
         try {
@@ -52,6 +53,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
           console.warn('Failed to remove auth data:', error);
         }
       },
+    },
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js-web',
+    },
+  },
+  db: {
+    schema: 'public',
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 2,
     },
   },
 });
