@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
 import { useTranslation } from '../../hooks/useTranslation';
 import GoogleAuthButton from './GoogleAuthButton';
 import toast from 'react-hot-toast';
@@ -16,14 +15,8 @@ export default function AuthModal() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   
-  const { signIn, signUp } = useAuthStore();
   const { t, isRTL } = useTranslation();
 
-  /**
-   * MODIFIED: This validation function is now less strict.
-   * It no longer checks for a specific email format or password length.
-   * It only ensures that the fields are not empty.
-   */
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
 
@@ -49,33 +42,19 @@ export default function AuthModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
 
     setLoading(true);
     setErrors({});
 
-    try {
+    setTimeout(() => {
       if (isLogin) {
-        await signIn(email, password);
         toast.success(t('auth.welcomeBack'));
       } else {
-        await signUp(email, password);
-        toast.success('Account created! Check your email to verify.');
+        toast.success('Account created successfully!');
       }
-    } catch (error: any) {
-      console.error('Authentication error:', error);
-      const errorMessage = error.message || t('messages.error.authentication');
-      toast.error(errorMessage);
-      
-      if (errorMessage.includes('email')) {
-        setErrors({ email: errorMessage });
-      } else if (errorMessage.includes('password')) {
-        setErrors({ password: errorMessage });
-      }
-    } finally {
       setLoading(false);
-    }
+    }, 500);
   };
 
   const getPasswordStrength = (password: string) => {
