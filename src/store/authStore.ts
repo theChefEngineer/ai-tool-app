@@ -9,14 +9,30 @@ interface AuthState {
   signUp: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  initialize: () => Promise<void>;
+  initialize: (skipAuth?: boolean) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   loading: true,
 
-  initialize: async () => {
+  initialize: async (skipAuth = false) => {
+    // If skipAuth is true, create a mock user and skip authentication
+    if (skipAuth) {
+      const mockUser: User = {
+        id: 'mock-user-id',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+        email: 'demo@lexiq.ai',
+        role: 'authenticated',
+        identities: []
+      };
+      set({ user: mockUser, loading: false });
+      return;
+    }
+    
     try {
       // Clear any invalid tokens from localStorage
       const invalidTokens = ['sb-access-token', 'sb-refresh-token'];

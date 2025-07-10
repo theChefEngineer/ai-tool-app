@@ -13,14 +13,14 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { initialize, user } = useAuthStore();
+  const { user } = useAuthStore();
   const theme = useAppStore(state => state.theme);
   const { isRTL } = useTranslation();
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarVisible, setSidebarVisible] = useState(true);
 
   useEffect(() => {
-    initialize();
+    // Authentication initialization removed
   }, [initialize]);
 
   useEffect(() => {

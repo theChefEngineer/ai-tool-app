@@ -121,7 +121,7 @@ export default function Header({ toggleSidebar, sidebarVisible }: HeaderProps) {
                   variants={buttonVariants}
                   onClick={signOut}
                   className="hidden md:flex p-2 rounded-xl glass-button text-red-500 hover:text-red-400"
-                >
+             LexIQ
                   <LogOut className="w-5 h-5" />
                 </motion.button>
               </>
