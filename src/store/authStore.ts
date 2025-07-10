@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import type { User } from '@supabase/supabase-js';
 
-// Define a mock user object.
 const mockUser: User = {
   id: 'mock-user-id',
   app_metadata: {
@@ -30,27 +29,25 @@ export const useAuthStore = create<AuthState>((set) => ({
   loading: true,
 
   initialize: async () => {
-    // Set the mock user and mark loading as complete.
     set({ user: mockUser, loading: false });
   },
 
   signIn: async (email: string, password: string) => {
-    // Simulate a successful sign-in.
     console.log(`Bypassing login for email: ${email}`);
     set({ user: mockUser, loading: false });
   },
 
   signUp: async (email: string, password: string) => {
-    // Simulate a successful sign-up.
     console.log(`Bypassing signup for email: ${email}`);
     set({ user: mockUser, loading: false });
   },
 
   signOut: async () => {
-    // Do nothing on sign out.
     console.log('Sign out called, but authentication is bypassed.');
   },
 
   signInWithGoogle: async () => {
-    // Simulate a successful Google sign-in.
-    console
+    console.log('Bypassing Google sign-in.');
+    set({ user: mockUser, loading: false });
+  },
+}));
