@@ -70,7 +70,43 @@ export const useUsageStore = create<UsageState>()(
         const { user } = useAuthStore.getState();
         if (!user) return false;
 
-        // Unlimited usage for any user since authentication is bypassed.
+        const state = get();
+        const today = new Date().toISOString().split('T')[0];
+
+        if (state.lastResetDate !== today) {
+          get().resetDailyUsage();
+        }
+
+        const newOperationCounts = {
+          ...state.operationCounts,
+          [operation]: (state.operationCounts[operation] || 0) + 1
+        };
+
+        const newDailyOperations = state.dailyOperations + 1;
+
+        set({
+          dailyOperations: newDailyOperations,
+          operationCounts: newOperationCounts
+        });
+
+        try {
+          const { error } = await supabase
+            .from('user_usage')
+            .upsert({
+              user_id: user.id,
+              date: today,
+              operations: newDailyOperations
+            }, {
+              onConflict: 'user_id,date'
+            });
+
+          if (error) {
+            console.error('Error tracking usage:', error);
+          }
+        } catch (error) {
+          console.error('Error saving usage:', error);
+        }
+
         return true;
       },
 

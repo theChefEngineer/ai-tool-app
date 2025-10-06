@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, Copy, Check, RotateCcw, Wand2, Download, FileText, FileIcon } from 'lucide-react';
+import { Send, Loader2, Copy, Check, RotateCcw, Wand2, Download, FileText, File as FileIcon } from 'lucide-react';
 import { useAppStore, type ParaphraseMode } from '../../store/appStore';
 import { aiService } from '../../lib/aiService';
-import { UsageChecker } from '../../lib/usageChecker';
+import { useFeatureAccess } from '../../hooks/useFeatureAccess';
 import { useTranslation } from '../../hooks/useTranslation';
 import toast from 'react-hot-toast';
 import ModeSelector from './ModeSelector';
 import TextComparison from './TextComparison';
-import UsageLimitModal from '../Layout/UsageLimitModal';
+import UpgradePrompt from '../Common/UpgradePrompt';
 import ExportMenu from './ExportMenu';
 
 export default function ParaphraseInterface() {
   const [inputText, setInputText] = useState('');
   const [result, setResult] = useState<any>(null);
   const [copied, setCopied] = useState(false);
-  const [showUsageLimitModal, setShowUsageLimitModal] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
-  
+
   const { currentMode, isProcessing, setProcessing, addToHistory } = useAppStore();
   const { t, isRTL } = useTranslation();
+  const { performOperation, showUpgradePrompt, upgradeReason, upgradeFeature, closeUpgradePrompt } = useFeatureAccess();
 
   const handleParaphrase = async () => {
     if (!inputText.trim()) {
@@ -27,10 +27,8 @@ export default function ParaphraseInterface() {
       return;
     }
 
-    // Check usage limit before processing
-    const canProceed = await UsageChecker.checkAndIncrementUsage('paraphrase');
-    if (!canProceed) {
-      setShowUsageLimitModal(true);
+    const hasAccess = await performOperation('paraphrase');
+    if (!hasAccess) {
       return;
     }
 
@@ -40,7 +38,7 @@ export default function ParaphraseInterface() {
         text: inputText,
         mode: currentMode,
       });
-      
+
       setResult(response);
       addToHistory(response);
       toast.success(t('messages.success.paraphrased'));
@@ -249,11 +247,12 @@ export default function ParaphraseInterface() {
         />
       )}
 
-      {/* Usage Limit Modal */}
-      <UsageLimitModal
-        isOpen={showUsageLimitModal}
-        onClose={() => setShowUsageLimitModal(false)}
-        onUpgrade={() => setShowUsageLimitModal(false)}
+      {/* Upgrade Prompt */}
+      <UpgradePrompt
+        isOpen={showUpgradePrompt}
+        onClose={closeUpgradePrompt}
+        feature={upgradeFeature}
+        reason={upgradeReason}
       />
     </div>
   );

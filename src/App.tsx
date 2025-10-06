@@ -18,17 +18,28 @@ import AuthModal from './components/Auth/AuthModal';
 import { useAppStore } from './store/appStore';
 import { useLanguageStore } from './store/languageStore';
 import { useAuthStore } from './store/authStore';
+import { useSubscriptionStore } from './store/subscriptionStore';
+import { useUsageStore } from './store/usageStore';
 
 function App() {
   const { theme, currentView } = useAppStore();
   const { currentLanguage, isRTL } = useLanguageStore();
   const { user, initialize } = useAuthStore();
+  const { fetchSubscription } = useSubscriptionStore();
+  const { loadUsage } = useUsageStore();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     initialize().then(() => setIsInitialized(true));
   }, [initialize]);
+
+  useEffect(() => {
+    if (user) {
+      fetchSubscription();
+      loadUsage();
+    }
+  }, [user, fetchSubscription, loadUsage]);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
