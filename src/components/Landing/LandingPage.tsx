@@ -84,52 +84,58 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   const pricingPlans = [
     {
-      name: 'Starter',
-      price: '9.99',
+      name: 'Free',
+      price: '0',
       period: 'month',
-      description: 'Perfect for individuals getting started',
+      description: 'Get started with essential AI writing tools',
       features: [
-        '10,000 words per month',
-        'All AI writing tools',
-        'Basic support',
-        'Export to PDF & DOCX',
-        '5 languages'
+        '10 operations per day',
+        'All 8 core features',
+        'AI Paraphrasing',
+        'Text Summarization',
+        'Translation (100+ languages)',
+        'Grammar Checking',
+        'Export to PDF & DOCX'
       ],
       popular: false,
       gradient: 'from-gray-500 to-gray-600'
     },
     {
-      name: 'Professional',
-      price: '24.99',
+      name: 'Pro',
+      price: '14.99',
       period: 'month',
-      description: 'Ideal for professionals and content creators',
+      description: 'Unlimited operations with all premium features',
       features: [
-        '50,000 words per month',
-        'All AI writing tools',
-        'Priority support',
-        'Export to all formats',
-        'All languages',
-        'Advanced AI models',
-        'Plagiarism checking'
+        'UNLIMITED operations',
+        'No daily limits',
+        'All paraphrasing modes',
+        'Advanced summarization',
+        'Multi-language translation',
+        'Advanced grammar checking',
+        'OCR & Document processing',
+        'AI Content Detection',
+        'Plagiarism checking',
+        'Priority support'
       ],
       popular: true,
       gradient: 'from-blue-500 to-cyan-600'
     },
     {
       name: 'Enterprise',
-      price: '99.99',
+      price: '29.99',
       period: 'month',
-      description: 'For teams and businesses',
+      description: 'Advanced features for power users and teams',
       features: [
-        'Unlimited words',
-        'All AI writing tools',
-        '24/7 premium support',
-        'Export to all formats',
-        'All languages',
-        'Advanced AI models',
-        'Plagiarism checking',
+        'Everything in Pro',
+        'Priority AI processing',
+        'AI Content Humanizer',
+        'Usage analytics',
+        'Batch processing',
         'Team collaboration',
-        'API access'
+        'API access',
+        'Custom AI tuning',
+        'Dedicated support',
+        'Early access to features'
       ],
       popular: false,
       gradient: 'from-purple-500 to-pink-600'

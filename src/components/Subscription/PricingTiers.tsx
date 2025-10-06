@@ -42,83 +42,101 @@ export default function PricingTiers() {
   ];
 
   const featureComparison = [
-    { 
-      name: 'Daily Operations', 
-      free: '10 operations', 
-      pro: 'Unlimited', 
-      proPlus: 'Unlimited' 
+    {
+      name: 'Daily Operations',
+      free: '10 per day',
+      pro: 'Unlimited',
+      proPlus: 'Unlimited'
     },
-    { 
-      name: 'Paraphrasing', 
-      free: 'Basic mode only', 
-      pro: 'All 5 modes', 
-      proPlus: 'All 5 modes + enhanced' 
+    {
+      name: 'Paraphrasing',
+      free: 'All 5 modes',
+      pro: 'All 5 modes',
+      proPlus: 'All 5 modes + enhanced'
     },
-    { 
-      name: 'Summarization', 
-      free: 'Basic mode only', 
-      pro: 'All 5 modes', 
-      proPlus: 'All 5 modes + enhanced' 
+    {
+      name: 'Summarization',
+      free: 'All 5 modes',
+      pro: 'All 5 modes',
+      proPlus: 'All 5 modes + enhanced'
     },
-    { 
-      name: 'Translation', 
-      free: 'Limited languages', 
-      pro: '40+ languages', 
-      proPlus: '100+ languages' 
+    {
+      name: 'Translation',
+      free: '100+ languages',
+      pro: '100+ languages',
+      proPlus: '100+ languages'
     },
-    { 
-      name: 'Grammar Checking', 
-      free: 'Basic', 
-      pro: 'Advanced', 
-      proPlus: 'Professional' 
+    {
+      name: 'Grammar Checking',
+      free: 'Yes',
+      pro: 'Advanced',
+      proPlus: 'Professional'
     },
-    { 
-      name: 'Document Transcription', 
-      free: 'Limited (5 pages/day)', 
-      pro: 'Full access', 
-      proPlus: 'Enhanced accuracy' 
+    {
+      name: 'Document Processing',
+      free: 'Yes',
+      pro: 'Full access',
+      proPlus: 'Enhanced accuracy'
     },
-    { 
-      name: 'Image OCR', 
-      free: 'No', 
-      pro: 'Yes', 
-      proPlus: 'Advanced OCR' 
+    {
+      name: 'Image OCR',
+      free: 'Yes',
+      pro: 'Yes',
+      proPlus: 'Advanced OCR'
     },
-    { 
-      name: 'AI Content Detection', 
-      free: 'No', 
-      pro: 'Yes', 
-      proPlus: 'Yes' 
+    {
+      name: 'AI Content Detection',
+      free: 'Yes',
+      pro: 'Yes',
+      proPlus: 'Yes'
     },
-    { 
-      name: 'AI Content Humanizer', 
-      free: 'No', 
-      pro: 'No', 
-      proPlus: 'Yes' 
+    {
+      name: 'Plagiarism Detection',
+      free: 'Yes',
+      pro: 'Yes',
+      proPlus: 'Yes'
     },
-    { 
-      name: 'AI Model Quality', 
-      free: 'Standard', 
-      pro: 'Premium', 
-      proPlus: 'Highest quality' 
+    {
+      name: 'AI Content Humanizer',
+      free: 'No',
+      pro: 'No',
+      proPlus: 'Yes'
     },
-    { 
-      name: 'Export Capabilities', 
-      free: 'No', 
-      pro: 'Yes', 
-      proPlus: 'Advanced formats' 
+    {
+      name: 'Chat Assistant',
+      free: 'Yes',
+      pro: 'Yes',
+      proPlus: 'Priority processing'
     },
-    { 
-      name: 'API Access', 
-      free: 'No', 
-      pro: 'No', 
-      proPlus: 'Yes' 
+    {
+      name: 'Export Capabilities',
+      free: 'Yes',
+      pro: 'Yes',
+      proPlus: 'Advanced formats'
     },
-    { 
-      name: 'Support', 
-      free: 'Community', 
-      pro: 'Priority', 
-      proPlus: 'Dedicated' 
+    {
+      name: 'Batch Processing',
+      free: 'No',
+      pro: 'No',
+      proPlus: 'Yes'
+    },
+    {
+      name: 'API Access',
+      free: 'No',
+      pro: 'No',
+      proPlus: 'Yes'
+    },
+    {
+      name: 'Team Collaboration',
+      free: 'No',
+      pro: 'No',
+      proPlus: 'Yes'
+    },
+    {
+      name: 'Support',
+      free: 'Basic',
+      pro: 'Priority',
+      proPlus: 'Dedicated'
     }
   ];
 
@@ -236,7 +254,7 @@ export default function PricingTiers() {
               <th className="text-left py-4 px-4 font-semibold text-slate-800 dark:text-white">Feature</th>
               <th className="text-center py-4 px-4 font-semibold text-slate-800 dark:text-white">Free</th>
               <th className="text-center py-4 px-4 font-semibold text-slate-800 dark:text-white">Pro</th>
-              <th className="text-center py-4 px-4 font-semibold text-slate-800 dark:text-white">Pro Plus</th>
+              <th className="text-center py-4 px-4 font-semibold text-slate-800 dark:text-white">Enterprise</th>
             </tr>
           </thead>
           <tbody>

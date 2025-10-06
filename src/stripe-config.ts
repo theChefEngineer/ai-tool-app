@@ -18,39 +18,46 @@ export const stripeProducts: StripeProduct[] = [
     id: 'prod_free',
     priceId: 'price_free',
     name: 'Free',
-    description: 'Basic AI-powered writing tools',
+    description: 'Get started with essential AI writing tools',
     mode: 'subscription',
     price: 0,
     currency: 'EUR',
     interval: 'month',
     features: [
       '10 operations per day',
-      'Basic paraphrasing',
-      'Basic summarization',
-      'Standard translation',
-      'Limited grammar checking',
-      'Basic document transcription'
+      'All 8 core features access',
+      'AI Paraphrasing (5 modes)',
+      'Text Summarization (5 modes)',
+      'Multi-language Translation',
+      'Grammar Checking',
+      'Document OCR',
+      'AI Content Detection',
+      'Export to PDF & DOCX',
+      'Basic support'
     ]
   },
   {
     id: 'prod_SVIhB2E1arLwLY',
     priceId: 'price_1RaI60QuiDoWEii08tD5PN6o',
     name: 'Pro',
-    description: 'Unlimited AI-powered writing tools with premium features',
+    description: 'Unlimited operations with all premium features',
     mode: 'subscription',
-    price: 899, // 8.99 EUR in cents
+    price: 1499, // 14.99 EUR in cents
     currency: 'EUR',
     interval: 'month',
     popular: true,
     features: [
-      'Unlimited operations',
+      'UNLIMITED operations',
+      'No daily limits',
       'All paraphrasing modes',
-      'Advanced summarization',
-      'Multi-language translation',
-      'Advanced grammar checking',
-      'Document transcription',
+      'Advanced summarization (5 modes)',
+      'Multi-language translation (100+ languages)',
+      'Advanced grammar & style checking',
+      'Document transcription (PDF, DOC, DOCX)',
       'Image OCR extraction',
-      'Standard plagiarism detection',
+      'AI Content Detection',
+      'Plagiarism detection',
+      'Chat Assistant',
       'Export capabilities',
       'Priority support'
     ]
@@ -58,22 +65,23 @@ export const stripeProducts: StripeProduct[] = [
   {
     id: 'prod_proplus',
     priceId: 'price_proplus',
-    name: 'Pro Plus',
-    description: 'Enterprise-grade AI tools with advanced features',
+    name: 'Enterprise',
+    description: 'Advanced features for power users and teams',
     mode: 'subscription',
-    price: 1500, // 15.00 EUR in cents
+    price: 2999, // 29.99 EUR in cents
     currency: 'EUR',
     interval: 'month',
     features: [
       'Everything in Pro plan',
-      'AI Content Humanizer',
-      'Advanced OCR capabilities',
-      'Highest quality AI models',
-      'Batch processing',
-      'API access',
-      'Team collaboration',
-      'Custom branding',
-      'Dedicated support',
+      'Priority AI processing (faster responses)',
+      'Advanced AI Content Humanizer',
+      'Usage analytics & insights',
+      'Batch processing (multiple docs)',
+      'Team collaboration features',
+      'Custom AI model tuning',
+      'API access for integration',
+      'Higher rate limits',
+      'Dedicated support channel',
       'Early access to new features'
     ]
   }
