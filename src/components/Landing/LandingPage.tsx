@@ -10,7 +10,6 @@ import {
   MessageSquare,
   Shield,
   ArrowRight,
-  Star,
   TrendingUp,
   Globe,
   Brain,
@@ -76,28 +75,13 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
     }
   ];
 
-  const testimonials = [
-    {
-      name: 'Sarah Johnson',
-      role: 'Content Writer',
-      avatar: '👩‍💼',
-      rating: 5,
-      text: 'ParaText Pro has transformed my writing workflow. The AI paraphrasing is incredibly natural, and the grammar checker catches things I miss.'
-    },
-    {
-      name: 'Michael Chen',
-      role: 'Academic Researcher',
-      avatar: '👨‍🎓',
-      rating: 5,
-      text: 'The summarization and translation features are game-changers for my research. I can process documents in multiple languages effortlessly.'
-    },
-    {
-      name: 'Emma Rodriguez',
-      role: 'Marketing Manager',
-      avatar: '👩‍💻',
-      rating: 5,
-      text: 'Best AI writing tool I\'ve used. The content detector helps ensure all our marketing materials are original and human-like.'
-    }
+  const aiDetectors = [
+    { name: 'Turnitin', logo: '🎓' },
+    { name: 'Copyleaks', logo: '📋' },
+    { name: 'ZeroGPT', logo: '🔍' },
+    { name: 'QuillBot', logo: '✍️' },
+    { name: 'Grammarly', logo: '📝' },
+    { name: 'GPTZero', logo: '🤖' }
   ];
 
   const pricingPlans = [
@@ -271,8 +255,8 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+      {/* AI Detectors Section */}
+      <section className="py-24 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -281,46 +265,84 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 mb-6">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                Verified & Trusted
+              </span>
+            </div>
+
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              Loved by Writers Worldwide
+              Tested and Proven
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Join thousands of satisfied users who trust ParaText Pro
+            <p className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
+              Across All AI-Detectors
+            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              Our humanized content consistently passes the most rigorous AI detection tools
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all"
-              >
-                <div className="flex items-center gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mb-6 italic">
-                  "{testimonial.text}"
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="text-4xl">{testimonial.avatar}</div>
-                  <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">
-                      {testimonial.name}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-blue-500/5 to-purple-500/5 rounded-3xl" />
+            <div className="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 p-8">
+              {aiDetectors.map((detector, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all group"
+                >
+                  <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">
+                    {detector.logo}
+                  </div>
+                  <div className="text-center">
+                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
+                      {detector.name}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {testimonial.role}
+                    <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span className="text-xs font-medium">Pass</span>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-12 text-center"
+          >
+            <div className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg">
+              <div className="flex items-center gap-2">
+                <Shield className="w-6 h-6 text-green-500" />
+                <span className="font-semibold text-gray-900 dark:text-white">100% Pass Rate</span>
+              </div>
+              <div className="hidden sm:block w-px h-8 bg-gray-300 dark:bg-gray-600" />
+              <div className="flex items-center gap-2">
+                <Zap className="w-6 h-6 text-blue-500" />
+                <span className="font-semibold text-gray-900 dark:text-white">Instantly Humanized</span>
+              </div>
+              <div className="hidden sm:block w-px h-8 bg-gray-300 dark:bg-gray-600" />
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-6 h-6 text-purple-500" />
+                <span className="font-semibold text-gray-900 dark:text-white">Guaranteed Quality</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
