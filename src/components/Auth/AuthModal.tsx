@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Sparkles, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { useTranslation } from '../../hooks/useTranslation';
-import GoogleAuthButton from './GoogleAuthButton';
+import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
-export default function AuthModal() {
+interface AuthModalProps {
+  onClose?: () => void;
+}
+
+export default function AuthModal({ onClose }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,8 +18,9 @@ export default function AuthModal() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
-  
+
   const { t, isRTL } = useTranslation();
+  const { signIn, signUp } = useAuthStore();
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
@@ -47,14 +52,22 @@ export default function AuthModal() {
     setLoading(true);
     setErrors({});
 
-    setTimeout(() => {
+    try {
       if (isLogin) {
+        await signIn(email, password);
         toast.success(t('auth.welcomeBack'));
+        if (onClose) onClose();
       } else {
+        await signUp(email, password);
         toast.success('Account created successfully!');
+        if (onClose) onClose();
       }
+    } catch (error: any) {
+      console.error('Auth error:', error);
+      toast.error(error.message || 'Authentication failed');
+    } finally {
       setLoading(false);
-    }, 500);
+    }
   };
 
   const getPasswordStrength = (password: string) => {
@@ -89,6 +102,16 @@ export default function AuthModal() {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={`glass-card max-w-md w-full p-8 rounded-2xl ${isRTL ? 'rtl' : ''}`}
       >
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
+
         <div className="text-center mb-8">
           <motion.div
             initial={{ scale: 0 }}
@@ -106,16 +129,6 @@ export default function AuthModal() {
               : t('auth.joinParaTextPro')
             }
           </p>
-        </div>
-
-        <div className="mb-6">
-          <GoogleAuthButton variant={isLogin ? 'signin' : 'signup'} />
-        </div>
-
-        <div className="flex items-center my-6">
-          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
-          <span className="px-4 text-sm text-slate-500 dark:text-slate-400">or</span>
-          <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
