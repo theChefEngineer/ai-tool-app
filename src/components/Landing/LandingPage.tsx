@@ -76,12 +76,12 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   ];
 
   const aiDetectors = [
-    { name: 'Turnitin', logo: '🎓' },
-    { name: 'Copyleaks', logo: '📋' },
-    { name: 'ZeroGPT', logo: '🔍' },
-    { name: 'QuillBot', logo: '✍️' },
-    { name: 'Grammarly', logo: '📝' },
-    { name: 'GPTZero', logo: '🤖' }
+    { name: 'Turnitin', color: 'from-blue-600 to-blue-700', textColor: 'text-blue-600' },
+    { name: 'Copyleaks', color: 'from-purple-600 to-purple-700', textColor: 'text-purple-600' },
+    { name: 'ZeroGPT', color: 'from-green-600 to-green-700', textColor: 'text-green-600' },
+    { name: 'QuillBot', color: 'from-teal-600 to-teal-700', textColor: 'text-teal-600' },
+    { name: 'Grammarly', color: 'from-emerald-600 to-emerald-700', textColor: 'text-emerald-600' },
+    { name: 'GPTZero', color: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-600' }
   ];
 
   const pricingPlans = [
@@ -194,10 +194,6 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             <div className="flex flex-wrap justify-center gap-8 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <span>No credit card required</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
                 <span>100+ languages supported</span>
               </div>
               <div className="flex items-center gap-2">
@@ -302,17 +298,14 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
                   whileHover={{ scale: 1.05 }}
                   className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all group"
                 >
-                  <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">
-                    {detector.logo}
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-gray-900 dark:text-white mb-1">
+                  <div className="mb-4 text-center">
+                    <div className={`text-2xl font-bold bg-gradient-to-r ${detector.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block`}>
                       {detector.name}
                     </div>
-                    <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span className="text-xs font-medium">Pass</span>
-                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-1 text-green-600 dark:text-green-400">
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span className="text-xs font-medium">Pass</span>
                   </div>
                 </motion.div>
               ))}
