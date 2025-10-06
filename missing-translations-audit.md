@@ -127,7 +127,7 @@ nav: {
 - "Potential plagiarism", "Original content"
 - "Before & After Comparison"
 - "Original AI Score", "Humanized Score", "Improvement"
-- "Ready to Humanize with DeepSeek R1"
+- "Ready to Humanize with Advanced AI"
 - "Click the 'Humanize with R1' button..."
 
 ## 5. Plagiarism Interface

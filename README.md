@@ -111,7 +111,7 @@ Create a `.env` file with:
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_DEEPSEEK_API_KEY=your-deepseek-key
+VITE_GEMINI_API_KEY=your-gemini-api-key
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 

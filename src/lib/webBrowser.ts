@@ -19,8 +19,8 @@ export interface WebBrowsingResult {
 }
 
 export class WebBrowser {
-  private static readonly DEEPSEEK_API_KEY = 'sk-79ed40b434d140a0a0fa9becefe4b5aa';
-  private static readonly DEEPSEEK_API_ENDPOINT = 'https://api.deepseek.com/v1';
+  private static readonly AI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCZVBP0Bj6ws2wn84GGaEpzZrcxeWv5kHQ';
+  private static readonly AI_API_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
 
   /**
    * Browse and extract content from a URL
@@ -69,18 +69,7 @@ export class WebBrowser {
    */
   private static async extractWebContent(url: string): Promise<string> {
     try {
-      const response = await fetch(`${this.DEEPSEEK_API_ENDPOINT}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'system',
-              content: `You are an advanced web content extraction system. Your task is to simulate browsing a website and extracting its main content.
+      const prompt = `You are an advanced web content extraction system. Your task is to simulate browsing a website and extracting its main content.
 
 INSTRUCTIONS:
 1. Generate realistic, comprehensive content that would be found at the given URL
@@ -91,17 +80,25 @@ INSTRUCTIONS:
 6. Include realistic details and information
 7. Return only the extracted text content
 
-URL to browse: ${url}`
-            },
-            {
-              role: 'user',
-              content: `Please extract the main content from this website: ${url}
+URL to browse: ${url}
 
-Provide comprehensive, realistic content that would typically be found on this page, including headings, paragraphs, and key information.`
-            }
-          ],
-          temperature: 0.3,
-          max_tokens: 3000,
+Please extract the main content from this website: ${url}
+
+Provide comprehensive, realistic content that would typically be found on this page, including headings, paragraphs, and key information.`;
+
+      const response = await fetch(`${this.AI_API_ENDPOINT}?key=${this.AI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 3000,
+          }
         }),
       });
 
@@ -110,8 +107,8 @@ Provide comprehensive, realistic content that would typically be found on this p
       }
 
       const data = await response.json();
-      const extractedContent = data.choices[0]?.message?.content?.trim();
-      
+      const extractedContent = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
       if (!extractedContent || extractedContent.length < 100) {
         return this.generateFallbackWebContent(url);
       }
@@ -128,18 +125,7 @@ Provide comprehensive, realistic content that would typically be found on this p
    */
   private static async performWebSearch(query: string, limit: number): Promise<WebSearchResult[]> {
     try {
-      const response = await fetch(`${this.DEEPSEEK_API_ENDPOINT}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a web search engine. Generate realistic search results for the given query.
+      const prompt = `You are a web search engine. Generate realistic search results for the given query.
 
 INSTRUCTIONS:
 1. Create ${limit} realistic search results
@@ -158,16 +144,24 @@ INSTRUCTIONS:
   ]
 }
 
-Search query: ${query}`
-            },
-            {
-              role: 'user',
-              content: `Search for: ${query}`
-            }
-          ],
-          response_format: { type: 'json_object' },
-          temperature: 0.3,
-          max_tokens: 2000,
+Search query: ${query}
+
+Search for: ${query}`;
+
+      const response = await fetch(`${this.AI_API_ENDPOINT}?key=${this.AI_API_KEY}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 2000,
+            responseMimeType: 'application/json'
+          }
         }),
       });
 
@@ -176,8 +170,9 @@ Search query: ${query}`
       }
 
       const data = await response.json();
-      const searchData = JSON.parse(data.choices[0]?.message?.content || '{"results": []}');
-      
+      const searchDataText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{"results": []}';
+      const searchData = JSON.parse(searchDataText);
+
       return searchData.results.map((result: any, index: number) => ({
         title: result.title || `Search Result ${index + 1}`,
         url: result.url || `https://example.com/result-${index + 1}`,
@@ -227,32 +222,27 @@ Search query: ${query}`
     if (!text || text.length < 50) return 'en';
 
     try {
-      const response = await fetch(`${this.DEEPSEEK_API_ENDPOINT}/chat/completions`, {
+      const prompt = 'Detect the language of the provided text. Respond with only the ISO 639-1 language code (e.g., "en" for English, "es" for Spanish, "fr" for French, etc.).\n\n' + text.substring(0, 500);
+
+      const response = await fetch(`${this.AI_API_ENDPOINT}?key=${this.AI_API_KEY}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.DEEPSEEK_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'deepseek-chat',
-          messages: [
-            {
-              role: 'system',
-              content: 'Detect the language of the provided text. Respond with only the ISO 639-1 language code (e.g., "en" for English, "es" for Spanish, "fr" for French, etc.).'
-            },
-            {
-              role: 'user',
-              content: text.substring(0, 500)
-            }
-          ],
-          temperature: 0.1,
-          max_tokens: 10,
+          contents: [{
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            maxOutputTokens: 10,
+          }
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        const detectedLang = data.choices[0]?.message?.content?.trim().toLowerCase();
+        const detectedLang = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toLowerCase();
         return detectedLang || 'en';
       }
     } catch (error) {

@@ -96,7 +96,7 @@ export class DocumentProcessor {
   }
 
   /**
-   * Enhanced PDF text extraction using DeepSeek AI
+   * Enhanced PDF text extraction using AI
    */
   private static async enhancedPdfExtraction(file: File): Promise<string> {
     try {

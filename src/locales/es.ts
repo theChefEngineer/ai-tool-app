@@ -175,7 +175,7 @@ export const es: TranslationKeys = {
 
   contentDetector: {
     title: 'Detector y Humanizador de Contenido IA',
-    subtitle: 'Impulsado por DeepSeek R1 - Detecta contenido generado por IA con análisis avanzado y transfórmalo en texto natural y humano mientras preservas el significado y contexto original.',
+    subtitle: 'Impulsado por IA Avanzada - Detecta contenido generado por IA con análisis avanzado y transfórmalo en texto natural y humano mientras preservas el significado y contexto original.',
     contentAnalysis: 'Análisis de Contenido',
     humanizedVersion: 'Versión Humanizada',
     analyzing: 'Analizando...',
@@ -190,8 +190,8 @@ export const es: TranslationKeys = {
     humanScore: 'Puntuación Humana',
     improvements: 'Mejoras de Humanización Aplicadas',
     keyChanges: 'Cambios Clave Realizados',
-    placeholder: 'Pega tu texto para analizar la probabilidad de IA y humanizarlo con DeepSeek R1...',
-    poweredBy: 'Impulsado por DeepSeek R1 - Detección y Humanización IA Avanzadas',
+    placeholder: 'Pega tu texto para analizar la probabilidad de IA y humanizarlo con IA Avanzada...',
+    poweredBy: 'Impulsado por IA Avanzada - Detección y Humanización IA Avanzadas',
     emptyState: 'Análisis y Humanización de Contenido IA',
     creativityLow: 'Bajo - Cambios mínimos',
     creativityMedium: 'Medio - Enfoque equilibrado',
@@ -203,7 +203,7 @@ export const es: TranslationKeys = {
     originalAiScore: 'Puntuación IA Original',
     humanizedScore: 'Puntuación Humanizada',
     improvement: 'Mejora',
-    readyToHumanize: 'Listo para Humanizar con DeepSeek R1',
+    readyToHumanize: 'Listo para Humanizar con IA Avanzada',
     humanizeDescription: 'Haz clic en el botón "Humanizar con R1" para transformar tu contenido en texto natural y humano mientras preservas el significado original usando IA avanzada.',
     detectAI: 'Detectar IA',
     humanWritten: 'Escrito por Humano',
@@ -217,7 +217,7 @@ export const es: TranslationKeys = {
     reason: 'Razón',
     human: 'humano',
     humanLike: 'Similar a humano',
-    emptyStateDescription: 'Ingresa tu texto arriba para detectar contenido generado por IA y transformarlo en texto natural similar a humano con tecnología DeepSeek R1.'
+    emptyStateDescription: 'Ingresa tu texto arriba para detectar contenido generado por IA y transformarlo en texto natural similar a humano con tecnología IA Avanzada.'
   },
 
   plagiarism: {
@@ -471,7 +471,7 @@ export const es: TranslationKeys = {
     advancedSummarization: 'Resumen IA avanzado',
     multiLanguageTranslation: 'Traducción multilingüe',
     aiContentDetection: 'Detección de contenido IA',
-    textHumanization: 'Humanización de texto con DeepSeek R1',
+    textHumanization: 'Humanización de texto con IA Avanzada',
     grammarSpellChecking: 'Revisión gramatical y ortográfica',
     priorityProcessingSpeed: 'Velocidad de procesamiento prioritaria',
     completeActivityHistory: 'Historial de actividad completo',
@@ -539,7 +539,7 @@ export const es: TranslationKeys = {
       correctionsApplied: '¡Correcciones aplicadas exitosamente!',
       transcriptionComplete: '¡Documento transcrito exitosamente con IA!',
       analyzed: '¡Análisis completado exitosamente!',
-      humanized: '¡Texto humanizado exitosamente con DeepSeek R1!'
+      humanized: '¡Texto humanizado exitosamente con IA Avanzada!'
     },
   },
 

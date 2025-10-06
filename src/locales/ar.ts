@@ -176,7 +176,7 @@ export const ar: TranslationKeys = {
 
   contentDetector: {
     title: 'كاشف ومُنسِن المحتوى الذكي',
-    subtitle: 'مدعوم بـ DeepSeek R1 - اكتشف المحتوى المُولد بالذكاء الاصطناعي بتحليل متقدم وحوله إلى نص طبيعي شبيه بالإنسان مع الحفاظ على المعنى والسياق الأصلي.',
+    subtitle: 'مدعوم بـ ذكاء اصطناعي متقدم - اكتشف المحتوى المُولد بالذكاء الاصطناعي بتحليل متقدم وحوله إلى نص طبيعي شبيه بالإنسان مع الحفاظ على المعنى والسياق الأصلي.',
     contentAnalysis: 'تحليل المحتوى',
     humanizedVersion: 'النسخة المُنسنة',
     analyzing: 'جاري التحليل...',
@@ -191,8 +191,8 @@ export const ar: TranslationKeys = {
     humanScore: 'نتيجة الإنسانية',
     improvements: 'تحسينات التنسين المُطبقة',
     keyChanges: 'التغييرات الرئيسية المُجراة',
-    placeholder: 'الصق نصك لتحليل احتمالية الذكاء الاصطناعي وتنسينه بـ DeepSeek R1...',
-    poweredBy: 'مدعوم بـ DeepSeek R1 - كشف وتنسين الذكاء الاصطناعي المتقدم',
+    placeholder: 'الصق نصك لتحليل احتمالية الذكاء الاصطناعي وتنسينه بـ ذكاء اصطناعي متقدم...',
+    poweredBy: 'مدعوم بـ ذكاء اصطناعي متقدم - كشف وتنسين الذكاء الاصطناعي المتقدم',
     emptyState: 'تحليل وتنسين المحتوى الذكي',
     creativityLow: 'منخفض - تغييرات قليلة',
     creativityMedium: 'متوسط - نهج متوازن',
@@ -204,7 +204,7 @@ export const ar: TranslationKeys = {
     originalAiScore: 'نتيجة الذكاء الاصطناعي الأصلية',
     humanizedScore: 'النتيجة المُنسنة',
     improvement: 'التحسن',
-    readyToHumanize: 'جاهز للتنسين بـ DeepSeek R1',
+    readyToHumanize: 'جاهز للتنسين بـ ذكاء اصطناعي متقدم',
     humanizeDescription: 'انقر على زر "تنسين بـ R1" لتحويل محتواك إلى نص طبيعي شبيه بالإنسان مع الحفاظ على المعنى الأصلي باستخدام الذكاء الاصطناعي المتقدم.',
     detectAI: 'كشف الذكاء الاصطناعي',
     humanWritten: 'كتابة بشرية',
@@ -218,7 +218,7 @@ export const ar: TranslationKeys = {
     reason: 'السبب',
     human: 'إنساني',
     humanLike: 'شبيه بالإنسان',
-    emptyStateDescription: 'أدخل نصك أعلاه لاكتشاف المحتوى المُولد بالذكاء الاصطناعي وتحويله إلى نص طبيعي شبيه بالإنسان باستخدام تقنية DeepSeek R1.'
+    emptyStateDescription: 'أدخل نصك أعلاه لاكتشاف المحتوى المُولد بالذكاء الاصطناعي وتحويله إلى نص طبيعي شبيه بالإنسان باستخدام تقنية ذكاء اصطناعي متقدم.'
   },
 
   plagiarism: {
@@ -537,7 +537,7 @@ export const ar: TranslationKeys = {
     advancedSummarization: 'تلخيص متقدم بالذكاء الاصطناعي',
     multiLanguageTranslation: 'ترجمة متعددة اللغات',
     aiContentDetection: 'كشف المحتوى بالذكاء الاصطناعي',
-    textHumanization: 'تنسين النص بـ DeepSeek R1',
+    textHumanization: 'تنسين النص بـ ذكاء اصطناعي متقدم',
     grammarSpellChecking: 'فحص القواعد والإملاء',
     priorityProcessingSpeed: 'سرعة معالجة ذات أولوية',
     completeActivityHistory: 'سجل نشاط كامل',

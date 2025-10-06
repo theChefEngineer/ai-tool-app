@@ -176,7 +176,7 @@ export const en: TranslationKeys = {
 
   contentDetector: {
     title: 'AI Content Detector & Humanizer',
-    subtitle: 'Powered by DeepSeek R1 - Detect AI-generated content with advanced analysis and transform it into natural, human-like text while preserving the original meaning and context.',
+    subtitle: 'Powered by Advanced AI - Detect AI-generated content with advanced analysis and transform it into natural, human-like text while preserving the original meaning and context.',
     contentAnalysis: 'Content Analysis',
     humanizedVersion: 'Humanized Version',
     analyzing: 'Analyzing...',
@@ -191,8 +191,8 @@ export const en: TranslationKeys = {
     humanScore: 'Human Score',
     improvements: 'Humanization Improvements Applied',
     keyChanges: 'Key Changes Made',
-    placeholder: 'Paste your text to analyze AI probability and humanize with DeepSeek R1...',
-    poweredBy: 'Powered by DeepSeek R1 - Advanced AI Detection & Humanization',
+    placeholder: 'Paste your text to analyze AI probability and humanize with Advanced AI...',
+    poweredBy: 'Powered by Advanced AI - Advanced AI Detection & Humanization',
     emptyState: 'AI Content Analysis & Humanization',
     creativityLow: 'Low - Minimal changes',
     creativityMedium: 'Medium - Balanced approach',
@@ -204,7 +204,7 @@ export const en: TranslationKeys = {
     originalAiScore: 'Original AI Score',
     humanizedScore: 'Humanized Score',
     improvement: 'Improvement',
-    readyToHumanize: 'Ready to Humanize with DeepSeek R1',
+    readyToHumanize: 'Ready to Humanize with Advanced AI',
     humanizeDescription: 'Click the "Humanize with R1" button to transform your content into natural, human-like text while preserving the original meaning using advanced AI.',
     detectAI: 'Detect AI',
     humanWritten: 'Human Written',
@@ -218,7 +218,7 @@ export const en: TranslationKeys = {
     reason: 'Reason',
     human: 'human',
     humanLike: 'Human-like',
-    emptyStateDescription: 'Enter your text above to detect AI-generated content and transform it into natural, human-like text with DeepSeek R1 technology.'
+    emptyStateDescription: 'Enter your text above to detect AI-generated content and transform it into natural, human-like text with Advanced AI technology.'
   },
 
   plagiarism: {
@@ -537,7 +537,7 @@ export const en: TranslationKeys = {
     advancedSummarization: 'Advanced AI summarization',
     multiLanguageTranslation: 'Multi-language translation',
     aiContentDetection: 'AI content detection',
-    textHumanization: 'Text humanization with DeepSeek R1',
+    textHumanization: 'Text humanization with Advanced AI',
     grammarSpellChecking: 'Grammar and spell checking',
     priorityProcessingSpeed: 'Priority processing speed',
     completeActivityHistory: 'Complete activity history',
