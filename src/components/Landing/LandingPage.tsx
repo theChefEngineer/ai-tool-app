@@ -76,12 +76,10 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
   ];
 
   const aiDetectors = [
-    { name: 'Turnitin', color: 'from-blue-600 to-blue-700', textColor: 'text-blue-600' },
     { name: 'Copyleaks', color: 'from-purple-600 to-purple-700', textColor: 'text-purple-600' },
     { name: 'ZeroGPT', color: 'from-green-600 to-green-700', textColor: 'text-green-600' },
     { name: 'QuillBot', color: 'from-teal-600 to-teal-700', textColor: 'text-teal-600' },
-    { name: 'Grammarly', color: 'from-emerald-600 to-emerald-700', textColor: 'text-emerald-600' },
-    { name: 'GPTZero', color: 'from-indigo-600 to-indigo-700', textColor: 'text-indigo-600' }
+    { name: 'Grammarly', color: 'from-emerald-600 to-emerald-700', textColor: 'text-emerald-600' }
   ];
 
   const pricingPlans = [
@@ -287,7 +285,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             className="relative"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 via-blue-500/5 to-purple-500/5 rounded-3xl" />
-            <div className="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 p-8">
+            <div className="relative grid grid-cols-2 md:grid-cols-4 gap-8 p-8 max-w-4xl mx-auto">
               {aiDetectors.map((detector, index) => (
                 <motion.div
                   key={index}
